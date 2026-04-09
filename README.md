@@ -90,11 +90,99 @@ npm start
 ### Экран детали токена
 - ✅ Основная информация (цена, 24ч изменение)
 - ✅ Сетка статистики (rank, market cap, ATH, ATL)
-- ✅ **Интерактивный график** (7-дневная история)
+- ✅ **Интерактивный встроенный график** (7-дневная история)
   - Свайп/клик для выбора точки
   - Отображение цены и даты в выбранной точке
+  - Vertical line indicator при выборе
   - Gradient fill под линией графика
   - Масштабируемая ось Y с grid lines
+  - Кнопка "📈 Fullscreen" для перехода на полноэкранный граф
+
+### Полноэкранный экран графика (NEW! 🎉)
+- ✅ **Расширенная интерактивность**:
+  - Палец по графику показывает точку + цену + даты
+  - Вертикальная пунктирная линия для точности
+  - Selection circle на выбранной точке
+  - Day position индикатор (e.g., "3/7")
+  - Tooltip с ценой при наведении
+- ✅ **Расширенная статистика**:
+  - Текущая цена в заголовке
+  - 7-дневный High/Low/Average в панели внизу
+  - Market stats grid (rank, cap, volume)
+- ✅ **UX улучшения**:
+  - Instruction panel с советом "Drag your finger across"
+  - Grid lines с ценовыми метками
+  - Gradient fill для визуализации тренда
+  - Плавная работа под рукой
+  - Back button для возврата
+
+## Экраны приложения
+
+### 1. Список токенов (`TokensListScreen`)
+Главный экран с прокруткой всех криптовалют. Поддерживает фильтрацию, сортировку и пагинацию.
+
+**UI элементы:**
+- Заголовок "Crypto Tokens" + счетчик токенов
+- Поле поиска с real-time фильтрацией
+- 3 кнопки сортировки (Market Cap, Price, 24h Change)
+- Список TokenItem с коллапсом
+- Кнопка "Load More" для пагинации
+
+### 2. Детали токена (`TokenDetailScreen`)
+Экран с основной информацией и встроенным графиком.
+
+**UI элементы:**
+- Иконка токена + название + символ
+- Текущая цена (крупно) + 24ч изменение
+- Сетка статистики (4 инфо-блока)
+- **Интерактивный встроенный график** с жестами
+- Кнопка "📈 Fullscreen" для перехода на полний граф
+- Hint "👆 Tap & drag to explore prices"
+
+### 3. Полноэкранный график (`PriceChartScreen`) — NEW!
+Экран для детального изучения графика цены с максимальной интерактивностью.
+
+**Интерактивные жесты:**
+```
+Пользователь водит палец по графику:
+1. Движение палца по X-оси = выбор дня (1-7)
+2. Vertical line следует за пальцем
+3. Selection circle на точке в реальном времени
+4. Tooltip показывает цену (e.g., "$42,543.21")
+5. Day counter показывает позицию (e.g., "3/7")
+6. При lift-off (отпускание) — остается последняя выбранная точка
+```
+
+**Статистика в реал-тайме:**
+- Текущая цена (обновляется при выборе точки)
+- День недели + дата (обновляется при выборе)
+- Position counter (какой день из 7)
+
+**Нижняя панель статистики:**
+- 7-дневный High (зеленый)
+- 7-дневный Low (красный)  
+- 7-дневный Average (нейтральный)
+
+**Визуальные элементы:**
+- Grid lines с ценовыми метками на Y-оси
+- Gradient fill под кривой (зеленый тренд up / красный trend down)
+- Плавная кривая цены (stroke-width: 2.5px)
+- Selection indicator (vertical dash line)
+
+### Навигация
+
+```
+Главный экран (TokensList)
+  ↓ [Tap token]
+Детали токена (TokenDetail)
+  ├─ [Коллапс item] → показывает доп. инфо
+  ├─ [Tap & drag chart] → интерактивный граф
+  └─ [📈 Fullscreen] → переход на PriceChartScreen
+       ↓
+  Полноэкранный граф (PriceChart)
+       ↑
+  [Back button] → возврат на TokenDetail
+```
 
 ## Оптимизация и продвинутые возможности
 
@@ -179,16 +267,17 @@ API_TIMEOUT=10000
 - ✅ SVG граф без re-render всего списка
 
 ## Возможные улучшения (5-10 часов work)
-- Skeleton loaders (react-native-skeletons)
-- Анимации раскрытия (Reanimated spring)
-- Автоматическая refresh при pull-down
+- ✅ Skeleton loaders (реализовано)
+- ✅ Интерактивный график с жестами (реализовано)
+- Pull-to-refresh на TokensListScreen
 - Уведомления о скачках цены (Local Notifications)
-- Избранные токены (со звездочкой)
+- Избранные токены (со звездочкой, AsyncStorage)
+- Анимации раскрытия (Reanimated spring animations)
 - Экспорт в CSV/изображение
 - Темный режим (Dark Mode)
 - Локализация (i18n)
-- Offline mode (Service Workers на Web)
-- Unit тесты (Jest + RTL)
+- Оффлайн режим
+- Unit тесты (Jest + React Native Testing Library)
 
 ## Технический стек
 
@@ -208,30 +297,34 @@ API_TIMEOUT=10000
 
 ```
 src/
-├── api/                  # Data Layer
-│   ├── client.ts        # axios клиент с interceptors
-│   └── coingecko.ts     # API методы с кэшем и retry
-├── state/               # State Layer (Effector)
-│   ├── tokens.ts        # store для списка, фильтров
-│   ├── tokenDetail.ts   # store для детали и графика
+├── api/
+│   ├── client.ts         — axios + interceptors + API ключи
+│   └── coingecko.ts      — API методы с MMKV кэшем & retry
+├── state/
+│   ├── tokens.ts         — Effector store (список, фильтры)
+│   ├── tokenDetail.ts    — Effector store (детали, граф)
 │   └── index.ts
-├── screens/             # UI Layer - экраны
-│   ├── TokensListScreen.tsx
-│   ├── TokenDetailScreen.tsx
+├── screens/
+│   ├── TokensListScreen.tsx      — экран списка + фильтры + retry
+│   ├── TokenDetailScreen.tsx     — детали + встроенный граф
+│   ├── PriceChartScreen.tsx      — полноэкранный граф (NEW!)
 │   └── index.ts
-├── components/          # UI Layer - компоненты
-│   ├── TokenItem.tsx
-│   ├── TokenList.tsx
-│   ├── PriceChart.tsx
+├── components/
+│   ├── TokenItem.tsx             — элемент списка (коллапс)
+│   ├── TokenList.tsx             — FlatList с фильтрацией
+│   ├── PriceChart.tsx            — встроенный SVG граф с жестами
+│   ├── ExpandedPriceChart.tsx    — расширенный граф (NEW!)
+│   ├── SkeletonLoader.tsx        — loader анимация 📦
+│   ├── StateComponents.tsx       — error + empty states
 │   └── index.ts
-├── utils/               # Утилиты
-│   ├── formatters.ts    # цина, % изменения
-│   ├── cache.ts         # MMKV кэш-слой
-│   ├── retry.ts         # retry логика
-│ └── types/              # TypeScript типы
-│   └── index.ts
-├── config.ts            # Конфиг из .env
-└── App.tsx              # Точка входа + навигация
+├── utils/
+│   ├── formatters.ts    — цена, %, фильтрация
+│   ├── cache.ts         — MMKV с TTL 💾
+│   ├── retry.ts         — exponential backoff
+│   └── types/
+│       └── index.ts     — TypeScript типы
+├── config.ts            — .env => конфиг
+└── App.tsx              — NavigationContainer (3 экрана)
 ```
 
 ## IDE Setup (WebStorm/VS Code)
