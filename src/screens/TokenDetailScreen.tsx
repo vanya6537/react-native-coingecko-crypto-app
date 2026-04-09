@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import { useStore } from 'effector-react';
 import {
@@ -20,7 +21,10 @@ import {
 import { PriceChart } from '@components/index';
 import { formatPrice, formatChange, formatMarketCap } from '@utils/formatters';
 
-export const TokenDetailScreen: React.FC<{ route: any }> = ({ route }) => {
+export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
+  route,
+  navigation,
+}) => {
   const { tokenId } = route.params;
   const tokenDetail = useStore($tokenDetail);
   const priceHistory = useStore($priceHistory);
@@ -107,8 +111,22 @@ export const TokenDetailScreen: React.FC<{ route: any }> = ({ route }) => {
           </View>
         ) : priceHistory.length > 0 ? (
           <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>7-Day Price History</Text>
+            <View style={styles.chartHeader}>
+              <Text style={styles.chartTitle}>7-Day Price History</Text>
+              <TouchableOpacity
+                style={styles.expandButton}
+                onPress={() =>
+                  navigation.navigate('PriceChart', {
+                    tokenId,
+                    tokenName: tokenDetail.name,
+                  })
+                }
+              >
+                <Text style={styles.expandButtonText}>📈 Fullscreen</Text>
+              </TouchableOpacity>
+            </View>
             <PriceChart data={priceHistory} height={180} />
+            <Text style={styles.chartHint}>👆 Tap & drag to explore prices</Text>
           </View>
         ) : null}
 
@@ -205,11 +223,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 20,
   },
+  chartHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
   chartTitle: {
     fontSize: 16,
     fontWeight: '700',
     color: '#212121',
-    marginBottom: 12,
+  },
+  expandButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#E3F2FD',
+    borderRadius: 6,
+  },
+  expandButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#1976D2',
+  },
+  chartHint: {
+    fontSize: 11,
+    color: '#999',
+    marginTop: 6,
+    fontStyle: 'italic',
   },
   chartLoader: {
     paddingHorizontal: 16,

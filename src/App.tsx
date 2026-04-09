@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { TokensListScreen, TokenDetailScreen } from '@screens/index';
+import { TokensListScreen, TokenDetailScreen, PriceChartScreen } from '@screens/index';
 import { fetchTokens } from '@state/index';
 
 const Stack = createNativeStackNavigator();
@@ -37,6 +37,22 @@ export default function App(): React.JSX.Element {
               component={TokenDetailScreen}
               options={({ route }: any) => ({
                 title: route.params?.tokenId || 'Token Detail',
+                headerShown: true,
+                headerBackTitle: 'Back',
+                headerStyle: {
+                  backgroundColor: '#FFFFFF',
+                },
+                headerTitleStyle: {
+                  fontWeight: '700',
+                  fontSize: 18,
+                },
+              })}
+            />
+            <Stack.Screen
+              name="PriceChart"
+              component={PriceChartScreen}
+              options={({ route }: any) => ({
+                title: route.params?.tokenName || 'Price Chart',
                 headerShown: true,
                 headerBackTitle: 'Back',
                 headerStyle: {
