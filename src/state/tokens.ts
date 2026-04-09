@@ -1,6 +1,6 @@
 import { createStore, createEvent, createEffect, sample } from 'effector';
-import { coingeckoAPI } from '@api/coingecko';
-import { Token, ListFilters, PaginationState, UIState } from '@types/index';
+import { coingeckoAPI } from '../api/coingecko';
+import type { Token, ListFilters, PaginationState, UIState } from '../types/index';
 
 // Events
 export const fetchTokens = createEvent<{ page: number }>();
@@ -39,29 +39,29 @@ export const $selectedToken = createStore<Token | null>(null);
 
 // Handlers
 $tokens
-  .on(fetchTokensFx.doneData, (_, data) => data)
+  .on(fetchTokensFx.doneData, (_: Token[], data: Token[]) => data)
   .on(resetTokens, () => []);
 
-$filters.on(setFilters, (state, updates) => ({ ...state, ...updates }));
+$filters.on(setFilters, (state: ListFilters, updates: Partial<ListFilters>) => ({ ...state, ...updates }));
 
 $uiState
   .on(fetchTokens, () => ({ isLoading: true, error: null, isEmpty: false }))
-  .on(fetchTokensFx.doneData, (_, data) => ({
+  .on(fetchTokensFx.doneData, (_: UIState, data: Token[]) => ({
     isLoading: false,
     error: null,
     isEmpty: data.length === 0,
   }))
-  .on(fetchTokensFx.failData, (_, error) => ({
+  .on(fetchTokensFx.failData, (_: UIState, error: Error | null) => ({
     isLoading: false,
     error: error?.message || 'Failed to load tokens',
     isEmpty: false,
   }));
 
-$selectedToken.on(selectToken, (_, token) => token);
+$selectedToken.on(selectToken, (_: Token | null, token: Token) => token);
 
 // Sample for requests
 sample({
   clock: fetchTokens,
-  fn: (clock) => clock.page,
+  fn: (clock: { page: number }) => clock.page,
   target: fetchTokensFx,
 });

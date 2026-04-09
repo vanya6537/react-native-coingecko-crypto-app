@@ -1,6 +1,6 @@
 import { createStore, createEvent, createEffect } from 'effector';
-import { coingeckoAPI } from '@api/coingecko';
-import { Token, PriceHistory } from '@types/index';
+import { coingeckoAPI } from '../api/coingecko';
+import type { Token, PriceHistory } from '../types/index';
 
 export const fetchTokenDetail = createEffect(async (tokenId: string) => {
   return coingeckoAPI.getTokenDetail(tokenId);

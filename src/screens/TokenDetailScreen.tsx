@@ -17,13 +17,16 @@ import {
   $historyLoading,
   fetchTokenDetail,
   fetchPriceHistory,
-} from '@state/index';
-import { PriceChart } from '@components/index';
-import { formatPrice, formatChange, formatMarketCap } from '@utils/formatters';
+} from '../state/index';
+import { PriceChart } from '../components/index';
+import { formatPrice, formatChange, formatMarketCap } from '../utils/formatters';
 
 export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
   route,
   navigation,
+}: {
+  route: any;
+  navigation: any;
 }) => {
   const { tokenId } = route.params;
   const tokenDetail = useStore($tokenDetail);

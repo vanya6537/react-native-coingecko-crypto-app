@@ -1,4 +1,4 @@
-import { Token } from '@types/index';
+import type { Token } from '../types/index';
 
 export const formatPrice = (price: number): string => {
   if (price >= 1) {

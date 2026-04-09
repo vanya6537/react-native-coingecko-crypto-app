@@ -8,8 +8,8 @@ import {
   Text,
   GestureResponderEvent,
 } from 'react-native';
-import { PriceHistory } from '@types/index';
-import { formatPrice } from '@utils/formatters';
+import type { PriceHistory } from '../types/index';
+import { formatPrice } from '../utils/formatters';
 
 interface PriceChartProps {
   data: PriceHistory[];
@@ -40,12 +40,12 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     );
   }
 
-  const prices = data.map((d) => d.price);
+  const prices = data.map((d: PriceHistory) => d.price);
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
   const priceRange = maxPrice - minPrice || 1;
 
-  const points: Point[] = data.map((d, i) => ({
+  const points: Point[] = data.map((d: PriceHistory, i: number) => ({
     x: (i / (data.length - 1)) * width,
     y: height - 50 - ((d.price - minPrice) / priceRange) * (height - 100),
     price: d.price,
@@ -71,7 +71,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     panResponderRef.current = PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (evt) => {
+      onPanResponderMove: (evt: any) => {
         updateSelectedPoint(evt.nativeEvent.pageX);
       },
       onPanResponderRelease: () => {

@@ -7,8 +7,8 @@ import {
   Text,
   ScrollView,
 } from 'react-native';
-import { PriceHistory } from '@types/index';
-import { formatPrice } from '@utils/formatters';
+import type { PriceHistory } from '../types/index';
+import { formatPrice } from '../utils/formatters';
 
 interface ChartPoint {
   x: number;
@@ -41,7 +41,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
     );
   }
 
-  const prices = data.map((d) => d.price);
+  const prices = data.map((d: PriceHistory) => d.price);
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
   const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;

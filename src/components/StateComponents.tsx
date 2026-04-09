@@ -11,7 +11,7 @@ export const ErrorState: React.FC<ErrorBoundaryProps> = ({
   error,
   onRetry,
   showRetry = true,
-}) => (
+}: ErrorBoundaryProps) => (
   <View style={styles.container}>
     <Text style={styles.errorIcon}>⚠️</Text>
     <Text style={styles.errorTitle}>Oops!</Text>

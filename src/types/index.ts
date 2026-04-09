@@ -11,6 +11,7 @@ export interface Token {
   ath?: number;
   atl?: number;
   market_cap_change_24h?: number;
+  description?: string;
 }
 
 export interface TokenDetail extends Token {

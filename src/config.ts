@@ -1,5 +1,4 @@
 import { Platform } from 'react-native';
-import * as Env from 'react-native-dotenv';
 
 interface Config {
   COINGECKO_API_KEY: string;

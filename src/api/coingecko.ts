@@ -1,7 +1,7 @@
 import client from './client';
-import { Token, PriceHistory } from '@types/index';
-import { cache } from '@utils/cache';
-import { withRetry } from '@utils/retry';
+import type { Token, PriceHistory } from '../types/index';
+import { cache } from '../utils/cache';
+import { withRetry } from '../utils/retry';
 
 const TOKENS_CACHE_TTL = 5 * 60 * 1000; // 5 min
 const HISTORY_CACHE_TTL = 1 * 60 * 60 * 1000; // 1 hour
@@ -103,7 +103,7 @@ export const coingeckoAPI = {
         return response.data;
       }, 3);
       
-      const formatted = data.prices.map(([timestamp, price]) => ({
+      const formatted = data.prices.map(([timestamp, price]: [number, number]) => ({
         timestamp,
         price,
       }));

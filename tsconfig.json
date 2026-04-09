@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": ["ES2020"],
+    "lib": ["ES2020", "dom"],
     "jsx": "react-native",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "allowJs": true,
     "strict": true,
@@ -14,18 +14,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@api/*": ["src/api/*"],
-      "@state/*": ["src/state/*"],
-      "@components/*": ["src/components/*"],
-      "@screens/*": ["src/screens/*"],
-      "@types/*": ["src/types/*"],
-      "@utils/*": ["src/utils/*"],
-      "@config": ["src/config.ts"]
-    }
+    "outDir": "./dist"
   },
   "include": ["src", "index.js"],
   "exclude": ["node_modules", "dist"]

@@ -10,8 +10,8 @@ import {
   Platform,
   UIManager,
 } from 'react-native';
-import { Token } from '@types/index';
-import { formatPrice, formatChange } from '@utils/formatters';
+import type { Token } from '../types/index';
+import { formatPrice, formatChange } from '../utils/formatters';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -23,7 +23,7 @@ interface TokenItemProps {
   isExpanded?: boolean;
 }
 
-export const TokenItem: React.FC<TokenItemProps> = ({ token, onPress, isExpanded }) => {
+export const TokenItem: React.FC<TokenItemProps> = ({ token, onPress, isExpanded }: TokenItemProps) => {
   const [expanded, setExpanded] = useState(isExpanded || false);
 
   const handlePress = useCallback(() => {

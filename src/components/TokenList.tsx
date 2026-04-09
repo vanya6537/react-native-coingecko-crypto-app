@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
-import { Token, ListFilters } from '@types/index';
+import type { Token, ListFilters } from '../types/index';
 import { TokenItem } from './TokenItem';
 import { ErrorState, EmptyState } from './StateComponents';
 import { TokenListLoadingSkeleton } from './SkeletonLoader';
-import { filterTokens } from '@utils/formatters';
+import { filterTokens } from '../utils/formatters';
 
 interface TokenListProps {
   tokens: Token[];
@@ -24,7 +24,7 @@ export const TokenList: React.FC<TokenListProps> = ({
   isEmpty,
   onTokenPress,
   onRetry,
-}) => {
+}: TokenListProps) => {
   const filteredTokens = filterTokens(
     tokens,
     filters.search,
@@ -47,8 +47,8 @@ export const TokenList: React.FC<TokenListProps> = ({
   return (
     <FlatList
       data={filteredTokens}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
+      keyExtractor={(item: Token) => item.id}
+      renderItem={({ item }: { item: Token }) => (
         <TokenItem token={item} onPress={onTokenPress} />
       )}
       contentContainerStyle={styles.listContainer}

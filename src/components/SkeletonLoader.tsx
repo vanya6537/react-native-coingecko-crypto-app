@@ -36,17 +36,23 @@ export const SkeletonLoader: React.FC<SkeletonProps> = ({
   }, [fadeInOut]);
 
   return (
-    <Animated.View
+    <View
       style={[
         styles.skeleton,
         {
           width,
           height,
           borderRadius,
-          opacity: fadeInOut,
-        },
+        } as any,
       ]}
-    />
+    >
+      <Animated.View
+        style={{
+          opacity: fadeInOut,
+          flex: 1,
+        }}
+      />
+    </View>
   );
 };
 

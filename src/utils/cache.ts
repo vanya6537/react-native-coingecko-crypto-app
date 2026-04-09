@@ -65,7 +65,7 @@ export const cache = {
    */
   clear(): void {
     const keys = storage.getAllKeys();
-    keys.forEach((key) => {
+    keys.forEach((key: string) => {
       if (key.startsWith(CACHE_PREFIX)) {
         storage.delete(key);
       }
@@ -76,7 +76,7 @@ export const cache = {
    * Get cache info (debug)
    */
   info(): { size: number; entries: number } {
-    const keys = storage.getAllKeys().filter((k) => k.startsWith(CACHE_PREFIX));
+    const keys = storage.getAllKeys().filter((k: string) => k.startsWith(CACHE_PREFIX));
     return {
       size: keys.length,
       entries: keys.length,

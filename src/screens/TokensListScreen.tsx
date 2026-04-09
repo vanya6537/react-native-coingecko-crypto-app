@@ -9,10 +9,11 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useStore } from 'effector-react';
-import { fetchTokens, setFilters, $tokens, $filters, $uiState, resetTokens } from '@state/index';
-import { TokenList } from '@components/index';
+import type { Token } from '../types/index';
+import { fetchTokens, setFilters, $tokens, $filters, $uiState, resetTokens } from '../state/index';
+import { TokenList } from '../components/index';
 
-export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }: { navigation: any }) => {
   const tokens = useStore($tokens);
   const filters = useStore($filters);
   const uiState = useStore($uiState);
@@ -119,7 +120,7 @@ export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }) 
           isLoading={uiState.isLoading}
           error={uiState.error}
           isEmpty={uiState.isEmpty}
-          onTokenPress={(token) => {
+          onTokenPress={(token: Token) => {
             navigation.navigate('TokenDetail', { tokenId: token.id });
           }}
           onRetry={handleRetry}

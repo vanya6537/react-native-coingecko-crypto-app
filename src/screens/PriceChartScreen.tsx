@@ -16,9 +16,9 @@ import {
   $historyLoading,
   fetchTokenDetail,
   fetchPriceHistory,
-} from '@state/index';
-import { ExpandedPriceChart } from '@components/ExpandedPriceChart';
-import { formatPrice, formatChange, formatMarketCap } from '@utils/formatters';
+} from '../state/index';
+import { ExpandedPriceChart } from '../components/ExpandedPriceChart';
+import { formatPrice, formatChange, formatMarketCap } from '../utils/formatters';
 
 export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
   route,
