@@ -10,3 +10,19 @@ dist/
 *.orig.*
 *.java.bak
 debug.keystore
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+.project
+.classpath
+.c9/
+*.swp
+*.swo
+*~
+

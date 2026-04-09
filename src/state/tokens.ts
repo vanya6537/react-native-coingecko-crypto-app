@@ -51,9 +51,9 @@ $uiState
     error: null,
     isEmpty: data.length === 0,
   }))
-  .on(fetchTokensFx.failData, () => ({
+  .on(fetchTokensFx.failData, (_, error) => ({
     isLoading: false,
-    error: 'Failed to load tokens',
+    error: error?.message || 'Failed to load tokens',
     isEmpty: false,
   }));
 

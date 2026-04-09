@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, FlatList, StyleSheet } from 'react-native';
 import { Token, ListFilters } from '@types/index';
 import { TokenItem } from './TokenItem';
+import { ErrorState, EmptyState } from './StateComponents';
+import { TokenListLoadingSkeleton } from './SkeletonLoader';
 import { filterTokens } from '@utils/formatters';
 
 interface TokenListProps {
@@ -11,6 +13,7 @@ interface TokenListProps {
   error: string | null;
   isEmpty: boolean;
   onTokenPress?: (token: Token) => void;
+  onRetry?: () => void;
 }
 
 export const TokenList: React.FC<TokenListProps> = ({
@@ -20,6 +23,7 @@ export const TokenList: React.FC<TokenListProps> = ({
   error,
   isEmpty,
   onTokenPress,
+  onRetry,
 }) => {
   const filteredTokens = filterTokens(
     tokens,
@@ -29,30 +33,15 @@ export const TokenList: React.FC<TokenListProps> = ({
   );
 
   if (isLoading && tokens.length === 0) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#1976D2" />
-        <Text style={styles.loadingText}>Loading tokens...</Text>
-      </View>
-    );
+    return <TokenListLoadingSkeleton />;
   }
 
   if (error && tokens.length === 0) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>❌ {error}</Text>
-        <Text style={styles.errorSubtext}>Please try again later</Text>
-      </View>
-    );
+    return <ErrorState error={error} onRetry={onRetry} />;
   }
 
   if (isEmpty || filteredTokens.length === 0) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.emptyText}>📭 No tokens found</Text>
-        <Text style={styles.emptySubtext}>Try adjusting your search filters</Text>
-      </View>
-    );
+    return <EmptyState message="No tokens found" />;
   }
 
   return (
@@ -69,39 +58,7 @@ export const TokenList: React.FC<TokenListProps> = ({
 };
 
 const styles = StyleSheet.create({
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
   listContainer: {
     paddingVertical: 8,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#666',
-  },
-  errorText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#D32F2F',
-    textAlign: 'center',
-  },
-  errorSubtext: {
-    marginTop: 8,
-    fontSize: 13,
-    color: '#999',
-  },
-  emptyText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#666',
-  },
-  emptySubtext: {
-    marginTop: 8,
-    fontSize: 13,
-    color: '#999',
   },
 });

@@ -9,7 +9,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useStore } from 'effector-react';
-import { fetchTokens, setFilters, $tokens, $filters, $uiState } from '@state/index';
+import { fetchTokens, setFilters, $tokens, $filters, $uiState, resetTokens } from '@state/index';
 import { TokenList } from '@components/index';
 
 export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
@@ -32,10 +32,17 @@ export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }) 
     setFilters({ sortBy: sortBy as any, sortOrder: newOrder as any });
   };
 
+  const handleRetry = () => {
+    setPage(1);
+    resetTokens();
+    setTimeout(() => fetchTokens({ page: 1 }), 100);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Crypto Tokens</Text>
+        <Text style={styles.subtitle}>{tokens.length} tokens</Text>
       </View>
 
       <View style={styles.searchContainer}>
@@ -115,6 +122,7 @@ export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }) 
           onTokenPress={(token) => {
             navigation.navigate('TokenDetail', { tokenId: token.id });
           }}
+          onRetry={handleRetry}
         />
       </ScrollView>
 
@@ -139,11 +147,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: '#F5F5F5',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
     color: '#212121',
+  },
+  subtitle: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 4,
   },
   searchContainer: {
     paddingHorizontal: 16,
@@ -165,6 +180,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     marginRight: 8,
+    marginTop: 8,
+    marginBottom: 8,
     borderRadius: 20,
     backgroundColor: '#E0E0E0',
   },
