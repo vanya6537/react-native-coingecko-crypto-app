@@ -1,0 +1,12 @@
+node_modules/
+.gradle/
+build/
+dist/
+.DS_Store
+*.jks
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+*.java.bak
+debug.keystore

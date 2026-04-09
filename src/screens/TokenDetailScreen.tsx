@@ -1,0 +1,244 @@
+import React, { useEffect } from 'react';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  SafeAreaView,
+  ActivityIndicator,
+  Image,
+} from 'react-native';
+import { useStore } from 'effector-react';
+import {
+  $tokenDetail,
+  $priceHistory,
+  $detailLoading,
+  $historyLoading,
+  fetchTokenDetail,
+  fetchPriceHistory,
+} from '@state/index';
+import { PriceChart } from '@components/index';
+import { formatPrice, formatChange, formatMarketCap } from '@utils/formatters';
+
+export const TokenDetailScreen: React.FC<{ route: any }> = ({ route }) => {
+  const { tokenId } = route.params;
+  const tokenDetail = useStore($tokenDetail);
+  const priceHistory = useStore($priceHistory);
+  const detailLoading = useStore($detailLoading);
+  const historyLoading = useStore($historyLoading);
+
+  useEffect(() => {
+    fetchTokenDetail(tokenId);
+    fetchPriceHistory(tokenId);
+  }, [tokenId]);
+
+  if (detailLoading && !tokenDetail) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#1976D2" />
+      </View>
+    );
+  }
+
+  if (!tokenDetail) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.errorText}>Failed to load token</Text>
+      </View>
+    );
+  }
+
+  const changeColor = tokenDetail.price_change_percentage_24h >= 0 ? '#00C853' : '#D32F2F';
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Image source={{ uri: tokenDetail.image }} style={styles.tokenImage} />
+          <View style={styles.tokenInfo}>
+            <Text style={styles.tokenName}>{tokenDetail.name}</Text>
+            <Text style={styles.tokenSymbol}>{tokenDetail.symbol.toUpperCase()}</Text>
+          </View>
+        </View>
+
+        {/* Price Section */}
+        <View style={styles.priceSection}>
+          <Text style={styles.currentPrice}>{formatPrice(tokenDetail.current_price)}</Text>
+          <Text style={[styles.change24h, { color: changeColor }]}>
+            {formatChange(tokenDetail.price_change_percentage_24h)}
+          </Text>
+        </View>
+
+        {/* Stats Grid */}
+        <View style={styles.statsGrid}>
+          <View style={styles.statBox}>
+            <Text style={styles.statLabel}>Market Cap Rank</Text>
+            <Text style={styles.statValue}>#{tokenDetail.market_cap_rank || 'N/A'}</Text>
+          </View>
+
+          {tokenDetail.market_cap && (
+            <View style={styles.statBox}>
+              <Text style={styles.statLabel}>Market Cap</Text>
+              <Text style={styles.statValue}>{formatMarketCap(tokenDetail.market_cap)}</Text>
+            </View>
+          )}
+
+          {tokenDetail.ath && (
+            <View style={styles.statBox}>
+              <Text style={styles.statLabel}>All-Time High</Text>
+              <Text style={styles.statValue}>{formatPrice(tokenDetail.ath)}</Text>
+            </View>
+          )}
+
+          {tokenDetail.atl && (
+            <View style={styles.statBox}>
+              <Text style={styles.statLabel}>All-Time Low</Text>
+              <Text style={styles.statValue}>{formatPrice(tokenDetail.atl)}</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Price Chart */}
+        {historyLoading && priceHistory.length === 0 ? (
+          <View style={styles.chartLoader}>
+            <ActivityIndicator size="small" color="#1976D2" />
+            <Text style={styles.chartLoaderText}>Loading chart...</Text>
+          </View>
+        ) : priceHistory.length > 0 ? (
+          <View style={styles.chartContainer}>
+            <Text style={styles.chartTitle}>7-Day Price History</Text>
+            <PriceChart data={priceHistory} height={180} />
+          </View>
+        ) : null}
+
+        {/* Description */}
+        {tokenDetail.description && (
+          <View style={styles.descriptionContainer}>
+            <Text style={styles.sectionTitle}>About</Text>
+            <Text style={styles.descriptionText}>{tokenDetail.description}</Text>
+          </View>
+        )}
+
+        <View style={{ height: 20 }} />
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  tokenImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 16,
+  },
+  tokenInfo: {
+    flex: 1,
+  },
+  tokenName: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#212121',
+  },
+  tokenSymbol: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
+  priceSection: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    alignItems: 'flex-start',
+  },
+  currentPrice: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#212121',
+  },
+  change24h: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 8,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    gap: 12,
+  },
+  statBox: {
+    flex: 1,
+    minWidth: '48%',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 10,
+    padding: 12,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 8,
+  },
+  statValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#212121',
+  },
+  chartContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+  },
+  chartTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#212121',
+    marginBottom: 12,
+  },
+  chartLoader: {
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  chartLoaderText: {
+    marginTop: 8,
+    fontSize: 12,
+    color: '#999',
+  },
+  descriptionContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#212121',
+    marginBottom: 12,
+  },
+  descriptionText: {
+    fontSize: 14,
+    color: '#555',
+    lineHeight: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#D32F2F',
+    fontWeight: '600',
+  },
+});
