@@ -1,0 +1,22 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url("$rootDir/../node_modules/react-native/android") }
+    }
+}
+
+rootProject.name = 'CryptoTokensApp'
+include ':app'
+project(':app').projectDir = new File(rootDir, 'app')
+includeBuild '../node_modules/react-native'
+include ':react-native-gesture-handler'
+project(':react-native-gesture-handler').projectDir = new File(rootDir, '../node_modules/react-native-gesture-handler/android')
