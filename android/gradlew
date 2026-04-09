@@ -1,0 +1,18 @@
+#!/bin/bash
+# Gradle wrapper script for React Native Android build
+
+# Store this script in android/ directory
+# Run: cd android && ./gradlew assembleDebug
+
+GRADLE_VERSION="7.4"
+GRADLE_HOME="${0%/*}/.gradle"
+
+if [ ! -d "$GRADLE_HOME" ]; then
+  mkdir -p "$GRADLE_HOME"
+  echo "Downloading Gradle $GRADLE_VERSION..."
+  curl -L https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-all.zip -o /tmp/gradle.zip
+  unzip /tmp/gradle.zip -d "$GRADLE_HOME"
+  mv "$GRADLE_HOME/gradle-${GRADLE_VERSION}"/* "$GRADLE_HOME/"
+fi
+
+exec "$GRADLE_HOME"/bin/gradle "$@"
