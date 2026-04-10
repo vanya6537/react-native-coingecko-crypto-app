@@ -94,9 +94,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  cocoapods (~> 1.15.0)
-  concurrent-ruby (= 1.3.4)
-  ffi (~> 1.15.0)
+  cocoapods
+  concurrent-ruby
+  ffi
 
 BUNDLED WITH
    1.17.2
