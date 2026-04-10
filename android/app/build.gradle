@@ -1,5 +1,8 @@
-apply plugin: "com.android.application"
-apply plugin: "org.jetbrains.kotlin.android"
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("com.facebook.react")
+}
 
 def enableProguardInReleaseBuilds = false
 def jscFlavor = "io.github.react-native-community:jsc-android:2026004.+"
@@ -49,14 +52,18 @@ android {
 }
 
 dependencies {
-    implementation("com.facebook.react:react-android:0.84.1")
+    implementation("com.facebook.react:react-android")
 
     if (hermesEnabled.toBoolean()) {
-        implementation("com.facebook.react:hermes-android:0.84.1")
+        implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
     }
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation("androidx.appcompat:appcompat:1.6.1")
+}
+
+react {
+    autolinkLibrariesWithApp()
 }

@@ -1,4 +1,9 @@
 pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
     includeBuild("../node_modules/@react-native/gradle-plugin")
 }
 
@@ -12,3 +17,12 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
 
 rootProject.name = "crypto-tokens-app"
 include(":app")
+includeBuild("../node_modules/@react-native/gradle-plugin")
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
