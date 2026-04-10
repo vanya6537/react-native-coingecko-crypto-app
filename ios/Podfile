@@ -3,6 +3,9 @@ require_relative '../node_modules/react-native/scripts/react_native_pods'
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
+workspace 'CryptoTokensApp.xcworkspace'
+project 'CryptoTokensApp.xcodeproj'
+
 target 'CryptoTokensApp' do
   config = use_native_modules!
 
@@ -21,8 +24,7 @@ end
 post_install do |installer|
   react_native_post_install(
     installer,
-    config[:reactNativePath],
+    "#{Pod::Config.instance.installation_root}/../node_modules/react-native",
     :mac_catalyst_enabled => false
   )
-  __apply_Xcode_12_5_M1_post_install_workaround(installer)
 end

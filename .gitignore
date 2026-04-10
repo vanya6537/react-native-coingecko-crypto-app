@@ -26,3 +26,21 @@ debug.keystore
 *.swo
 *~
 
+*/Pods/*
+
+# ios app and xcode
+ios/Pods/
+ios/build/
+ios/DerivedData/
+ios/*.xcworkspace
+ios/*.xcodeproj
+ios/*.xcconfig
+ios/*.xcuserstate
+ios/*.xcsettings
+ios/*.xcuserdatad/
+ios/*.xcuserdatad/*
+ios/*.xcscheme
+ios/*.xcscheme/*
+ios/*.xcodeproj/*
+ios/*.xcworkspace/*
+ios/*.xcconfig/*
