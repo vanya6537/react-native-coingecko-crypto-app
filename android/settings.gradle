@@ -18,3 +18,4 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
 rootProject.name = "CryptoTokensApp"
 
 include(":app")
+includeBuild("../node_modules/@react-native/gradle-plugin")
