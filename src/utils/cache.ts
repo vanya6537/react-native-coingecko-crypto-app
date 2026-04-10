@@ -1,6 +1,7 @@
-import { MMKV } from 'react-native-mmkv';
+import { createMMKV } from 'react-native-mmkv';
 
-const storage = new MMKV();
+// Initialize MMKV storage
+const storage = createMMKV();
 
 const CACHE_PREFIX = '@crypto_cache:';
 const DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
@@ -24,7 +25,7 @@ export const cache = {
       const isExpired = Date.now() - entry.timestamp > entry.ttl;
 
       if (isExpired) {
-        storage.delete(CACHE_PREFIX + key);
+        storage.remove(CACHE_PREFIX + key);
         return null;
       }
 
@@ -57,7 +58,7 @@ export const cache = {
    * Remove specific cache entry
    */
   remove(key: string): void {
-    storage.delete(CACHE_PREFIX + key);
+    storage.remove(CACHE_PREFIX + key);
   },
 
   /**
@@ -67,7 +68,7 @@ export const cache = {
     const keys = storage.getAllKeys();
     keys.forEach((key: string) => {
       if (key.startsWith(CACHE_PREFIX)) {
-        storage.delete(key);
+        storage.remove(key);
       }
     });
   },
