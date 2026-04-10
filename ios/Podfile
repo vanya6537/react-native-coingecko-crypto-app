@@ -1,4 +1,3 @@
-# Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
     "react-native/scripts/react_native_pods.rb",
@@ -8,16 +7,13 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
-workspace 'CryptoTokensApp.xcworkspace'
-project 'CryptoTokensApp.xcodeproj'
+rn_path = "../node_modules/react-native"
 
 target 'CryptoTokensApp' do
   config = use_native_modules!
 
   use_react_native!(
-    :path => "../node_modules/react-native",
-    :hermes_enabled => false,
-    :fabric_enabled => false,
+    :path => rn_path,
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
@@ -29,30 +25,7 @@ end
 post_install do |installer|
   react_native_post_install(
     installer,
-    "#{Pod::Config.instance.installation_root}/../node_modules/react-native",
+    rn_path,
     :mac_catalyst_enabled => false
   )
-  
-  # Fix malformed paths in Pods project settings
-  # React Native generates incorrect REACT_NATIVE_PATH with doubled directory paths
-  pods_project = installer.pods_project
-  
-  pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      # Get current REACT_NATIVE_PATH if it exists
-      current_path = config.build_settings["REACT_NATIVE_PATH"]
-      
-      # Fix the malformed path pattern: /ios/Pods/../Users/.../ios/../
-      if current_path && current_path.include?("Pods/..")
-        # Extract just the node_modules/react-native part
-        if current_path.match?(/node_modules\/react-native/)
-          match = current_path.match(/(.*\/node_modules\/react-native)/)
-          if match
-            fixed_path = match[1].gsub(/^.*\/(node_modules\/react-native)/, "#{Pod::Config.instance.installation_root}/../node_modules/react-native")
-            config.build_settings["REACT_NATIVE_PATH"] = fixed_path
-          end
-        end
-      end
-    end
-  end
 end

@@ -44,3 +44,7 @@ ios/*.xcscheme/*
 ios/*.xcodeproj/*
 ios/*.xcworkspace/*
 ios/*.xcconfig/*
+ios/*.xcuserstate/*
+ios/*.xcsettings/*
+ios/*.xcuserdatad/*
+vendor/*
