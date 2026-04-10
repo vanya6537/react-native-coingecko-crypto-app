@@ -1,13 +1,19 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
-  Animated,
   PanResponder,
   StyleSheet,
   Dimensions,
   Text,
-  GestureResponderEvent,
 } from 'react-native';
+import Animated, {
+  FadeIn,
+  ZoomIn,
+  Layout,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 import type { PriceHistory } from '../types/index';
 import { formatPrice } from '../utils/formatters';
 
@@ -31,6 +37,20 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<Point | null>(null);
   const panResponderRef = useRef<any>(null);
+  
+  // Reanimated shared values for animated selection
+  const selectedOpacity = useSharedValue(0);
+  const selectedScale = useSharedValue(1);
+
+  useEffect(() => {
+    if (selectedIndex !== null) {
+      selectedOpacity.value = withSpring(1, { damping: 8 });
+      selectedScale.value = withSpring(1.2, { damping: 8 });
+    } else {
+      selectedOpacity.value = withSpring(0, { damping: 8 });
+      selectedScale.value = withSpring(1, { damping: 8 });
+    }
+  }, [selectedIndex, selectedOpacity, selectedScale]);
 
   if (!data || data.length === 0) {
     return (
@@ -168,7 +188,11 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   };
 
   return (
-    <View style={[styles.container, { height }]}>
+    <Animated.View 
+      style={[styles.container, { height }]}
+      entering={FadeIn.duration(400).delay(100)}
+      layout={Layout.springify()}
+    >
       <View style={styles.header}>
         <View>
           <Text style={[styles.priceDisplay, { color: isUp ? '#00C853' : '#D32F2F' }]}>
@@ -177,9 +201,13 @@ export const PriceChart: React.FC<PriceChartProps> = ({
           <Text style={styles.dateDisplay}>{displayDate}</Text>
         </View>
         {selectedIndex !== null && (
-          <Text style={styles.tooltipLabel}>
-            Day {selectedIndex + 1}/{data.length}
-          </Text>
+          <Animated.View
+            entering={ZoomIn.springify()}
+          >
+            <Text style={styles.tooltipLabel}>
+              Day {selectedIndex + 1}/{data.length}
+            </Text>
+          </Animated.View>
         )}
       </View>
 
@@ -210,7 +238,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
           <Text style={styles.legendText}>High: {formatPrice(maxPrice)}</Text>
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
