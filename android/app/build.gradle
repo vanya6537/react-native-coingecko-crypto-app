@@ -49,6 +49,9 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
+    // React Native
+    implementation("com.facebook.react:react-android:${rootProject.ext.reactNativeVersion}")
+    
     // Optional. Safe to keep if you explicitly use AppCompat APIs.
     implementation("androidx.appcompat:appcompat:1.6.1")
 }
