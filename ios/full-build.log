@@ -1,0 +1,8 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace CryptoTokensApp.xcworkspace -scheme CryptoTokensApp -configuration Debug -destination "generic/platform=iOS Simulator" build
+
+User defaults from command line:
+    IDEPackageSupportUseBuiltinSCM = YES
+
+Prepare packages
+
