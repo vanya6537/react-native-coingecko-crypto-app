@@ -1,51 +1,126 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import {
   View,
-  ScrollView,
+  FlatList,
   StyleSheet,
   TextInput,
   TouchableOpacity,
   Text,
   SafeAreaView,
+  ActivityIndicator,
+  ListRenderItem,
 } from 'react-native';
 import { useStore } from 'effector-react';
 import type { Token } from '../types/index';
-import { fetchTokens, setFilters, $tokens, $filters, $uiState, resetTokens } from '../state/index';
-import { TokenList } from '../components/index';
+import {
+  fetchInitialTokens,
+  fetchNextPage,
+  setFilters,
+  $tokens,
+  $filters,
+  $uiState,
+  $isLoadingInitial,
+  $isFetchingNextPage,
+  $hasMore,
+} from '../state/index';
+import { TokenItem } from '../components/index';
+import { ErrorState, EmptyState } from '../components/StateComponents';
+import { TokenListLoadingSkeleton } from '../components/SkeletonLoader';
+import { filterTokens } from '../utils/formatters';
 
 export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }: { navigation: any }) => {
   const tokens = useStore($tokens);
   const filters = useStore($filters);
   const uiState = useStore($uiState);
-  const [page, setPage] = useState(1);
+  const isLoadingInitial = useStore($isLoadingInitial);
+  const isFetchingNextPage = useStore($isFetchingNextPage);
+  const hasMore = useStore($hasMore);
 
+  // Initial load on mount
   useEffect(() => {
-    fetchTokens({ page });
-  }, [page]);
+    fetchInitialTokens();
+  }, []);
 
-  const handleSearch = (text: string) => {
+  // Memoize filtered tokens
+  const filteredTokens = useMemo(() => {
+    return filterTokens(tokens, filters.search, filters.sortBy, filters.sortOrder);
+  }, [tokens, filters]);
+
+  const handleSearch = useCallback((text: string) => {
     setFilters({ search: text });
-  };
+  }, []);
 
-  const handleSortChange = (sortBy: string) => {
-    const newOrder =
-      filters.sortBy === sortBy && filters.sortOrder === 'desc' ? 'asc' : 'desc';
+  const handleSortChange = useCallback((sortBy: string) => {
+    const newOrder = filters.sortBy === sortBy && filters.sortOrder === 'desc' ? 'asc' : 'desc';
     setFilters({ sortBy: sortBy as any, sortOrder: newOrder as any });
-  };
+  }, [filters.sortBy, filters.sortOrder]);
 
-  const handleRetry = () => {
-    setPage(1);
-    resetTokens();
-    setTimeout(() => fetchTokens({ page: 1 }), 100);
+  const handleRetry = useCallback(() => {
+    fetchInitialTokens();
+  }, []);
+
+  // Handle infinite scroll
+  const handleEndReached = useCallback(() => {
+    if (!isFetchingNextPage && hasMore && tokens.length > 0) {
+      fetchNextPage();
+    }
+  }, [isFetchingNextPage, hasMore, tokens.length]);
+
+  // Render empty/error states
+  if (isLoadingInitial && tokens.length === 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <TokenListLoadingSkeleton />
+      </SafeAreaView>
+    );
+  }
+
+  if (uiState.error && tokens.length === 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ErrorState error={uiState.error} onRetry={handleRetry} />
+      </SafeAreaView>
+    );
+  }
+
+  if (uiState.isEmpty && filteredTokens.length === 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <EmptyState message="No tokens found" />
+      </SafeAreaView>
+    );
+  }
+
+  // Render token item
+  const renderTokenItem: ListRenderItem<Token> = ({ item }) => (
+    <TokenItem
+      token={item}
+      onPress={(token: Token) => {
+        navigation.navigate('TokenDetail', { tokenId: token.id });
+      }}
+    />
+  );
+
+  // Render footer for loading on next page
+  const renderFooter = () => {
+    if (!isFetchingNextPage) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color="#1976D2" />
+        <Text style={styles.footerText}>Loading more...</Text>
+      </View>
+    );
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Crypto Tokens</Text>
-        <Text style={styles.subtitle}>{tokens.length} tokens</Text>
+        <Text style={styles.subtitle}>{tokens.length} tokens loaded</Text>
       </View>
 
+      {/* Search input */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -56,11 +131,8 @@ export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }: 
         />
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterScroll}
-      >
+      {/* Sort filters */}
+      <View style={styles.filterScroll}>
         <TouchableOpacity
           style={[
             styles.filterButton,
@@ -111,30 +183,19 @@ export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }: 
             24h Change
           </Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
 
-      <ScrollView style={styles.listContainer} contentContainerStyle={{ flexGrow: 1 }}>
-        <TokenList
-          tokens={tokens}
-          filters={filters}
-          isLoading={uiState.isLoading}
-          error={uiState.error}
-          isEmpty={uiState.isEmpty}
-          onTokenPress={(token: Token) => {
-            navigation.navigate('TokenDetail', { tokenId: token.id });
-          }}
-          onRetry={handleRetry}
-        />
-      </ScrollView>
-
-      {tokens.length >= 50 && !uiState.isLoading && (
-        <TouchableOpacity
-          style={styles.loadMoreButton}
-          onPress={() => setPage(page + 1)}
-        >
-          <Text style={styles.loadMoreText}>Load More</Text>
-        </TouchableOpacity>
-      )}
+      {/* Token FlatList with infinite scroll */}
+      <FlatList
+        data={filteredTokens}
+        keyExtractor={(item: Token) => item.id}
+        renderItem={renderTokenItem}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={renderFooter}
+        contentContainerStyle={styles.listContent}
+        scrollEnabled={true}
+      />
     </SafeAreaView>
   );
 };
@@ -174,15 +235,15 @@ const styles = StyleSheet.create({
     color: '#212121',
   },
   filterScroll: {
+    flexDirection: 'row',
     paddingHorizontal: 16,
+    paddingVertical: 8,
     maxHeight: 50,
   },
   filterButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     marginRight: 8,
-    marginTop: 8,
-    marginBottom: 8,
     borderRadius: 20,
     backgroundColor: '#E0E0E0',
   },
@@ -197,20 +258,18 @@ const styles = StyleSheet.create({
   filterTextActive: {
     color: '#FFF',
   },
-  listContainer: {
-    flex: 1,
+  listContent: {
+    paddingVertical: 8,
   },
-  loadMoreButton: {
-    marginHorizontal: 16,
-    marginVertical: 16,
-    paddingVertical: 12,
-    backgroundColor: '#1976D2',
-    borderRadius: 8,
+  footerLoader: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 16,
   },
-  loadMoreText: {
-    color: '#FFF',
-    fontWeight: '600',
+  footerText: {
+    marginLeft: 8,
     fontSize: 14,
+    color: '#666',
   },
 });

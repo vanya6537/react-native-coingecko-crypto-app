@@ -1,39 +1,27 @@
 pluginManagement {
-    def kotlinVersion = "1.8.10"
-    repositories {
-        google {
-            content {
-                includeGroupByRegex "com\\.android.*"
-                includeGroupByRegex "com\\.google.*"
-                includeGroupByRegex "androidx\\..*"
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal {
-            content {
-                excludeGroupByRegex "com\\.android.*"
-                excludeGroupByRegex "com\\.google.*"
-                excludeGroupByRegex "androidx\\..*"
-            }
-        }
-    }
-    plugins {
-        id("com.android.application") version "8.10.1"
-        id("com.android.library") version "8.10.1"
-        id("org.jetbrains.kotlin.android") version "$kotlinVersion"
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
         google()
         mavenCentral()
-        maven { url("$rootDir/../node_modules/react-native/android") }
+        gradlePluginPortal()
+    }
+}
+
+includeBuild("../node_modules/@react-native/gradle-plugin")
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url = file("../node_modules/react-native/android").toURI()
+        }
     }
 }
 
 rootProject.name = 'CryptoTokensApp'
+
+apply from: file("../node_modules/@react-native/gradle-plugin/gradle-pre-sync.gradle")
+
 include ':app'
 project(':app').projectDir = new File(rootDir, 'app')
-include ':react-native-gesture-handler'
-project(':react-native-gesture-handler').projectDir = new File(rootDir, '../node_modules/react-native-gesture-handler/android')

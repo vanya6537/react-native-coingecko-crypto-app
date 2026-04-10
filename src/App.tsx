@@ -10,20 +10,13 @@ import {
   TokenDetailScreen, 
   PriceChartScreen 
 } from './screens/index';
-import { $isAuthenticated, loginSuccess, logout, fetchTokens } from './state/index';
+import { $isAuthenticated, loginSuccess, logout } from './state/index';
 
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
 
 export default function App(): React.JSX.Element {
   const isAuthenticated = useStore($isAuthenticated);
-
-  useEffect(() => {
-    // Load initial tokens only after authentication
-    if (isAuthenticated) {
-      fetchTokens({ page: 1 });
-    }
-  }, [isAuthenticated]);
 
   const handleLoginSuccess = (token: string) => {
     loginSuccess(token);

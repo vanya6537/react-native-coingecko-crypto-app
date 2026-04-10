@@ -1,21 +1,28 @@
-plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+apply plugin: "com.android.application"
+apply plugin: "com.facebook.react"
+
+react {
+    project.ext.hermes_enabled = true
 }
 
 android {
+    buildToolsVersion = rootProject.ext.buildToolsVersion
+    compileSdk = rootProject.ext.compileSdkVersion
+
     namespace "com.cryptotokensapp"
-    compileSdk 34
 
     defaultConfig {
         applicationId "com.cryptotokensapp"
-        minSdk 21
-        targetSdk 34
+        minSdkVersion = rootProject.ext.minSdkVersion
+        targetSdkVersion = rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0.0"
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             signingConfig signingConfigs.debug
         }
@@ -23,10 +30,7 @@ android {
 }
 
 dependencies {
-    implementation project(':react-native-gesture-handler')
+    // React Native dependencies are managed by React Native Gradle plugin
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.appcompat:appcompat:1.6.1"
-    // React Native core
-    implementation("com.facebook.react:react-android:+")
-    implementation("com.facebook.react:hermes-android:+")
 }

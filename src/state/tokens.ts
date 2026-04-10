@@ -1,16 +1,17 @@
 import { createStore, createEvent, createEffect, sample } from 'effector';
 import { coingeckoAPI } from '../api/coingecko';
-import type { Token, ListFilters, PaginationState, UIState } from '../types/index';
+import type { Token, ListFilters, UIState } from '../types/index';
 
 // Events
-export const fetchTokens = createEvent<{ page: number }>();
+export const fetchInitialTokens = createEvent();
+export const fetchNextPage = createEvent();
 export const setFilters = createEvent<Partial<ListFilters>>();
 export const resetTokens = createEvent();
 export const selectToken = createEvent<Token>();
 
 // Effects
-const fetchTokensFx = createEffect(async (page: number) => {
-  return coingeckoAPI.getTokensList(page, 50);
+const fetchTokensPageFx = createEffect(async (params: { page: number; pageSize: number }) => {
+  return coingeckoAPI.getTokensList(params.page, params.pageSize);
 });
 
 // Stores
@@ -20,48 +21,91 @@ const initialFilters: ListFilters = {
   sortOrder: 'desc',
 };
 
-const initialPagination: PaginationState = {
-  page: 1,
-  pageSize: 50,
-};
-
 const initialUIState: UIState = {
   isLoading: false,
   error: null,
   isEmpty: false,
 };
 
-export const $tokens = createStore<Token[]>([]);
-export const $filters = createStore<ListFilters>(initialFilters);
-export const $pagination = createStore<PaginationState>(initialPagination);
-export const $uiState = createStore<UIState>(initialUIState);
-export const $selectedToken = createStore<Token | null>(null);
+// Main token list store - accumulates from pagination
+export const $tokens = createStore<Token[]>([])
+  .on(resetTokens, () => [])
+  .on(fetchTokensPageFx.doneData, (tokens: Token[], data: Token[], pageNum?: number) => {
+    // Page 1 replaces all data; subsequent pages append
+    if (pageNum === 1) {
+      return data;
+    }
+    return [...tokens, ...data];
+  });
 
-// Handlers
-$tokens
-  .on(fetchTokensFx.doneData, (_: Token[], data: Token[]) => data)
-  .on(resetTokens, () => []);
+// Pagination tracking
+export const $currentPage = createStore<number>(1)
+  .on(fetchInitialTokens, () => 1)
+  .on(fetchNextPage, (page) => page + 1)
+  .on(resetTokens, () => 1);
 
-$filters.on(setFilters, (state: ListFilters, updates: Partial<ListFilters>) => ({ ...state, ...updates }));
+export const $pageSize = createStore<number>(50);
 
-$uiState
-  .on(fetchTokens, () => ({ isLoading: true, error: null, isEmpty: false }))
-  .on(fetchTokensFx.doneData, (_: UIState, data: Token[]) => ({
-    isLoading: false,
-    error: null,
-    isEmpty: data.length === 0,
-  }))
-  .on(fetchTokensFx.failData, (_: UIState, error: Error | null) => ({
+// Determine hasMore and isFetchingNextPage from effects
+export const $isFetchingNextPage = createStore<boolean>(false)
+  .on(fetchNextPage, () => true)
+  .on(fetchTokensPageFx.finally, () => false);
+
+export const $isLoadingInitial = createStore<boolean>(false)
+  .on(fetchInitialTokens, () => true)
+  .on(fetchTokensPageFx.finally, () => false);
+
+export const $hasMore = createStore<boolean>(true)
+  .on(fetchTokensPageFx.doneData, (_, data: Token[], __) => {
+    // Assume hasMore if we got a full page of results
+    return data.length >= 50;
+  })
+  .on(resetTokens, () => true);
+
+// Filters
+export const $filters = createStore<ListFilters>(initialFilters)
+  .on(setFilters, (state: ListFilters, updates: Partial<ListFilters>) => {
+    return { ...state, ...updates };
+  })
+  .on(resetTokens, () => initialFilters);
+
+// UI state for errors
+export const $uiState = createStore<UIState>(initialUIState)
+  .on(fetchInitialTokens, () => ({ isLoading: true, error: null, isEmpty: false }))
+  .on(fetchTokensPageFx.doneData, (state: UIState, data: Token[], page?: number) => {
+    // On initial load, check isEmpty. On subsequent loads, preserve isEmpty from before.
+    if (page === 1) {
+      return {
+        isLoading: false,
+        error: null,
+        isEmpty: data.length === 0,
+      };
+    }
+    return { ...state, isLoading: false, error: null };
+  })
+  .on(fetchTokensPageFx.failData, (_, error: Error | null) => ({
     isLoading: false,
     error: error?.message || 'Failed to load tokens',
     isEmpty: false,
-  }));
+  }))
+  .on(resetTokens, () => initialUIState);
 
-$selectedToken.on(selectToken, (_: Token | null, token: Token) => token);
+export const $selectedToken = createStore<Token | null>(null)
+  .on(selectToken, (_, token: Token) => token);
 
-// Sample for requests
+// Hooks to trigger API calls
+const pageSize = 50;
+
+// Combine currentPage with event to pass to effect
 sample({
-  clock: fetchTokens,
-  fn: (clock: { page: number }) => clock.page,
-  target: fetchTokensFx,
+  clock: fetchInitialTokens,
+  fn: () => ({ page: 1, pageSize }),
+  target: fetchTokensPageFx,
+});
+
+sample({
+  clock: fetchNextPage,
+  source: $currentPage,
+  fn: (page) => ({ page: page + 1, pageSize }),
+  target: fetchTokensPageFx,
 });
