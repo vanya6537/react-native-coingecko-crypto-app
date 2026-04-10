@@ -1,23 +1,29 @@
 package com.cryptotokensapp
 
 import android.app.Application
-import com.facebook.react.PackageList
+import android.content.res.Configuration
 import com.facebook.react.ReactApplication
-import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeHost
+import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
-import com.facebook.react.defaults.DefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.soloader.SoLoader
 
 class MainApplication : Application(), ReactApplication {
-  override val reactHost: ReactHost by lazy {
-    DefaultReactHost.getDefaultReactHost(this).apply { loadReactNative(this@MainApplication) }
+  private val mReactNativeHost = object : DefaultReactNativeHost(this) {
+    override fun getUseDeveloperSupport(): Boolean = true
+
+    override fun getPackages(): MutableList<ReactPackage> = mutableListOf()
   }
 
   override fun onCreate() {
     super.onCreate()
     SoLoader.init(this, false)
     DefaultNewArchitectureEntryPoint.load()
+  }
+
+  override fun onConfigurationChanged(newConfig: Configuration) {
+    super.onConfigurationChanged(newConfig)
+    mReactNativeHost.reactInstanceManager.onConfigurationChanged(this, newConfig)
   }
 }
