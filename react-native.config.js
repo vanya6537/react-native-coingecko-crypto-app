@@ -18,5 +18,17 @@ module.exports = {
         ios: {},
       },
     },
+    'react-native-mmkv': {
+      platforms: {
+        android: {},
+        ios: {},
+      },
+    },
+    'react-native-nitro-modules': {
+      platforms: {
+        android: {},
+        ios: {},
+      },
+    },
   },
 };

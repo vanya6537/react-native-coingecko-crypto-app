@@ -14,11 +14,11 @@ The full Xcode IDE is **required** - Command Line Tools alone are not sufficient
 sudo gem install cocoapods
 ```
 
-### 3. Node.js 20
+### 3. Node.js 22.11.0
 ```bash
 # Using nvm
-nvm install 20
-nvm use 20
+nvm install 22.11.0
+nvm use 22.11.0
 ```
 
 ---

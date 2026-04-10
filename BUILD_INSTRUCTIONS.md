@@ -3,9 +3,9 @@
 ## ✅ Completed Setup
 
 ### Environment
-- ✅ Node 20.20.0 
+- ✅ Node 22.11.0+ 
 - ✅ React Native 0.84.1
-- ✅ React 19.0
+- ✅ React 19.2.3
 - ✅ TypeScript 5.4.5
 - ✅ Metro Bundler (port 8081)
 
@@ -58,7 +58,7 @@ pod install
 ### Step 4: Start Metro (in separate terminal)
 ```bash
 source ~/.nvm/nvm.sh
-nvm use 20
+nvm use 22.11.0
 cd /Users/netslayer/WebstormProjects/react-native-app
 npm start
 ```
@@ -66,7 +66,7 @@ npm start
 ### Step 5: Build & Run
 ```bash
 source ~/.nvm/nvm.sh
-nvm use 20
+nvm use 22.11.0
 npm run ios
 ```
 
@@ -77,7 +77,7 @@ npm run ios
 ### Step 1: Start Metro (in separate terminal)
 ```bash
 source ~/.nvm/nvm.sh
-nvm use 20
+nvm use 22.11.0
 cd /Users/netslayer/WebstormProjects/react-native-app
 npm start
 ```
@@ -85,7 +85,7 @@ npm start
 ### Step 2: Build & Run
 ```bash
 source ~/.nvm/nvm.sh
-nvm use 20
+nvm use 22.11.0
 npm run android
 ```
 

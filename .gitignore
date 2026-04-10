@@ -49,3 +49,4 @@ ios/*.xcsettings/*
 ios/*.xcuserdatad/*
 vendor/*
 ios/*.log
+android/app/.cxx

@@ -23,7 +23,7 @@
 cd /Users/netslayer/WebstormProjects/react-native-app
 
 # Start Metro bundler (in separate terminal)
-source ~/.nvm/nvm.sh && nvm use 20
+source ~/.nvm/nvm.sh && nvm use 22.11.0
 npm start
 
 # Build APK

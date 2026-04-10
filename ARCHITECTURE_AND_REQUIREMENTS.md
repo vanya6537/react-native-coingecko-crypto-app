@@ -239,15 +239,17 @@ Features:
 | Технический стек | ТЗ требование | Реализовано |
 |---|---|---|
 | **React Native** | 0.84.x | ✅ 0.84.1 |
-| **React** | 19.x | ✅ 19.0.0 |
+| **React** | 19.x | ✅ 19.2.3 |
+| **Node.js** | 22.11+ | ✅ 22.11.0+ |
 | **TypeScript** | Да | ✅ 5.4.5 |
-| **Навигация** | @react-navigation/native-stack | ✅ 6.10.1 |
-| **State Management** | Effector | ✅ 23.2.0 |
-| **Data Fetching** | axios | ✅ 1.7.2 |
-| **Анимации** | react-native-reanimated | ✅ 3.10.1 |
-| **Жесты** | react-native-gesture-handler | ✅ 2.16.0 |
-| **Графики** | react-native-svg + D3 | ✅ SVG 15.2.0 + D3 7.9.0 |
-| **Кэширование** | react-native-mmkv | ✅ 2.11.1 |
+| **Навигация** | @react-navigation/native-stack | ✅ 7.14.0 |
+| **State Management** | Effector | ✅ 23.4.4 |
+| **Data Fetching** | axios | ✅ 1.15.0 |
+| **Анимации** | react-native-reanimated + worklets | ✅ 4.3.0 + 0.8.1 |
+| **Жесты** | react-native-gesture-handler | ✅ 2.31.0 |
+| **Графики** | react-native-svg + D3 | ✅ SVG 15.15.4 + D3 7.9.0 |
+| **Кэширование** | react-native-mmkv + nitro-modules | ✅ 4.3.1 + 0.35.2 |
+| **Safe Area** | react-native-safe-area-context | ✅ 5.7.0 |
 
 ---
 

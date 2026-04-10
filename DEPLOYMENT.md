@@ -77,7 +77,7 @@ sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 cd ios && pod install
 
 # 3. Start Metro (separate terminal)
-source ~/.nvm/nvm.sh && nvm use 20
+source ~/.nvm/nvm.sh && nvm use 22.11.0
 npm start
 
 # 4. Build & run
@@ -93,7 +93,7 @@ npm run ios
 
 ```bash
 # 1. Start Metro (separate terminal)
-source ~/.nvm/nvm.sh && nvm use 20
+source ~/.nvm/nvm.sh && nvm use 22.11.0
 npm start
 
 # 2. Build & run
