@@ -48,3 +48,4 @@ ios/*.xcuserstate/*
 ios/*.xcsettings/*
 ios/*.xcuserdatad/*
 vendor/*
+ios/*.log
