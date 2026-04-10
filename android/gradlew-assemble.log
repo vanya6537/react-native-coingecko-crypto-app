@@ -15,8 +15,8 @@
 > Task :app:preDebugBuild UP-TO-DATE
 > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
 > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
-> Task :app:checkDebugAarMetadata
 > Task :app:processDebugNavigationResources
+> Task :app:checkDebugAarMetadata
 > Task :app:generateDebugResValues
 > Task :app:compileDebugNavigationResources
 > Task :app:mapDebugSourceSetPaths
@@ -25,10 +25,8 @@
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug
 > Task :app:parseDebugLocalResources
-> Task :app:mergeDebugResources
 > Task :app:processDebugMainManifest
 > Task :app:processDebugManifest
-> Task :app:processDebugManifestForPackage
 > Task :app:javaPreCompileDebug
 > Task :app:mergeDebugShaders
 > Task :app:compileDebugShaders NO-SOURCE
@@ -36,28 +34,31 @@
 > Task :app:mergeDebugAssets
 > Task :app:compressDebugAssets
 > Task :app:desugarDebugFileDependencies
-> Task :app:processDebugResources
+> Task :app:processDebugManifestForPackage
+> Task :app:mergeDebugJniLibFolders
 > Task :app:checkDebugDuplicateClasses
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:mergeLibDexDebug
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:mergeDebugResources
+> Task :app:mergeDebugNativeLibs
+> Task :app:processDebugResources
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libc++_shared.so, libfbjni.so, libhermestooling.so, libimagepipeline.so, libjsc.so, libjsi.so, libnative-filters.so, libnative-imagetranscoder.so, libreactnative.so. Run with --info option to learn more.
 
 > Task :app:compileDebugKotlin
-w: file:///Users/netslayer/WebstormProjects/react-native-app/android/app/src/main/java/com/cryptotokensapp/MainApplication.kt:6:8 'class ReactNativeHost : Any' is deprecated. Deprecated in Java.
+w: file:///Users/netslayer/WebstormProjects/react-native-app/android/app/src/main/java/com/cryptotokensapp/MainApplication.kt:5:8 'class ReactNativeHost : Any' is deprecated. Deprecated in Java.
+w: file:///Users/netslayer/WebstormProjects/react-native-app/android/app/src/main/java/com/cryptotokensapp/MainApplication.kt:17:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///Users/netslayer/WebstormProjects/react-native-app/android/app/src/main/java/com/cryptotokensapp/MainApplication.kt:17:33 'class ReactNativeHost : Any' is deprecated. Deprecated in Java.
 
 > Task :app:compileDebugJavaWithJavac NO-SOURCE
 > Task :app:dexBuilderDebug
 > Task :app:processDebugJavaRes
 > Task :app:mergeDebugGlobalSynthetics
-> Task :app:mergeLibDexDebug
-> Task :app:mergeDebugJniLibFolders
-> Task :app:validateSigningDebug
-> Task :app:writeDebugAppMetadata
-> Task :app:writeDebugSigningConfigVersions
 > Task :app:mergeProjectDexDebug
 > Task :app:mergeDebugJavaResource
-> Task :app:mergeDebugNativeLibs
-
-> Task :app:stripDebugDebugSymbols
-Unable to strip the following libraries, packaging them as they are: libc++_shared.so, libfbjni.so, libhermestooling.so, libimagepipeline.so, libjsc.so, libjsi.so, libnative-filters.so, libnative-imagetranscoder.so, libreactnative.so. Run with --info option to learn more.
-
 > Task :app:mergeExtDexDebug
 > Task :app:packageDebug
 > Task :app:createDebugApkListingFileRedirect
@@ -71,7 +72,7 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.13/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 1m 1s
+BUILD SUCCESSFUL in 17s
 43 actionable tasks: 37 executed, 6 up-to-date
 
 Publishing a build scan to scans.gradle.com requires accepting the Gradle Terms of Use defined at https://gradle.com/help/legal-terms-of-use. Do you accept these terms? [yes, no] 
