@@ -33,7 +33,6 @@ export default function App(): React.JSX.Element {
           <Stack.Navigator
             screenOptions={{
               headerShown: false,
-              animationEnabled: true,
             }}
           >
             {!isAuthenticated ? (
@@ -41,7 +40,6 @@ export default function App(): React.JSX.Element {
               <Stack.Group
                 screenOptions={{
                   headerShown: false,
-                  animationEnabled: false,
                 }}
               >
                 <Stack.Screen

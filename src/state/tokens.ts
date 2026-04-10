@@ -30,9 +30,11 @@ const initialUIState: UIState = {
 // Main token list store - accumulates from pagination
 export const $tokens = createStore<Token[]>([])
   .on(resetTokens, () => [])
-  .on(fetchTokensPageFx.doneData, (tokens: Token[], data: Token[], pageNum?: number) => {
+  .on(fetchTokensPageFx.doneData, (tokens: Token[], data: Token[]) => {
+    // Check if this is first page or next page
+    const currentPage = $currentPage.getState();
     // Page 1 replaces all data; subsequent pages append
-    if (pageNum === 1) {
+    if (currentPage === 1) {
       return data;
     }
     return [...tokens, ...data];
@@ -56,7 +58,7 @@ export const $isLoadingInitial = createStore<boolean>(false)
   .on(fetchTokensPageFx.finally, () => false);
 
 export const $hasMore = createStore<boolean>(true)
-  .on(fetchTokensPageFx.doneData, (_, data: Token[], __) => {
+  .on(fetchTokensPageFx.doneData, (_: boolean, data: Token[]) => {
     // Assume hasMore if we got a full page of results
     return data.length >= 50;
   })
@@ -72,9 +74,10 @@ export const $filters = createStore<ListFilters>(initialFilters)
 // UI state for errors
 export const $uiState = createStore<UIState>(initialUIState)
   .on(fetchInitialTokens, () => ({ isLoading: true, error: null, isEmpty: false }))
-  .on(fetchTokensPageFx.doneData, (state: UIState, data: Token[], page?: number) => {
+  .on(fetchTokensPageFx.doneData, (state: UIState, data: Token[]) => {
     // On initial load, check isEmpty. On subsequent loads, preserve isEmpty from before.
-    if (page === 1) {
+    const currentPage = $currentPage.getState();
+    if (currentPage === 1) {
       return {
         isLoading: false,
         error: null,
@@ -83,7 +86,7 @@ export const $uiState = createStore<UIState>(initialUIState)
     }
     return { ...state, isLoading: false, error: null };
   })
-  .on(fetchTokensPageFx.failData, (_, error: Error | null) => ({
+  .on(fetchTokensPageFx.failData, (state: UIState, error: Error | null) => ({
     isLoading: false,
     error: error?.message || 'Failed to load tokens',
     isEmpty: false,
