@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("../node_modules/@react-native/gradle-plugin")
     repositories {
         google()
         mavenCentral()
@@ -6,22 +7,14 @@ pluginManagement {
     }
 }
 
-includeBuild("../node_modules/@react-native/gradle-plugin")
-
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        maven {
-            url = file("../node_modules/react-native/android").toURI()
-        }
-    }
+plugins {
+    id("com.facebook.react.settings")
 }
 
-rootProject.name = 'CryptoTokensApp'
+extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
+    ex.autolinkLibrariesFromCommand()
+}
 
-apply from: file("../node_modules/@react-native/gradle-plugin/gradle-pre-sync.gradle")
+rootProject.name = "CryptoTokensApp"
 
-include ':app'
-project(':app').projectDir = new File(rootDir, 'app')
+include(":app")

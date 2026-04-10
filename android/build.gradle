@@ -6,3 +6,17 @@ ext {
     kotlinVersion = "1.8.10"
     ndkVersion = "25.2.9519653"
 }
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.1.0")
+        classpath("com.facebook.react:react-native-gradle-plugin:0.84.1")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.10")
+    }
+}
+
+apply plugin: "com.facebook.react.rootproject"
