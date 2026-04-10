@@ -9,6 +9,11 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
+import Animated, {
+  FadeIn,
+  SlideInUp,
+  Layout,
+} from 'react-native-reanimated';
 import { useStore } from 'effector-react';
 import {
   $tokenDetail,
@@ -61,24 +66,36 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={styles.header}>
+        <Animated.View
+          style={styles.header}
+          entering={FadeIn.duration(300)}
+          layout={Layout.springify()}
+        >
           <Image source={{ uri: tokenDetail.image }} style={styles.tokenImage} />
           <View style={styles.tokenInfo}>
             <Text style={styles.tokenName}>{tokenDetail.name}</Text>
             <Text style={styles.tokenSymbol}>{tokenDetail.symbol.toUpperCase()}</Text>
           </View>
-        </View>
+        </Animated.View>
 
         {/* Price Section */}
-        <View style={styles.priceSection}>
+        <Animated.View
+          style={styles.priceSection}
+          entering={FadeIn.duration(400).delay(100)}
+          layout={Layout.springify()}
+        >
           <Text style={styles.currentPrice}>{formatPrice(tokenDetail.current_price)}</Text>
           <Text style={[styles.change24h, { color: changeColor }]}>
             {formatChange(tokenDetail.price_change_percentage_24h)}
           </Text>
-        </View>
+        </Animated.View>
 
         {/* Stats Grid */}
-        <View style={styles.statsGrid}>
+        <Animated.View
+          style={styles.statsGrid}
+          entering={SlideInUp.duration(400).delay(150)}
+          layout={Layout.springify()}
+        >
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>Market Cap Rank</Text>
             <Text style={styles.statValue}>#{tokenDetail.market_cap_rank || 'N/A'}</Text>
@@ -104,7 +121,7 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
               <Text style={styles.statValue}>{formatPrice(tokenDetail.atl)}</Text>
             </View>
           )}
-        </View>
+        </Animated.View>
 
         {/* Price Chart */}
         {historyLoading && priceHistory.length === 0 ? (
@@ -113,7 +130,11 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
             <Text style={styles.chartLoaderText}>Loading chart...</Text>
           </View>
         ) : priceHistory.length > 0 ? (
-          <View style={styles.chartContainer}>
+          <Animated.View
+            style={styles.chartContainer}
+            entering={SlideInUp.duration(500).delay(200)}
+            layout={Layout.springify()}
+          >
             <View style={styles.chartHeader}>
               <Text style={styles.chartTitle}>7-Day Price History</Text>
               <TouchableOpacity
@@ -130,15 +151,19 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
             </View>
             <PriceChart data={priceHistory} height={180} />
             <Text style={styles.chartHint}>👆 Tap & drag to explore prices</Text>
-          </View>
+          </Animated.View>
         ) : null}
 
         {/* Description */}
         {tokenDetail.description && (
-          <View style={styles.descriptionContainer}>
+          <Animated.View
+            style={styles.descriptionContainer}
+            entering={FadeIn.duration(400).delay(250)}
+            layout={Layout.springify()}
+          >
             <Text style={styles.sectionTitle}>About</Text>
             <Text style={styles.descriptionText}>{tokenDetail.description}</Text>
-          </View>
+          </Animated.View>
         )}
 
         <View style={{ height: 20 }} />
