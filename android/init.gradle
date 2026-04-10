@@ -1,0 +1,13 @@
+// Gradle init script to provide React Native Gradle plugin from node_modules
+allprojects {
+    buildscript {
+        repositories {
+            maven {
+                url = uri(new File(rootDir, '../node_modules/@react-native/gradle-plugin').absolutePath)
+            }
+            google()
+            mavenCentral()
+            gradlePluginPortal()
+        }
+    }
+}
