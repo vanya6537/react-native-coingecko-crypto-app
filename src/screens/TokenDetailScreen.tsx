@@ -14,7 +14,7 @@ import Animated, {
   SlideInUp,
   Layout,
 } from 'react-native-reanimated';
-import { useStore } from 'effector-react';
+import { useUnit } from 'effector-react';
 import {
   $tokenDetail,
   $priceHistory,
@@ -34,10 +34,12 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
   navigation: any;
 }) => {
   const { tokenId } = route.params;
-  const tokenDetail = useStore($tokenDetail);
-  const priceHistory = useStore($priceHistory);
-  const detailLoading = useStore($detailLoading);
-  const historyLoading = useStore($historyLoading);
+  const [tokenDetail, priceHistory, detailLoading, historyLoading] = useUnit([
+    $tokenDetail,
+    $priceHistory,
+    $detailLoading,
+    $historyLoading,
+  ]);
 
   useEffect(() => {
     fetchTokenDetail(tokenId);

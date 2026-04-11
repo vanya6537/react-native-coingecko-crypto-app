@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   ListRenderItem,
 } from 'react-native';
-import { useStore } from 'effector-react';
+import { useUnit } from 'effector-react';
 import type { Token } from '../types/index';
 import {
   fetchInitialTokens,
@@ -27,12 +27,14 @@ import { TokenListLoadingSkeleton } from '../components/SkeletonLoader';
 import { filterTokens } from '../utils/formatters';
 
 export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }: { navigation: any }) => {
-  const tokens = useStore($tokens);
-  const filters = useStore($filters);
-  const uiState = useStore($uiState);
-  const isLoadingInitial = useStore($isLoadingInitial);
-  const isFetchingNextPage = useStore($isFetchingNextPage);
-  const hasMore = useStore($hasMore);
+  const [tokens, filters, uiState, isLoadingInitial, isFetchingNextPage, hasMore] = useUnit([
+    $tokens,
+    $filters,
+    $uiState,
+    $isLoadingInitial,
+    $isFetchingNextPage,
+    $hasMore,
+  ]);
 
   // Initial load on mount
   useEffect(() => {

@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import { useStore } from 'effector-react';
+import { useUnit } from 'effector-react';
 import {
   $tokenDetail,
   $priceHistory,
@@ -25,10 +25,12 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
   navigation,
 }) => {
   const { tokenId, tokenName } = route.params;
-  const tokenDetail = useStore($tokenDetail);
-  const priceHistory = useStore($priceHistory);
-  const detailLoading = useStore($detailLoading);
-  const historyLoading = useStore($historyLoading);
+  const [tokenDetail, priceHistory, detailLoading, historyLoading] = useUnit([
+    $tokenDetail,
+    $priceHistory,
+    $detailLoading,
+    $historyLoading,
+  ]);
 
   useEffect(() => {
     fetchTokenDetail(tokenId);

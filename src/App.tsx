@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { useStore } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { 
   LoginScreen, 
   TokensListScreen, 
@@ -16,7 +16,7 @@ const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
 
 export default function App(): React.JSX.Element {
-  const isAuthenticated = useStore($isAuthenticated);
+  const isAuthenticated = useUnit($isAuthenticated);
 
   const handleLoginSuccess = (token: string) => {
     loginSuccess(token);
