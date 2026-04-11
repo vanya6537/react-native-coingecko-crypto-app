@@ -12,12 +12,14 @@ import { useUnit } from 'effector-react';
 import type { Token } from '../types/index';
 import {
   fetchInitialTokens,
+  refreshTokens,
   fetchNextPage,
   setFilters,
   $tokens,
   $filters,
   $uiState,
   $isLoadingInitial,
+  $isRefreshing,
   $isFetchingNextPage,
   $hasMore,
 } from '../state/index';
@@ -27,11 +29,12 @@ import { TokenListLoadingSkeleton } from '../components/SkeletonLoader';
 import { filterTokens } from '../utils/formatters';
 
 export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }: { navigation: any }) => {
-  const [tokens, filters, uiState, isLoadingInitial, isFetchingNextPage, hasMore] = useUnit([
+  const [tokens, filters, uiState, isLoadingInitial, isRefreshing, isFetchingNextPage, hasMore] = useUnit([
     $tokens,
     $filters,
     $uiState,
     $isLoadingInitial,
+    $isRefreshing,
     $isFetchingNextPage,
     $hasMore,
   ]);
@@ -48,6 +51,10 @@ export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }: 
 
   const handleRetry = useCallback(() => {
     fetchInitialTokens();
+  }, []);
+
+  const handleRefresh = useCallback(() => {
+    refreshTokens();
   }, []);
 
   // Handle infinite scroll with debounce to prevent multiple rapid calls
@@ -131,6 +138,8 @@ export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }: 
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
         contentContainerStyle={styles.listContent}
+        refreshing={isRefreshing}
+        onRefresh={handleRefresh}
         removeClippedSubviews={true}
         maxToRenderPerBatch={10}
         updateCellsBatchingPeriod={50}
@@ -176,6 +185,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: 8,
+    paddingBottom: 96,
   },
   footerLoader: {
     flexDirection: 'row',

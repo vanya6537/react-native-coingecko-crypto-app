@@ -24,7 +24,7 @@ import {
   fetchTokenDetail,
   fetchPriceHistory,
 } from '../state/index';
-import { PriceChart } from '../components/index';
+import { ErrorState, PriceChart } from '../components/index';
 import { formatPrice, formatChange, formatMarketCap } from '../utils/formatters';
 
 export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
@@ -48,6 +48,11 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
     fetchPriceHistory(tokenId);
   }, [tokenId]);
 
+  const handleRetry = () => {
+    fetchTokenDetail(tokenId);
+    fetchPriceHistory(tokenId);
+  };
+
   if (detailLoading && !tokenDetail) {
     return (
       <View style={[styles.container, styles.centerContent]}>
@@ -58,9 +63,9 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
 
   if (!tokenDetail) {
     return (
-      <View style={[styles.container, styles.centerContent]}>
-        <Text style={styles.errorText}>{detailError || 'Failed to load token'}</Text>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <ErrorState error={detailError || 'Failed to load token'} onRetry={handleRetry} />
+      </SafeAreaView>
     );
   }
 

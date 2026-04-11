@@ -4,6 +4,7 @@ import type { Token, ListFilters, UIState } from '../types/index';
 
 // Events
 export const fetchInitialTokens = createEvent();
+export const refreshTokens = createEvent();
 export const fetchNextPage = createEvent();
 export const setFilters = createEvent<Partial<ListFilters>>();
 export const resetTokens = createEvent();
@@ -43,6 +44,7 @@ export const $tokens = createStore<Token[]>([])
 // Pagination tracking
 export const $currentPage = createStore<number>(1)
   .on(fetchInitialTokens, () => 1)
+  .on(refreshTokens, () => 1)
   .on(fetchNextPage, (page) => page + 1)
   .on(resetTokens, () => 1);
 
@@ -55,6 +57,10 @@ export const $isFetchingNextPage = createStore<boolean>(false)
 
 export const $isLoadingInitial = createStore<boolean>(false)
   .on(fetchInitialTokens, () => true)
+  .on(fetchTokensPageFx.finally, () => false);
+
+export const $isRefreshing = createStore<boolean>(false)
+  .on(refreshTokens, () => true)
   .on(fetchTokensPageFx.finally, () => false);
 
 export const $hasMore = createStore<boolean>(true)
@@ -74,6 +80,7 @@ export const $filters = createStore<ListFilters>(initialFilters)
 // UI state for errors
 export const $uiState = createStore<UIState>(initialUIState)
   .on(fetchInitialTokens, () => ({ isLoading: true, error: null, isEmpty: false }))
+  .on(refreshTokens, (state) => ({ ...state, error: null }))
   .on(fetchTokensPageFx.doneData, (state: UIState, data: Token[]) => {
     // On initial load, check isEmpty. On subsequent loads, preserve isEmpty from before.
     const currentPage = $currentPage.getState();
@@ -102,6 +109,12 @@ const pageSize = 50;
 // Combine currentPage with event to pass to effect
 sample({
   clock: fetchInitialTokens,
+  fn: () => ({ page: 1, pageSize }),
+  target: fetchTokensPageFx,
+});
+
+sample({
+  clock: refreshTokens,
   fn: () => ({ page: 1, pageSize }),
   target: fetchTokensPageFx,
 });

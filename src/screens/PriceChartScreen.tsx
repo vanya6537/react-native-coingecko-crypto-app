@@ -18,6 +18,7 @@ import {
   fetchTokenDetail,
   fetchPriceHistory,
 } from '../state/index';
+import { ErrorState } from '../components/StateComponents';
 import { ExpandedPriceChart } from '../components/ExpandedPriceChart';
 import { formatPrice, formatChange, formatMarketCap } from '../utils/formatters';
 
@@ -39,6 +40,11 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
     fetchPriceHistory(tokenId);
   }, [tokenId]);
 
+  const handleRetry = () => {
+    fetchTokenDetail(tokenId);
+    fetchPriceHistory(tokenId);
+  };
+
   if (detailLoading || historyLoading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
@@ -51,9 +57,7 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
   if (!priceHistory || priceHistory.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{historyError || 'No price data available'}</Text>
-        </View>
+        <ErrorState error={historyError || 'No price data available'} onRetry={handleRetry} />
       </SafeAreaView>
     );
   }
