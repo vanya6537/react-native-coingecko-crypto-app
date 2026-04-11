@@ -7,6 +7,15 @@ import {
   Text,
   ScrollView,
 } from 'react-native';
+import Svg, {
+  Circle,
+  G,
+  Line,
+  Polygon,
+  Polyline,
+  Rect,
+  Text as SvgText,
+} from 'react-native-svg';
 import type { PriceHistory } from '../types/index';
 import { formatPrice } from '../utils/formatters';
 
@@ -149,22 +158,22 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
         }}
         {...panResponderRef.current.panHandlers}
       >
-        <svg
+        <Svg
           width={width}
           height={chartHeight}
           style={styles.svg}
           viewBox={`0 0 ${width} ${chartHeight}`}
         >
           {/* Grid background */}
-          <rect width={width} height={chartHeight} fill="#FAFAFA" />
+          <Rect width={width} height={chartHeight} fill="#FAFAFA" />
 
           {/* Horizontal grid lines with labels */}
           {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
             const gridY = (1 - ratio) * (chartHeight - 70);
             const gridPrice = minPrice + priceRange * ratio;
             return (
-              <g key={`grid-${ratio}`}>
-                <line
+              <G key={`grid-${ratio}`}>
+                <Line
                   x1={0}
                   y1={gridY}
                   x2={width}
@@ -172,7 +181,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
                   stroke="#E0E0E0"
                   strokeWidth="0.5"
                 />
-                <text
+                <SvgText
                   x={5}
                   y={gridY + 4}
                   fontSize="10"
@@ -180,13 +189,13 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
                   fontFamily="system-ui"
                 >
                   {formatPrice(gridPrice)}
-                </text>
-              </g>
+                </SvgText>
+              </G>
             );
           })}
 
           {/* Area fill under curve */}
-          <polygon
+          <Polygon
             points={[
               `0,${chartHeight - 70}`,
               ...points.map((p) => `${p.x},${p.y}`),
@@ -197,7 +206,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
           />
 
           {/* Main price curve */}
-          <polyline
+          <Polyline
             points={points.map((p) => `${p.x},${p.y}`).join(' ')}
             fill="none"
             stroke={isUp ? '#00C853' : '#D32F2F'}
@@ -210,7 +219,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
           {selectedIndex !== null && selectedIndex >= 0 && selectedIndex < points.length && (
             <>
               {/* Vertical line */}
-              <line
+                <Line
                 x1={points[selectedIndex].x}
                 y1={0}
                 x2={points[selectedIndex].x}
@@ -221,7 +230,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
                 opacity="0.5"
               />
               {/* Selection circle */}
-              <circle
+              <Circle
                 cx={points[selectedIndex].x}
                 cy={points[selectedIndex].y}
                 r="5"
@@ -230,7 +239,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
                 strokeWidth="2"
               />
               {/* Tooltip background */}
-              <rect
+              <Rect
                 x={Math.max(5, points[selectedIndex].x - 35)}
                 y={Math.max(5, points[selectedIndex].y - 25)}
                 width="70"
@@ -240,7 +249,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
                 opacity="0.9"
               />
               {/* Tooltip text */}
-              <text
+              <SvgText
                 x={Math.max(10, points[selectedIndex].x - 30)}
                 y={Math.max(18, points[selectedIndex].y - 10)}
                 fontSize="11"
@@ -249,10 +258,10 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
                 fontFamily="system-ui"
               >
                 {formatPrice(points[selectedIndex].price)}
-              </text>
+              </SvgText>
             </>
           )}
-        </svg>
+        </Svg>
       </View>
 
       {/* Stats Panel */}

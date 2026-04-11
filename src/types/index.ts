@@ -14,9 +14,7 @@ export interface Token {
   description?: string;
 }
 
-export interface TokenDetail extends Token {
-  description?: string;
-}
+export interface TokenDetail extends Token {}
 
 export interface PriceHistory {
   timestamp: number;

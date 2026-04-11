@@ -50,3 +50,5 @@ ios/*.xcuserdatad/*
 vendor/*
 ios/*.log
 android/app/.cxx
+*.log
+android/*.log

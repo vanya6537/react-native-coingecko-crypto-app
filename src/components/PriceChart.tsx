@@ -6,6 +6,7 @@ import {
   Dimensions,
   Text,
 } from 'react-native';
+import Svg, { Circle, Line, Polygon, Polyline } from 'react-native-svg';
 import Animated, {
   FadeIn,
   ZoomIn,
@@ -128,10 +129,10 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     ].join(' ');
 
     return (
-      <svg width={width} height={height - 50} style={styles.svg} viewBox={`0 0 ${width} ${height - 50}`}>
+      <Svg width={width} height={height - 50} style={styles.svg} viewBox={`0 0 ${width} ${height - 50}`}>
         {/* Grid lines */}
         {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
-          <line
+          <Line
             key={`grid-${ratio}`}
             x1={0}
             y1={Math.round((1 - ratio) * (height - 50))}
@@ -143,14 +144,14 @@ export const PriceChart: React.FC<PriceChartProps> = ({
         ))}
 
         {/* Fill under curve */}
-        <polygon
+        <Polygon
           points={fillPoints}
           fill={isUp ? '#C8E6C9' : '#FFCDD2'}
           opacity="0.3"
         />
 
         {/* Price curve */}
-        <polyline
+        <Polyline
           points={linePoints}
           fill="none"
           stroke={isUp ? '#00C853' : '#D32F2F'}
@@ -162,7 +163,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
         {selectedIndex !== null && selectedIndex >= 0 && selectedIndex < points.length && (
           <>
             {/* Vertical line */}
-            <line
+            <Line
               x1={points[selectedIndex].x}
               y1={0}
               x2={points[selectedIndex].x}
@@ -173,7 +174,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
               opacity="0.6"
             />
             {/* Circle at point */}
-            <circle
+            <Circle
               cx={points[selectedIndex].x}
               cy={points[selectedIndex].y}
               r="4"
@@ -183,7 +184,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
             />
           </>
         )}
-      </svg>
+      </Svg>
     );
   };
 
