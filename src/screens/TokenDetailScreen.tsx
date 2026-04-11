@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Text,
   SafeAreaView,
-  ActivityIndicator,
   Image,
   TouchableOpacity,
 } from 'react-native';
@@ -24,7 +23,12 @@ import {
   fetchTokenDetail,
   fetchPriceHistory,
 } from '../state/index';
-import { ErrorState, PriceChart } from '../components/index';
+import {
+  ChartLoadingSkeleton,
+  ErrorState,
+  PriceChart,
+  TokenDetailLoadingSkeleton,
+} from '../components/index';
 import { formatPrice, formatChange, formatMarketCap } from '../utils/formatters';
 
 export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
@@ -55,9 +59,11 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
 
   if (detailLoading && !tokenDetail) {
     return (
-      <View style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color="#1976D2" />
-      </View>
+      <SafeAreaView style={styles.container}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <TokenDetailLoadingSkeleton />
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 
@@ -139,9 +145,14 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
 
         {/* Price Chart */}
         {historyLoading && priceHistory.length === 0 ? (
-          <View style={styles.chartLoader}>
-            <ActivityIndicator size="small" color="#1976D2" />
-            <Text style={styles.chartLoaderText}>Loading chart...</Text>
+          <View style={styles.chartContainer}>
+            <View style={styles.chartHeader}>
+              <Text style={styles.chartTitle}>7-Day Price History</Text>
+              <TouchableOpacity style={styles.expandButton} disabled={true} activeOpacity={1}>
+                <Text style={styles.expandButtonText}>📈 Fullscreen</Text>
+              </TouchableOpacity>
+            </View>
+            <ChartLoadingSkeleton height={180} compact={true} />
           </View>
         ) : priceHistory.length > 0 ? (
           <Animated.View
@@ -293,19 +304,10 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontStyle: 'italic',
   },
-  chartLoader: {
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    alignItems: 'center',
-  },
-  chartLoaderText: {
-    marginTop: 8,
-    fontSize: 12,
-    color: '#999',
-  },
   descriptionContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 8,
   },
   sectionTitle: {
     fontSize: 16,

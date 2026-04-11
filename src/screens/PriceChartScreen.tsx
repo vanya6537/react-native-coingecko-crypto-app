@@ -5,8 +5,6 @@ import {
   StyleSheet,
   Text,
   SafeAreaView,
-  TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
 import { useUnit } from 'effector-react';
 import {
@@ -18,7 +16,7 @@ import {
   fetchTokenDetail,
   fetchPriceHistory,
 } from '../state/index';
-import { ErrorState } from '../components/StateComponents';
+import { ErrorState, FullscreenChartLoadingSkeleton } from '../components';
 import { ExpandedPriceChart } from '../components/ExpandedPriceChart';
 import { formatPrice, formatChange, formatMarketCap } from '../utils/formatters';
 
@@ -47,9 +45,10 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
 
   if (detailLoading || historyLoading) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#1976D2" />
-        <Text style={styles.loadingText}>Loading chart data...</Text>
+      <SafeAreaView style={styles.container}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <FullscreenChartLoadingSkeleton />
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -143,17 +142,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#666',
   },
   header: {
     paddingHorizontal: 20,
