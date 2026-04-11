@@ -20,6 +20,7 @@ import {
   $priceHistory,
   $detailLoading,
   $historyLoading,
+  $detailError,
   fetchTokenDetail,
   fetchPriceHistory,
 } from '../state/index';
@@ -34,11 +35,12 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
   navigation: any;
 }) => {
   const { tokenId } = route.params;
-  const [tokenDetail, priceHistory, detailLoading, historyLoading] = useUnit([
+  const [tokenDetail, priceHistory, detailLoading, historyLoading, detailError] = useUnit([
     $tokenDetail,
     $priceHistory,
     $detailLoading,
     $historyLoading,
+    $detailError,
   ]);
 
   useEffect(() => {
@@ -57,7 +59,7 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
   if (!tokenDetail) {
     return (
       <View style={[styles.container, styles.centerContent]}>
-        <Text style={styles.errorText}>Failed to load token</Text>
+        <Text style={styles.errorText}>{detailError || 'Failed to load token'}</Text>
       </View>
     );
   }

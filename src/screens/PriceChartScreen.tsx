@@ -14,6 +14,7 @@ import {
   $priceHistory,
   $detailLoading,
   $historyLoading,
+  $historyError,
   fetchTokenDetail,
   fetchPriceHistory,
 } from '../state/index';
@@ -25,11 +26,12 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
   navigation,
 }) => {
   const { tokenId, tokenName } = route.params;
-  const [tokenDetail, priceHistory, detailLoading, historyLoading] = useUnit([
+  const [tokenDetail, priceHistory, detailLoading, historyLoading, historyError] = useUnit([
     $tokenDetail,
     $priceHistory,
     $detailLoading,
     $historyLoading,
+    $historyError,
   ]);
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>No price data available</Text>
+          <Text style={styles.errorText}>{historyError || 'No price data available'}</Text>
         </View>
       </SafeAreaView>
     );

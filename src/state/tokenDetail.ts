@@ -18,19 +18,37 @@ export const $tokenDetail = createStore<TokenDetail | null>(null);
 export const $priceHistory = createStore<PriceHistory[]>([]);
 export const $detailLoading = createStore(false);
 export const $historyLoading = createStore(false);
+export const $detailError = createStore<string | null>(null);
+export const $historyError = createStore<string | null>(null);
 
 $tokenDetail
+  .on(fetchTokenDetail, () => null)
   .on(fetchTokenDetail.doneData, (_, data) => data)
   .on(clearDetail, () => null);
 
 $priceHistory
+  .on(fetchPriceHistory, () => [])
   .on(fetchPriceHistory.doneData, (_, data) => data)
   .on(clearDetail, () => []);
 
 $detailLoading
+  .on(fetchTokenDetail, () => true)
   .on(setDetailLoading, (_, value) => value)
   .on(fetchTokenDetail.finally, () => false);
 
 $historyLoading
+  .on(fetchPriceHistory, () => true)
   .on(setHistoryLoading, (_, value) => value)
   .on(fetchPriceHistory.finally, () => false);
+
+$detailError
+  .on(fetchTokenDetail, () => null)
+  .on(fetchTokenDetail.failData, (_, error) => error?.message || 'Failed to load token')
+  .on(fetchTokenDetail.done, () => null)
+  .on(clearDetail, () => null);
+
+$historyError
+  .on(fetchPriceHistory, () => null)
+  .on(fetchPriceHistory.failData, (_, error) => error?.message || 'Failed to load price history')
+  .on(fetchPriceHistory.done, () => null)
+  .on(clearDetail, () => null);
