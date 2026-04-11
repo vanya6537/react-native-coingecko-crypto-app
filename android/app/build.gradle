@@ -49,6 +49,14 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    sourceSets {
+        main {
+            java {
+                exclude "com/facebook/react/PackageList.java"
+            }
+        }
+    }
 }
 
 dependencies {
@@ -66,4 +74,5 @@ dependencies {
 
 react {
     autolinkLibrariesWithApp()
+    entryFile = file("../index.js")
 }

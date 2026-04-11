@@ -20,6 +20,10 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
 
 rootProject.name = "crypto-tokens-app"
 include(":app")
+include(":react-native-gesture-handler")
+include(":react-native-reanimated")
+include(":react-native-nitro-modules")
+include(":react-native-worklets")
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
