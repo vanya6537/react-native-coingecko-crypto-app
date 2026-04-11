@@ -3,14 +3,14 @@ export interface Token {
   symbol: string;
   name: string;
   image: string;
-  current_price: number;
+  current_price: number | null;
   market_cap_rank: number | null;
-  price_change_percentage_24h: number;
-  market_cap?: number;
-  total_volume?: number;
-  ath?: number;
-  atl?: number;
-  market_cap_change_24h?: number;
+  price_change_percentage_24h: number | null;
+  market_cap?: number | null;
+  total_volume?: number | null;
+  ath?: number | null;
+  atl?: number | null;
+  market_cap_change_24h?: number | null;
   description?: string;
 }
 

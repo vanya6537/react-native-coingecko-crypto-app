@@ -19,7 +19,12 @@ const TokenItemComponent: React.FC<TokenItemProps> = ({ token, onPress }) => {
     onPress?.(token);
   }, [token, onPress]);
 
-  const changeColor = token.price_change_percentage_24h >= 0 ? '#00C853' : '#D32F2F';
+  const changeColor =
+    typeof token.price_change_percentage_24h === 'number'
+      ? token.price_change_percentage_24h >= 0
+        ? '#00C853'
+        : '#D32F2F'
+      : '#757575';
 
   return (
     <TouchableOpacity 

@@ -62,7 +62,12 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
     );
   }
 
-  const changeColor = tokenDetail.price_change_percentage_24h >= 0 ? '#00C853' : '#D32F2F';
+  const changeColor =
+    typeof tokenDetail.price_change_percentage_24h === 'number'
+      ? tokenDetail.price_change_percentage_24h >= 0
+        ? '#00C853'
+        : '#D32F2F'
+      : '#666';
 
   return (
     <SafeAreaView style={styles.container}>
