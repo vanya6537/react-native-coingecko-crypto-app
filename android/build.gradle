@@ -8,17 +8,26 @@ buildscript {
         kotlinVersion = "2.1.20"
     }
     repositories {
+        maven {
+            url = uri(new File(rootDir, '../node_modules/@react-native/gradle-plugin').absolutePath)
+        }
         google()
         mavenCentral()
+        gradlePluginPortal()
     }
     dependencies {
         classpath("com.android.tools.build:gradle:8.13.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20")
+        classpath(files("../node_modules/@react-native/gradle-plugin/react-native-gradle-plugin/build/libs/react-native-gradle-plugin.jar"))
+        classpath(files("../node_modules/@react-native/gradle-plugin/settings-plugin/build/libs/settings-plugin.jar"))
     }
 }
 
 allprojects {
     repositories {
+        maven {
+            url = uri(new File(rootDir, '../node_modules/@react-native/gradle-plugin').absolutePath)
+        }
         google()
         mavenCentral()
     }
