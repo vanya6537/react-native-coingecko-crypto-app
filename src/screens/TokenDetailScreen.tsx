@@ -9,8 +9,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Animated, {
+  Easing,
   FadeIn,
-  SlideInUp,
   Layout,
 } from 'react-native-reanimated';
 import { useUnit } from 'effector-react';
@@ -30,6 +30,29 @@ import {
   TokenDetailLoadingSkeleton,
 } from '../components/index';
 import { formatPrice, formatChange, formatMarketCap } from '../utils/formatters';
+
+const PHI = 1.618;
+const ENTRANCE_BASE_DURATION = 420;
+const ENTRANCE_BASE_DISTANCE = 18;
+
+const luxuryEnter = (delay: number, distanceMultiplier: number = 1) =>
+  FadeIn
+    .duration(ENTRANCE_BASE_DURATION)
+    .delay(delay)
+    .easing(Easing.bezier(0.22, 1, 0.36, 1))
+    .withInitialValues({
+      opacity: 0,
+      transform: [
+        { translateY: ENTRANCE_BASE_DISTANCE * distanceMultiplier },
+        { scale: 0.985 },
+      ],
+    });
+
+const luxuryLayout = Layout
+  .springify()
+  .damping(18 * PHI)
+  .stiffness(140 / PHI)
+  .mass(0.95);
 
 export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
   route,
@@ -88,8 +111,8 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
         {/* Header */}
         <Animated.View
           style={styles.header}
-          entering={FadeIn.duration(300)}
-          layout={Layout.springify()}
+          entering={luxuryEnter(0, 0.55)}
+          layout={luxuryLayout}
         >
           <Image source={{ uri: tokenDetail.image }} style={styles.tokenImage} />
           <View style={styles.tokenInfo}>
@@ -101,8 +124,8 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
         {/* Price Section */}
         <Animated.View
           style={styles.priceSection}
-          entering={FadeIn.duration(400).delay(100)}
-          layout={Layout.springify()}
+          entering={luxuryEnter(Math.round(ENTRANCE_BASE_DURATION / PHI), 0.8)}
+          layout={luxuryLayout}
         >
           <Text style={styles.currentPrice}>{formatPrice(tokenDetail.current_price)}</Text>
           <Text style={[styles.change24h, { color: changeColor }]}>
@@ -113,8 +136,8 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
         {/* Stats Grid */}
         <Animated.View
           style={styles.statsGrid}
-          entering={SlideInUp.duration(400).delay(150)}
-          layout={Layout.springify()}
+          entering={luxuryEnter(Math.round((ENTRANCE_BASE_DURATION / PHI) * PHI), 1)}
+          layout={luxuryLayout}
         >
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>Market Cap Rank</Text>
@@ -157,8 +180,8 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
         ) : priceHistory.length > 0 ? (
           <Animated.View
             style={styles.chartContainer}
-            entering={SlideInUp.duration(500).delay(200)}
-            layout={Layout.springify()}
+            entering={luxuryEnter(Math.round((ENTRANCE_BASE_DURATION / PHI) * (PHI + 0.45)), 1.1)}
+            layout={luxuryLayout}
           >
             <View style={styles.chartHeader}>
               <Text style={styles.chartTitle}>7-Day Price History</Text>
@@ -174,7 +197,7 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
                 <Text style={styles.expandButtonText}>📈 Fullscreen</Text>
               </TouchableOpacity>
             </View>
-            <PriceChart data={priceHistory} height={180} />
+            <PriceChart data={priceHistory} height={230} />
             <Text style={styles.chartHint}>👆 Tap & drag to explore prices</Text>
           </Animated.View>
         ) : null}
@@ -183,8 +206,8 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
         {tokenDetail.description && (
           <Animated.View
             style={styles.descriptionContainer}
-            entering={FadeIn.duration(400).delay(250)}
-            layout={Layout.springify()}
+            entering={luxuryEnter(Math.round((ENTRANCE_BASE_DURATION / PHI) * (PHI + 1)), 0.9)}
+            layout={luxuryLayout}
           >
             <Text style={styles.sectionTitle}>About</Text>
             <Text style={styles.descriptionText}>{tokenDetail.description}</Text>

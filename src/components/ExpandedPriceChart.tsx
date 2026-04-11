@@ -38,6 +38,9 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
 }) => {
   const width = Dimensions.get('window').width - 40;
   const chartHeight = 300;
+  const chartPadding = { top: 30, right: 16, bottom: 44, left: 56 };
+  const plotWidth = width - chartPadding.left - chartPadding.right;
+  const plotHeight = chartHeight - chartPadding.top - chartPadding.bottom;
   
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const panResponderRef = useRef<any>(null);
@@ -55,10 +58,13 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
   const maxPrice = Math.max(...prices);
   const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
   const priceRange = maxPrice - minPrice || 1;
+  const pointCountDivisor = Math.max(data.length - 1, 1);
+  const minIndex = prices.indexOf(minPrice);
+  const maxIndex = prices.indexOf(maxPrice);
 
   const points: ChartPoint[] = data.map((d, i) => ({
-    x: (i / (data.length - 1)) * width,
-    y: chartHeight - 70 - ((d.price - minPrice) / priceRange) * (chartHeight - 140),
+    x: chartPadding.left + (i / pointCountDivisor) * plotWidth,
+    y: chartPadding.top + ((maxPrice - d.price) / priceRange) * plotHeight,
     price: d.price,
     timestamp: d.timestamp,
     index: i,
@@ -66,11 +72,11 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
 
   const updateSelectedPoint = useCallback(
     (pageX: number) => {
-      const relativeX = Math.max(0, Math.min(pageX - 20, width));
-      const index = Math.round((relativeX / width) * (data.length - 1));
+      const relativeX = Math.max(0, Math.min(pageX - 20 - chartPadding.left, plotWidth));
+      const index = Math.round((relativeX / Math.max(plotWidth, 1)) * pointCountDivisor);
       setSelectedIndex(Math.min(Math.max(index, 0), data.length - 1));
     },
-    [width, data.length]
+    [chartPadding.left, plotWidth, pointCountDivisor, data.length]
   );
 
   if (!panResponderRef.current) {
@@ -94,6 +100,8 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
 
   const selectedPoint = selectedIndex !== null ? points[selectedIndex] : null;
   const displayPrice = selectedPoint?.price ?? lastPrice;
+  const minPoint = points[minIndex];
+  const maxPoint = points[maxIndex];
   const displayDate = selectedPoint
     ? new Date(selectedPoint.timestamp).toLocaleDateString('en-US', {
         weekday: 'short',
@@ -153,8 +161,10 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
           height: chartHeight,
           marginVertical: 20,
           backgroundColor: '#FFF',
-          borderRadius: 12,
+          borderRadius: 14,
           overflow: 'hidden',
+          borderWidth: 1,
+          borderColor: '#EEF2F5',
         }}
         {...panResponderRef.current.panHandlers}
       >
@@ -169,24 +179,25 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
 
           {/* Horizontal grid lines with labels */}
           {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
-            const gridY = (1 - ratio) * (chartHeight - 70);
-            const gridPrice = minPrice + priceRange * ratio;
+            const gridY = chartPadding.top + ratio * plotHeight;
+            const gridPrice = maxPrice - priceRange * ratio;
             return (
               <G key={`grid-${ratio}`}>
                 <Line
-                  x1={0}
+                  x1={chartPadding.left}
                   y1={gridY}
-                  x2={width}
+                  x2={width - chartPadding.right}
                   y2={gridY}
                   stroke="#E0E0E0"
                   strokeWidth="0.5"
                 />
                 <SvgText
-                  x={5}
+                  x={chartPadding.left - 8}
                   y={gridY + 4}
                   fontSize="10"
                   fill="#999"
                   fontFamily="system-ui"
+                  textAnchor="end"
                 >
                   {formatPrice(gridPrice)}
                 </SvgText>
@@ -194,12 +205,33 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
             );
           })}
 
+          <Line
+            x1={chartPadding.left}
+            y1={maxPoint.y}
+            x2={width - chartPadding.right}
+            y2={maxPoint.y}
+            stroke="#B0BEC5"
+            strokeWidth="1"
+            strokeDasharray="4,4"
+            opacity="0.8"
+          />
+          <Line
+            x1={chartPadding.left}
+            y1={minPoint.y}
+            x2={width - chartPadding.right}
+            y2={minPoint.y}
+            stroke="#CFD8DC"
+            strokeWidth="1"
+            strokeDasharray="4,4"
+            opacity="0.8"
+          />
+
           {/* Area fill under curve */}
           <Polygon
             points={[
-              `0,${chartHeight - 70}`,
+              `${chartPadding.left},${chartPadding.top + plotHeight}`,
               ...points.map((p) => `${p.x},${p.y}`),
-              `${width},${chartHeight - 70}`,
+              `${width - chartPadding.right},${chartPadding.top + plotHeight}`,
             ].join(' ')}
             fill={isUp ? '#C8E6C9' : '#FFCDD2'}
             opacity="0.2"
@@ -215,15 +247,55 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
             strokeLinecap="round"
           />
 
+          <Circle cx={maxPoint.x} cy={maxPoint.y} r="5" fill="#00C853" stroke="#FFF" strokeWidth="2" />
+          <Circle cx={minPoint.x} cy={minPoint.y} r="5" fill="#D32F2F" stroke="#FFF" strokeWidth="2" />
+
+          <Rect
+            x={Math.max(chartPadding.left, Math.min(maxPoint.x - 36, width - chartPadding.right - 72))}
+            y={Math.max(6, maxPoint.y - 30)}
+            width="72"
+            height="22"
+            rx="11"
+            fill="#E8F5E9"
+          />
+          <SvgText
+            x={Math.max(chartPadding.left, Math.min(maxPoint.x - 36, width - chartPadding.right - 72)) + 36}
+            y={Math.max(6, maxPoint.y - 30) + 14}
+            fontSize="10"
+            fill="#1B5E20"
+            fontWeight="700"
+            textAnchor="middle"
+          >
+            7D HIGH
+          </SvgText>
+          <Rect
+            x={Math.max(chartPadding.left, Math.min(minPoint.x - 34, width - chartPadding.right - 68))}
+            y={Math.min(chartHeight - 28, minPoint.y + 10)}
+            width="68"
+            height="22"
+            rx="11"
+            fill="#FFEBEE"
+          />
+          <SvgText
+            x={Math.max(chartPadding.left, Math.min(minPoint.x - 34, width - chartPadding.right - 68)) + 34}
+            y={Math.min(chartHeight - 28, minPoint.y + 10) + 14}
+            fontSize="10"
+            fill="#B71C1C"
+            fontWeight="700"
+            textAnchor="middle"
+          >
+            7D LOW
+          </SvgText>
+
           {/* Selected point indicator */}
           {selectedIndex !== null && selectedIndex >= 0 && selectedIndex < points.length && (
             <>
               {/* Vertical line */}
-                <Line
+              <Line
                 x1={points[selectedIndex].x}
-                y1={0}
+                y1={chartPadding.top}
                 x2={points[selectedIndex].x}
-                y2={chartHeight - 70}
+                y2={chartPadding.top + plotHeight}
                 stroke="#1976D2"
                 strokeWidth="1"
                 strokeDasharray="3,3"
@@ -369,7 +441,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     backgroundColor: '#FAFAFA',
     borderRadius: 12,
-    paddingVertical: 16,
+    paddingVertical: 18,
     marginVertical: 16,
   },
   statItem: {

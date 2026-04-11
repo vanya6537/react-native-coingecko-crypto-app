@@ -6,13 +6,12 @@ import {
   Dimensions,
   Text,
 } from 'react-native';
-import Svg, { Circle, Line, Polygon, Polyline } from 'react-native-svg';
+import Svg, { Circle, G, Line, Polygon, Polyline, Rect, Text as SvgText } from 'react-native-svg';
 import Animated, {
   FadeIn,
   ZoomIn,
   Layout,
   useSharedValue,
-  useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
 import type { PriceHistory } from '../types/index';
@@ -35,6 +34,10 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   height = 220,
 }) => {
   const width = Dimensions.get('window').width - 32;
+  const svgHeight = height - 50;
+  const chartPadding = { top: 34, right: 14, bottom: 36, left: 14 };
+  const plotWidth = width - chartPadding.left - chartPadding.right;
+  const plotHeight = svgHeight - chartPadding.top - chartPadding.bottom;
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<Point | null>(null);
   const panResponderRef = useRef<any>(null);
@@ -65,26 +68,29 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
   const priceRange = maxPrice - minPrice || 1;
+  const pointCountDivisor = Math.max(data.length - 1, 1);
+  const minIndex = prices.indexOf(minPrice);
+  const maxIndex = prices.indexOf(maxPrice);
 
   const points: Point[] = data.map((d: PriceHistory, i: number) => ({
-    x: (i / (data.length - 1)) * width,
-    y: height - 50 - ((d.price - minPrice) / priceRange) * (height - 100),
+    x: chartPadding.left + (i / pointCountDivisor) * plotWidth,
+    y: chartPadding.top + ((maxPrice - d.price) / priceRange) * plotHeight,
     price: d.price,
     timestamp: d.timestamp,
   }));
 
   const updateSelectedPoint = useCallback(
     (pageX: number) => {
-      const relativeX = pageX - 16; // Account for padding
-      const normalizedX = Math.max(0, Math.min(relativeX, width));
-      const index = Math.round((normalizedX / width) * (data.length - 1));
+      const relativeX = pageX - 16 - chartPadding.left;
+      const normalizedX = Math.max(0, Math.min(relativeX, plotWidth));
+      const index = Math.round((normalizedX / Math.max(plotWidth, 1)) * pointCountDivisor);
       
       if (index >= 0 && index < data.length) {
         setSelectedIndex(index);
         setSelectedPoint(points[index]);
       }
     },
-    [width, data.length, points]
+    [chartPadding.left, plotWidth, pointCountDivisor, data.length, points]
   );
 
   // Gesture handler
@@ -123,25 +129,71 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   const renderChart = () => {
     const linePoints = points.map((p) => `${p.x},${p.y}`).join(' ');
     const fillPoints = [
-      `0,${height - 50}`,
+      `${chartPadding.left},${chartPadding.top + plotHeight}`,
       ...points.map((p) => `${p.x},${p.y}`),
-      `${width},${height - 50}`,
+      `${width - chartPadding.right},${chartPadding.top + plotHeight}`,
     ].join(' ');
+    const minPoint = points[minIndex];
+    const maxPoint = points[maxIndex];
+
+    const renderExtremeBadge = (point: Point, label: 'HIGH' | 'LOW', tone: string, position: 'top' | 'bottom') => {
+      const badgeWidth = 48;
+      const badgeHeight = 20;
+      const x = Math.max(chartPadding.left, Math.min(point.x - badgeWidth / 2, width - chartPadding.right - badgeWidth));
+      const y = position === 'top' ? 8 : svgHeight - badgeHeight - 8;
+
+      return (
+        <G>
+          <Rect x={x} y={y} width={badgeWidth} height={badgeHeight} rx={9} fill={tone} opacity={0.12} />
+          <SvgText
+            x={x + badgeWidth / 2}
+            y={y + 13}
+            fontSize="9"
+            fill={tone}
+            fontWeight="700"
+            textAnchor="middle"
+          >
+            {label}
+          </SvgText>
+        </G>
+      );
+    };
 
     return (
-      <Svg width={width} height={height - 50} style={styles.svg} viewBox={`0 0 ${width} ${height - 50}`}>
+      <Svg width={width} height={svgHeight} style={styles.svg} viewBox={`0 0 ${width} ${svgHeight}`}>
         {/* Grid lines */}
         {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
           <Line
             key={`grid-${ratio}`}
-            x1={0}
-            y1={Math.round((1 - ratio) * (height - 50))}
-            x2={width}
-            y2={Math.round((1 - ratio) * (height - 50))}
+            x1={chartPadding.left}
+            y1={Math.round(chartPadding.top + ratio * plotHeight)}
+            x2={width - chartPadding.right}
+            y2={Math.round(chartPadding.top + ratio * plotHeight)}
             stroke="#E0E0E0"
             strokeWidth="1"
           />
         ))}
+
+        <Line
+          x1={chartPadding.left}
+          y1={maxPoint.y}
+          x2={width - chartPadding.right}
+          y2={maxPoint.y}
+          stroke="#B0BEC5"
+          strokeWidth="1"
+          strokeDasharray="4,4"
+          opacity="0.8"
+        />
+        <Line
+          x1={chartPadding.left}
+          y1={minPoint.y}
+          x2={width - chartPadding.right}
+          y2={minPoint.y}
+          stroke="#CFD8DC"
+          strokeWidth="1"
+          strokeDasharray="4,4"
+          opacity="0.8"
+        />
 
         {/* Fill under curve */}
         <Polygon
@@ -159,15 +211,20 @@ export const PriceChart: React.FC<PriceChartProps> = ({
           strokeLinejoin="miter"
         />
 
+        <Circle cx={maxPoint.x} cy={maxPoint.y} r="4.5" fill="#00C853" stroke="#FFF" strokeWidth="2" />
+        <Circle cx={minPoint.x} cy={minPoint.y} r="4.5" fill="#D32F2F" stroke="#FFF" strokeWidth="2" />
+        {renderExtremeBadge(maxPoint, 'HIGH', '#00A152', 'top')}
+        {renderExtremeBadge(minPoint, 'LOW', '#C62828', 'bottom')}
+
         {/* Selected point indicator */}
         {selectedIndex !== null && selectedIndex >= 0 && selectedIndex < points.length && (
           <>
             {/* Vertical line */}
             <Line
               x1={points[selectedIndex].x}
-              y1={0}
+              y1={chartPadding.top}
               x2={points[selectedIndex].x}
-              y2={height - 50}
+              y2={chartPadding.top + plotHeight}
               stroke="#1976D2"
               strokeWidth="1.5"
               strokeDasharray="4,4"
@@ -278,22 +335,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFF',
-    borderRadius: 8,
+    borderRadius: 12,
     overflow: 'hidden',
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#EEF2F5',
   },
   svg: {
     width: '100%',
     height: '100%',
   },
   legend: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: 'column',
+    gap: 10,
+    paddingTop: 4,
   },
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    paddingVertical: 2,
   },
   legendColor: {
     width: 8,
