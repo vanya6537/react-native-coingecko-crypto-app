@@ -3,6 +3,8 @@
  * Orchestrates all features and pages
  */
 import React from 'react';
+import { enableScreens } from 'react-native-screens';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -15,6 +17,9 @@ import {
 } from '../pages';
 import { $isAuthenticated, loginSuccess, logout } from '../features/auth';
 
+// Enable optimized screens for React Navigation
+enableScreens(true);
+
 const Stack = createNativeStackNavigator();
 
 export function App(): React.JSX.Element {
@@ -26,7 +31,8 @@ export function App(): React.JSX.Element {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
+      <SafeAreaProvider>
+        <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
@@ -86,7 +92,8 @@ export function App(): React.JSX.Element {
             </Stack.Group>
           )}
         </Stack.Navigator>
-      </NavigationContainer>
+        </NavigationContainer>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
