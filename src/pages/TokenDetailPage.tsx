@@ -181,7 +181,7 @@ export const TokenDetailPage: React.FC<TokenDetailPageProps> = ({
               {historyLoading ? (
                 <Text style={styles.loadingText}>Loading chart...</Text>
               ) : (
-                <PriceChart data={priceHistory} height={220} />
+                <PriceChart data={priceHistory} height={300} />
               )}
             </View>
           </Animated.View>

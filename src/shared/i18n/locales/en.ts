@@ -73,7 +73,7 @@ export const en = {
 
   // Notifications
   notifications: {
-    title: 'Notifications',
+    title: 'Notifications & Demo',
     priceAlerts: 'Price Alerts',
     enableNotifications: 'Enable Notifications',
     disableNotifications: 'Disable Notifications',
@@ -87,6 +87,48 @@ export const en = {
     prefetching: 'Prefetching data...',
     offlineMode: 'Offline Mode: Using cached data',
     reconnected: 'Connection restored',
+    
+    // Demo page sections
+    demoVisualNotifications: 'Visual Notifications',
+    demoVisualDesc: 'Click "Random Notification" to see different toast types',
+    demoPriceAlerts: 'Live Price Alerts',
+    demoPriceAlertsDesc: 'Monitor top 5 tokens with real-time notifications (mocked)',
+    demoCacheOpt: 'Cache Optimization',
+    demoExport: 'Export Data',
+    demoTokensPreview: 'Tokens Data Preview',
+    demoAbout: 'About This Demo',
+    demoAboutText: '• Uses react-query for smart caching and prefetching\n• Displays toast notifications with lucide icons\n• Demonstrates cache optimization strategies\n• Memory-efficient with automatic GC\n• Full i18n support for multi-language',
+    
+    // Demo buttons
+    randomNotification: 'Random Notification',
+    startLiveMonitoring: 'Start Live Monitoring',
+    stopLiveMonitoring: 'Stop Live Monitoring',
+    prefetchNext: 'Prefetch Next Page',
+    batchPrefetch: 'Batch Prefetch Tokens',
+    optimizeCache: 'Optimize Cache',
+    clearCache: 'Clear All Cache',
+    exportCsv: 'Export Tokens as CSV',
+    monitoringTokens: 'Monitoring Tokens',
+    monitoringNote: '💡 Prices will update every 2 seconds with toast notifications (mocked)',
+    
+    // Demo messages
+    toastSuccess: '✅ Success! Operation completed',
+    toastInfo: 'ℹ️ Information: Data loaded',
+    toastWarning: '⚠️ Warning: Low memory',
+    toastError: '❌ Error: Failed to load',
+    exportingCsv: 'Exporting tokens to CSV...',
+    exportSuccess: 'Tokens exported successfully!',
+    exportFailed: 'Failed to export tokens',
+    noTokensToExport: 'No tokens to export',
+    noTokensMonitoring: 'No tokens available for monitoring',
+    monitoringStarted: 'Live price monitoring started 🚀',
+    monitoringStopped: 'Live monitoring stopped',
+    rateLimitError: 'Rate limit exceeded (429) - API quota reached',
+    sendNotifications: '📤 Send Notifications',
+    successNotificationButtonLabel: 'Success Notification',
+    infoNotificationButtonLabel: 'Info Notification',
+    warningNotificationButtonLabel: 'Warning Notification',
+    errorNotificationButtonLabel: 'Error Notification',
   },
 
   // Export
@@ -119,5 +161,62 @@ export const en = {
     saved: 'Saved',
     deleted: 'Deleted',
     copied: 'Copied to clipboard',
+  },
+
+  // Auth
+  auth: {
+    email: 'Email',
+    password: 'Password',
+    enterEmail: 'Enter your email',
+    enterPassword: 'Enter your password',
+    signIn: 'Sign In',
+    tryDemo: 'Try Demo',
+    demoCredentials: '🔐 All credentials are mock for demo purposes',
+    demoHint: 'Demo: any credentials work',
+    missingCredentials: 'Please enter both email and password',
+    version: 'v1.0.0 • React Native 0.84 • TypeScript',
+  },
+
+  // Login/Home
+  home: {
+    title: 'Crypto Tokens',
+    subtitle: 'Track your favorite tokens in real-time',
+    logo: '💰',
+  },
+
+  // Token Detail
+  tokenDetailPage: {
+    priceHistory: '7-Day Price History',
+    expand: 'Expand',
+    marketCap: 'Market Cap Rank',
+    currentPrice: 'Current Price',
+    volume24h: '24h Volume',
+    ath: 'ATH',
+    atl: 'ATL',
+    marketRank: 'Market Rank',
+  },
+
+  // Charts
+  charts: {
+    title: 'Market Statistics',
+    priceHistory: '7-Day Price History',
+    fullscreen: '📈 Fullscreen',
+    marketStatistics: 'Market Statistics',
+  },
+
+  // Filter
+  filter: {
+    searchTokens: 'Search tokens...',
+  },
+
+  // Demo buttons
+  demoButtons: {
+    sendNotifications: '📤 Send Notifications',
+    successNotification: 'Success Notification',
+    infoNotification: 'Info Notification',
+    warningNotification: 'Warning Notification',
+    errorNotification: 'Error Notification',
+    queriesCached: 'Queries Cached',
+    cacheSize: 'Cache Size',
   },
 };

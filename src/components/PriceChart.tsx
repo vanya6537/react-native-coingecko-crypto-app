@@ -267,7 +267,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
       </View>
 
       <View
-        style={[styles.chart, { height: height - 70 }]}
+        style={[styles.chart, { height: height - 40 }]}
         {...panResponderRef.current.panHandlers}
       >
         {renderChart()}
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   legend: {
     flexDirection: 'row',
     gap: 10,
-    paddingTop: 20,
+    paddingTop: 0,
     marginBottom: 40,
   },
   legendCard: {

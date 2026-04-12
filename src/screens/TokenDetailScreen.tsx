@@ -13,6 +13,7 @@ import Animated, {
   Layout,
 } from 'react-native-reanimated';
 import { useUnit } from 'effector-react';
+import { useTranslation } from 'react-i18next';
 import {
   $tokenDetail,
   $priceHistory,
@@ -65,6 +66,7 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
   route: any;
   navigation: any;
 }) => {
+  const { t } = useTranslation();
   const { tokenId } = route.params;
   const [tokenDetail, priceHistory, detailLoading, historyLoading, detailError] = useUnit([
     $tokenDetail,
@@ -169,8 +171,8 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
         {historyLoading && priceHistory.length === 0 ? (
           <View style={styles.chartContainer}>
             <ChartSectionHeader
-              title="7-Day Price History"
-              actionLabel="📈 Fullscreen"
+              title={t('charts.priceHistory')}
+              actionLabel={t('charts.fullscreen')}
               disabled={true}
             />
             <ChartLoadingSkeleton height={180} compact={true} />
@@ -182,8 +184,8 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
             layout={luxuryLayout}
           >
             <ChartSectionHeader
-              title="7-Day Price History"
-              actionLabel="📈 Fullscreen"
+              title={t('charts.priceHistory')}
+              actionLabel={t('charts.fullscreen')}
               onPress={() =>
                 navigation.navigate('PriceChart', {
                   tokenId,

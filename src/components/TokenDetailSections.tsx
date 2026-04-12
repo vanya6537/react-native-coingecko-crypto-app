@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: {
     paddingHorizontal: 32,
-    paddingTop: 80,
+    paddingTop: 120,
     paddingBottom: 8,
   },
   descriptionText: {

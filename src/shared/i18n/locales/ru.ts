@@ -73,7 +73,7 @@ export const ru = {
 
   // Notifications
   notifications: {
-    title: 'Уведомления',
+    title: 'Уведомления и Демо',
     priceAlerts: 'Оповещения о цене',
     enableNotifications: 'Включить уведомления',
     disableNotifications: 'Отключить уведомления',
@@ -87,6 +87,48 @@ export const ru = {
     prefetching: 'Предзагрузка данных...',
     offlineMode: 'Офлайн режим: кэшированные данные',
     reconnected: 'Соединение восстановлено',
+    
+    // Demo page sections
+    demoVisualNotifications: 'Визуальные уведомления',
+    demoVisualDesc: 'Нажмите "Случайное уведомление" чтобы увидеть разные типы',
+    demoPriceAlerts: 'Оповещения о цене в реальном времени',
+    demoPriceAlertsDesc: 'Мониторьте топ 5 токенов с уведомлениями (имитация)',
+    demoCacheOpt: 'Оптимизация кеша',
+    demoExport: 'Экспорт данных',
+    demoTokensPreview: 'Предпросмотр данных',
+    demoAbout: 'О демо',
+    demoAboutText: '• Использует react-query для умного кеширования\n• Показывает уведомления с иконками lucide\n• Демонстрирует стратегии оптимизации кеша\n• Эффективен по памяти с автоматической очисткой\n• Полная поддержка многоязычности i18n',
+    
+    // Demo buttons
+    randomNotification: 'Случайное уведомление',
+    startLiveMonitoring: 'Начать мониторинг',
+    stopLiveMonitoring: 'Остановить мониторинг',
+    prefetchNext: 'Предзагрузить следующую',
+    batchPrefetch: 'Пакетная предзагрузка',
+    optimizeCache: 'Оптимизировать кеш',
+    clearCache: 'Очистить кеш',
+    exportCsv: 'Экспортировать CSV',
+    monitoringTokens: 'Монируемые токены',
+    monitoringNote: '💡 Цены обновляются каждые 2 секунды (имитация)',
+    
+    // Demo messages
+    toastSuccess: '✅ Успешно! Операция завершена',
+    toastInfo: 'ℹ️ Информация: Данные загружены',
+    toastWarning: '⚠️ Предупреждение: Низкая память',
+    toastError: '❌ Ошибка: Не удалось загрузить',
+    exportingCsv: 'Экспортирование токенов в CSV...',
+    exportSuccess: 'Токены успешно экспортированы!',
+    exportFailed: 'Ошибка экспорта токенов',
+    noTokensToExport: 'Нет токенов для экспорта',
+    noTokensMonitoring: 'Нет доступных токенов',
+    monitoringStarted: 'Мониторинг цен запущен 🚀',
+    monitoringStopped: 'Мониторинг остановлен',
+    rateLimitError: 'Лимит запросов превышен (429) - квота API исчерпана',
+    sendNotifications: '📤 Отправить уведомления',
+    successNotificationButtonLabel: 'Уведомление об успехе',
+    infoNotificationButtonLabel: 'Информационное уведомление',
+    warningNotificationButtonLabel: 'Предупреждение',
+    errorNotificationButtonLabel: 'Уведомление об ошибке',
   },
 
   // Export
@@ -119,5 +161,62 @@ export const ru = {
     saved: 'Сохранено',
     deleted: 'Удалено',
     copied: 'Скопировано в буфер обмена',
+  },
+
+  // Auth
+  auth: {
+    email: 'Email',
+    password: 'Пароль',
+    enterEmail: 'Введите ваш email',
+    enterPassword: 'Введите ваш пароль',
+    signIn: 'Вход',
+    tryDemo: 'Попробовать демо',
+    demoCredentials: '🔐 Все учетные данные для демо',
+    demoHint: 'Демо: любые учетные данные работают',
+    missingCredentials: 'Пожалуйста, введите email и пароль',
+    version: 'v1.0.0 • React Native 0.84 • TypeScript',
+  },
+
+  // Login/Home
+  home: {
+    title: 'Криптовалюты',
+    subtitle: 'Отслеживайте ваши токены в реальном времени',
+    logo: '💰',
+  },
+
+  // Token Detail
+  tokenDetailPage: {
+    priceHistory: 'История цены за 7 дней',
+    expand: 'Развернуть',
+    marketCap: 'Рейтинг капитализации',
+    currentPrice: 'Текущая цена',
+    volume24h: 'Объем за 24ч',
+    ath: 'Максимум',
+    atl: 'Минимум',
+    marketRank: 'Рейтинг рынка',
+  },
+
+  // Charts
+  charts: {
+    title: 'Статистика рынка',
+    priceHistory: 'История цены за 7 дней',
+    fullscreen: '📈 Полный экран',
+    marketStatistics: 'Статистика рынка',
+  },
+
+  // Filter
+  filter: {
+    searchTokens: 'Поиск токенов...',
+  },
+
+  // Demo buttons
+  demoButtons: {
+    sendNotifications: '📤 Отправить уведомления',
+    successNotification: 'Уведомление об успехе',
+    infoNotification: 'Информационное уведомление',
+    warningNotification: 'Предупреждение',
+    errorNotification: 'Уведомление об ошибке',
+    queriesCached: 'Запросов в кеше',
+    cacheSize: 'Размер кеша',
   },
 };

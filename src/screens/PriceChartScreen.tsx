@@ -8,6 +8,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useUnit } from 'effector-react';
+import { useTranslation } from 'react-i18next';
 import {
   $tokenDetail,
   $priceHistory,
@@ -27,6 +28,7 @@ import { ExpandedPriceChart } from '../components/ExpandedPriceChart';
 import { formatPrice, formatChange, formatMarketCap } from '../utils/formatters';
 
 export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({ route }) => {
+  const { t } = useTranslation();
   const { tokenId, tokenName } = route.params;
   const [tokenDetail, priceHistory, detailLoading, historyLoading, historyError] = useUnit([
     $tokenDetail,
@@ -62,7 +64,7 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({ ro
   if (!priceHistory || priceHistory.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
-        <ErrorState error={historyError || 'No price data available'} onRetry={handleRetry} />
+        <ErrorState error={historyError || t('errors.dataError')} onRetry={handleRetry} />
       </SafeAreaView>
     );
   }

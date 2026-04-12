@@ -11,12 +11,14 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 interface LoginScreenProps {
   onLoginSuccess: (token: string) => void;
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('demo@example.com');
   const [password, setPassword] = useState('password123');
   const [loading, setLoading] = useState(false);
@@ -24,7 +26,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter both email and password');
+      Alert.alert(t('common.error'), t('auth.missingCredentials'));
       return;
     }
 
@@ -54,19 +56,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         <View style={styles.content}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.logo}>💰</Text>
-            <Text style={styles.title}>Crypto Tokens</Text>
-            <Text style={styles.subtitle}>Track your favorite tokens in real-time</Text>
+            <Text style={styles.logo}>{t('home.logo')}</Text>
+            <Text style={styles.title}>{t('home.title')}</Text>
+            <Text style={styles.subtitle}>{t('home.subtitle')}</Text>
           </View>
 
           {/* Form */}
           <View style={styles.form}>
             {/* Email Input */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={styles.label}>{t('auth.email')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter your email"
+                placeholder={t('auth.enterEmail')}
                 placeholderTextColor="#999"
                 value={email}
                 onChangeText={setEmail}
@@ -78,11 +80,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
             {/* Password Input */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>{t('auth.password')}</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
                   style={styles.passwordInput}
-                  placeholder="Enter your password"
+                  placeholder={t('auth.enterPassword')}
                   placeholderTextColor="#999"
                   value={password}
                   onChangeText={setPassword}
@@ -97,7 +99,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
                 </TouchableOpacity>
               </View>
-              <Text style={styles.hint}>Demo: any credentials work</Text>
+              <Text style={styles.hint}>{t('auth.demoHint')}</Text>
             </View>
 
             {/* Login Button */}
@@ -109,7 +111,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.loginButtonText}>Sign In</Text>
+                <Text style={styles.loginButtonText}>{t('auth.signIn')}</Text>
               )}
             </TouchableOpacity>
 
@@ -119,14 +121,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               onPress={handleDemoLogin}
               disabled={loading}
             >
-              <Text style={styles.demoButtonText}>Try Demo</Text>
+              <Text style={styles.demoButtonText}>{t('auth.tryDemo')}</Text>
             </TouchableOpacity>
           </View>
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>🔐 All credentials are mock for demo purposes</Text>
-            <Text style={styles.versionText}>v1.0.0 • React Native 0.84 • TypeScript</Text>
+            <Text style={styles.footerText}>{t('auth.demoCredentials')}</Text>
+            <Text style={styles.versionText}>{t('auth.version')}</Text>
           </View>
         </View>
       </SafeAreaView>

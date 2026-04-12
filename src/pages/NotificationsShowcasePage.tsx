@@ -54,20 +54,44 @@ const { width } = Dimensions.get('window');
 const notificationMessages = [
   {
     type: 'success' as const,
-    message: 'Data prefetched successfully!',
+    message: 'notifications.toastSuccess',
   },
   {
     type: 'info' as const,
-    message: 'Cache optimization complete',
+    message: 'notifications.toastInfo',
   },
   {
     type: 'warning' as const,
-    message: 'High memory usage detected',
+    message: 'notifications.toastWarning',
   },
   {
     type: 'error' as const,
-    message: 'Failed to fetch data',
+    message: 'notifications.toastError',
   },
+];
+
+// Mock token data - prevents API rate limiting
+const MOCK_TOKENS = [
+  { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', current_price: 45280.50 },
+  { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', current_price: 2580.75 },
+  { id: 'cardano', name: 'Cardano', symbol: 'ADA', current_price: 1.05 },
+  { id: 'solana', name: 'Solana', symbol: 'SOL', current_price: 180.25 },
+  { id: 'polkadot', name: 'Polkadot', symbol: 'DOT', current_price: 7.85 },
+  { id: 'ripple', name: 'XRP', symbol: 'XRP', current_price: 2.15 },
+  { id: 'litecoin', name: 'Litecoin', symbol: 'LTC', current_price: 640.50 },
+  { id: 'dogecoin', name: 'Dogecoin', symbol: 'DOGE', current_price: 0.32 },
+  { id: 'uniswap', name: 'Uniswap', symbol: 'UNI', current_price: 18.50 },
+  { id: 'chainlink', name: 'Chainlink', symbol: 'LINK', current_price: 28.75 },
+  { id: 'avalanche-2', name: 'Avalanche', symbol: 'AVAX', current_price: 95.20 },
+  { id: 'polygon', name: 'Polygon', symbol: 'MATIC', current_price: 0.95 },
+  { id: 'cosmos', name: 'Cosmos', symbol: 'ATOM', current_price: 11.50 },
+  { id: 'vechain', name: 'VeChain', symbol: 'VET', current_price: 0.045 },
+  { id: 'iota', name: 'IOTA', symbol: 'IOTA', current_price: 0.38 },
+  { id: 'eos', name: 'EOS', symbol: 'EOS', current_price: 2.05 },
+  { id: 'monero', name: 'Monero', symbol: 'XMR', current_price: 185.50 },
+  { id: 'zcash', name: 'Zcash', symbol: 'ZEC', current_price: 82.25 },
+  { id: 'tezos', name: 'Tezos', symbol: 'XTZ', current_price: 1.85 },
+  { id: 'neo', name: 'NEO', symbol: 'NEO', current_price: 22.50 },
 ];
 
 export function NotificationsShowcasePage(): React.JSX.Element {
@@ -78,12 +102,13 @@ export function NotificationsShowcasePage(): React.JSX.Element {
   const [liveMonitoringActive, setLiveMonitoringActive] = useState(false);
   const liveMonitoringCleanupRef = React.useRef<(() => void) | null>(null);
 
-  // Fetch first page of tokens
+  // Use mock data instead of API calls to avoid 429 rate limits
   const { data: tokens, isLoading } = useQuery({
     queryKey: queryKeys.tokens.list(1, 20),
     queryFn: async () => {
       infoToast(t('notifications.dataLoaded'));
-      return coingeckoAPI.getTokensList(20, 0);
+      // Return mock data instead of calling coingeckoAPI
+      return MOCK_TOKENS.slice(0, 20);
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -117,19 +142,19 @@ export function NotificationsShowcasePage(): React.JSX.Element {
 
     switch (notif.type) {
       case 'success':
-        successToast(notif.message);
+        successToast(t(notif.message));
         break;
       case 'error':
-        errorToast(notif.message);
+        errorToast(t(notif.message));
         break;
       case 'warning':
-        warningToast(notif.message);
+        warningToast(t(notif.message));
         break;
       case 'info':
-        infoToast(notif.message);
+        infoToast(t(notif.message));
         break;
     }
-  }, []);
+  }, [t]);
 
   // Prefetch next page
   const handlePrefetchNext = useCallback(async () => {
@@ -151,15 +176,15 @@ export function NotificationsShowcasePage(): React.JSX.Element {
   // Clear cache
   const handleClearCache = useCallback(() => {
     queryClient.clear();
-    successToast('Cache cleared');
+    successToast(t('notifications.cacheHit'));
     setCacheSize(0);
     setQueryCount(0);
-  }, [queryClient]);
+  }, [queryClient, t]);
 
   // Batch prefetch tokens
   const handleBatchPrefetch = useCallback(async () => {
     if (!tokens || tokens.length === 0) {
-      errorToast('No tokens to prefetch');
+      errorToast(t('notifications.noTokensToExport'));
       return;
     }
 
@@ -169,7 +194,7 @@ export function NotificationsShowcasePage(): React.JSX.Element {
       await Promise.all(
         tokenIds.map((id) => prefetchTokensList(queryClient, 1, 20))
       );
-      successToast(`Prefetched ${tokenIds.length} tokens`);
+      successToast(t('notifications.success'));
     } catch (error) {
       errorToast(t('errors.networkError'));
     }
@@ -183,34 +208,53 @@ export function NotificationsShowcasePage(): React.JSX.Element {
         liveMonitoringCleanupRef.current();
       }
       setLiveMonitoringActive(false);
-      infoToast('Live monitoring stopped');
+      successToast(t('notifications.monitoringStopped'));
       return;
     }
 
     if (tokens && tokens.length > 0) {
-      // Start monitoring
-      const cleanup = startLivePriceMonitoring(tokens.slice(0, 5), 2000);
-      liveMonitoringCleanupRef.current = cleanup;
+      // Start mock price monitoring (no real API calls)
+      let intervalId: number | null = null;
+      
+      const mockPriceUpdate = () => {
+        const randomToken = tokens[Math.floor(Math.random() * Math.min(tokens.length, 5))];
+        if (randomToken) {
+          const changePercent = (Math.random() - 0.5) * 4; // ±2%
+          const changeType = changePercent > 0 ? 'up' : 'down';
+          successToast(
+            changeType === 'up'
+              ? t('notifications.priceUp', { name: randomToken.name, percent: Math.abs(changePercent).toFixed(2) })
+              : t('notifications.priceDown', { name: randomToken.name, percent: Math.abs(changePercent).toFixed(2) })
+          );
+        }
+      };
+
+      // Update prices every 2 seconds with mock data
+      intervalId = setInterval(mockPriceUpdate, 2000) as unknown as number;
+      liveMonitoringCleanupRef.current = () => {
+        if (intervalId !== null) clearInterval(intervalId);
+      };
+      
       setLiveMonitoringActive(true);
-      successToast('Live price monitoring started 🚀');
+      successToast(t('notifications.monitoringStarted'));
     } else {
-      errorToast('No tokens available for monitoring');
+      errorToast(t('notifications.noTokensMonitoring'));
     }
-  }, [tokens, startLivePriceMonitoring, liveMonitoringActive, t]);
+  }, [tokens, liveMonitoringActive, t]);
 
   // Export tokens as CSV
   const handleExportTokensCSV = useCallback(async () => {
     if (!tokens || tokens.length === 0) {
-      errorToast('No tokens to export');
+      errorToast(t('notifications.noTokensToExport'));
       return;
     }
 
     try {
-      infoToast('Exporting tokens to CSV...');
+      infoToast(t('notifications.exportingCsv'));
       await csvExportAPI.exportTokensAsCSV(tokens.slice(0, 20));
-      successToast('Tokens exported successfully!');
+      successToast(t('notifications.exportSuccess'));
     } catch (error) {
-      errorToast('Failed to export tokens');
+      errorToast(t('notifications.exportFailed'));
       console.error('CSV export error:', error);
     }
   }, [tokens, t]);
@@ -241,13 +285,13 @@ export function NotificationsShowcasePage(): React.JSX.Element {
       <View style={styles.statsGrid}>
         <StatsCard
           icon={<BarChart3 size={20} color="#3b82f6" />}
-          label="Queries Cached"
+          label={t('demoButtons.queriesCached')}
           value={queryCount}
           bgColor="#eff6ff"
         />
         <StatsCard
           icon={<Zap size={20} color="#10b981" />}
-          label="Cache Size"
+          label={t('demoButtons.cacheSize')}
           value={formatCacheSize(cacheSize)}
           bgColor="#ecfdf5"
         />
@@ -255,14 +299,14 @@ export function NotificationsShowcasePage(): React.JSX.Element {
 
       {/* Demo Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>🎨 Visual Notifications</Text>
+        <Text style={styles.sectionTitle}>🎨 {t('notifications.demoVisualNotifications')}</Text>
         <Text style={styles.sectionSubtitle}>
-          Click "Random Notification" to see different toast types
+          {t('notifications.demoVisualDesc')}
         </Text>
 
         <DemoButton
           icon={<Activity size={18} color="#fff" />}
-          label="Random Notification"
+          label={t('notifications.randomNotification')}
           onPress={showRandomNotification}
           bgColor="#3b82f6"
         />
@@ -272,22 +316,22 @@ export function NotificationsShowcasePage(): React.JSX.Element {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <TrendingUp size={20} color="#10b981" />
-          <Text style={styles.sectionTitle}>📊 Live Price Alerts</Text>
+          <Text style={styles.sectionTitle}>📊 {t('notifications.demoPriceAlerts')}</Text>
         </View>
         <Text style={styles.sectionSubtitle}>
-          Monitor top 5 tokens with real-time notifications
+          {t('notifications.demoPriceAlertsDesc')}
         </Text>
 
         <DemoButton
           icon={<Activity size={18} color="#fff" />}
-          label={liveMonitoringActive ? '⏸ Stop Live Monitoring' : '▶ Start Live Monitoring'}
+          label={liveMonitoringActive ? `⏸ ${t('notifications.stopLiveMonitoring')}` : `▶ ${t('notifications.startLiveMonitoring')}`}
           onPress={handleStartLiveMonitoring}
           bgColor={liveMonitoringActive ? '#ef4444' : '#10b981'}
         />
 
         {liveMonitoringActive && tokens && tokens.length > 0 && (
           <View style={styles.liveTokensContainer}>
-            <Text style={styles.liveTokensTitle}>Monitoring Tokens:</Text>
+            <Text style={styles.liveTokensTitle}>{t('notifications.monitoringTokens')}:</Text>
             {tokens.slice(0, 5).map((token) => (
               <View key={token.id} style={styles.liveTokenItem}>
                 <Text style={styles.liveTokenName}>{token.name}</Text>
@@ -297,7 +341,7 @@ export function NotificationsShowcasePage(): React.JSX.Element {
               </View>
             ))}
             <Text style={styles.liveTokensNote}>
-              💡 Prices will update every 2 seconds with toast notifications
+              {t('notifications.monitoringNote')}
             </Text>
           </View>
         )}
@@ -305,59 +349,59 @@ export function NotificationsShowcasePage(): React.JSX.Element {
 
       {/* All Notification Types */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>📤 Send Notifications</Text>
+        <Text style={styles.sectionTitle}>{t('notifications.sendNotifications')}</Text>
 
         <DemoButton
           icon={<Activity size={18} color="#fff" />}
-          label="Success Notification"
-          onPress={() => successToast('✅ Success! Operation completed')}
+          label={t('notifications.successNotificationButtonLabel')}
+          onPress={() => successToast(t('notifications.toastSuccess'))}
           bgColor="#10b981"
         />
         <DemoButton
           icon={<Activity size={18} color="#fff" />}
-          label="Info Notification"
-          onPress={() => infoToast('ℹ️ Information: Data loaded')}
+          label={t('notifications.infoNotificationButtonLabel')}
+          onPress={() => infoToast(t('notifications.toastInfo'))}
           bgColor="#3b82f6"
         />
         <DemoButton
           icon={<Activity size={18} color="#fff" />}
-          label="Warning Notification"
-          onPress={() => warningToast('⚠️ Warning: Low memory')}
+          label={t('notifications.warningNotificationButtonLabel')}
+          onPress={() => warningToast(t('notifications.toastWarning'))}
           bgColor="#f59e0b"
         />
         <DemoButton
           icon={<Activity size={18} color="#fff" />}
-          label="Error Notification"
-          onPress={() => errorToast('❌ Error: Failed to load')}
+          label={t('notifications.errorNotificationButtonLabel')}
+          onPress={() => errorToast(t('notifications.toastError'))}
           bgColor="#ef4444"
         />
       </View>
 
       {/* Optimization Controls */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>⚡ Cache Optimization</Text>
+        <Text style={styles.sectionTitle}>⚡ {t('notifications.demoCacheOpt')}</Text>
 
         <DemoButton
           icon={<DownloadCloud size={18} color="#fff" />}
-          label="Prefetch Next Page"
+          label={t('notifications.prefetchNext')}
           onPress={handlePrefetchNext}
           bgColor="#8b5cf6"
         />
         <DemoButton
           icon={<DownloadCloud size={18} color="#fff" />}
-          label="Batch Prefetch Tokens"
+          label={t('notifications.batchPrefetch')}
           onPress={handleBatchPrefetch}
           bgColor="#6366f1"
         />
         <DemoButton
           icon={<RefreshCw size={18} color="#fff" />}
-          label="Optimize Cache"
+          label={t('notifications.optimizeCache')}
           onPress={handleOptimizeCache}
           bgColor="#06b6d4"
         />
         <DemoButton
           icon={<Trash2 size={18} color="#fff" />}
-          label="Clear All Cache"
+          label={t('notifications.clearCache')}
           onPress={handleClearCache}
           bgColor="#ec4899"
         />
@@ -365,11 +409,11 @@ export function NotificationsShowcasePage(): React.JSX.Element {
 
       {/* Export Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>📥 Export Data</Text>
+        <Text style={styles.sectionTitle}>📥 {t('notifications.demoExport')}</Text>
 
         <DemoButton
           icon={<FileDown size={18} color="#fff" />}
-          label="Export Tokens as CSV"
+          label={t('notifications.exportCsv')}
           onPress={handleExportTokensCSV}
           bgColor="#14b8a6"
         />
@@ -377,7 +421,7 @@ export function NotificationsShowcasePage(): React.JSX.Element {
 
       {/* Tokens List Preview */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>📊 Tokens Data Preview</Text>
+        <Text style={styles.sectionTitle}>📊 {t('notifications.demoTokensPreview')}</Text>
 
         {isLoading ? (
           <View style={styles.loadingContainer}>
@@ -402,13 +446,9 @@ export function NotificationsShowcasePage(): React.JSX.Element {
 
       {/* Info Section */}
       <View style={styles.infoSection}>
-        <Text style={styles.infoTitle}>📖 About This Demo</Text>
+        <Text style={styles.infoTitle}>📖 {t('notifications.demoAbout')}</Text>
         <Text style={styles.infoText}>
-          • Uses react-query for smart caching and prefetching{'\n'}
-          • Displays toast notifications with lucide icons{'\n'}
-          • Demonstrates cache optimization strategies{'\n'}
-          • Memory-efficient with automatic GC{'\n'}
-          • Full i18n support for multi-language
+          {t('notifications.demoAboutText')}
         </Text>
       </View>
 
