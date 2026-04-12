@@ -1,7 +1,7 @@
 /**
  * TokensList Feature - Model (State)
  */
-import { createStore, createEvent, createEffect } from 'effector';
+import { createStore, createEvent, createEffect, sample } from 'effector';
 import { tokensListAPI } from '../api';
 import type { Token } from '../../../shared/types';
 import type { ListFilters, ListUIState, ListPaginationState } from '../types';
@@ -32,13 +32,6 @@ const initialUIState: ListUIState = {
 };
 
 // Stores
-export const $tokens = createStore<Token[]>([])
-  .on(resetTokens, () => [])
-  .on(fetchTokensPageFx.doneData, (tokens: Token[], data: Token[]) => {
-    const currentPage = $currentPage.getState();
-    return currentPage === 1 ? data : [...tokens, ...data];
-  });
-
 export const $currentPage = createStore<number>(1)
   .on(fetchInitialTokens, () => 1)
   .on(refreshTokens, () => 1)
@@ -46,6 +39,13 @@ export const $currentPage = createStore<number>(1)
   .on(resetTokens, () => 1);
 
 export const $pageSize = createStore<number>(50);
+
+export const $tokens = createStore<Token[]>([])
+  .on(resetTokens, () => [])
+  .on(fetchTokensPageFx.doneData, (tokens: Token[], data: Token[]) => {
+    const currentPage = $currentPage.getState();
+    return currentPage === 1 ? data : [...tokens, ...data];
+  });
 
 export const $isFetchingNextPage = createStore<boolean>(false)
   .on(fetchNextPage, () => true)
@@ -91,7 +91,9 @@ export const $uiState = createStore<ListUIState>(initialUIState)
     isEmpty: false,
   }));
 
-// Sample on fetch events
-sample: fetchTokensPageFx.use(async (params) => {
-  return tokensListAPI.getTokensList(params.page, params.pageSize);
+// Connect events to fetch effect
+sample({
+  source: { page: $currentPage, pageSize: $pageSize },
+  clock: [fetchInitialTokens, refreshTokens, fetchNextPage],
+  target: fetchTokensPageFx,
 });

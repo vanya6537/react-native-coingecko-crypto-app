@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   legend: {
     flexDirection: 'row',
     gap: 10,
-    paddingTop: 2,
+    paddingTop: 20,
     marginBottom: 40,
   },
   legendCard: {

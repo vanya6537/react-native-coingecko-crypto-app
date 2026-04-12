@@ -222,8 +222,8 @@ const styles = StyleSheet.create({
     color: '#212121',
   },
   descriptionContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingHorizontal: 32,
+    paddingTop: 80,
     paddingBottom: 8,
   },
   descriptionText: {
