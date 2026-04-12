@@ -8,6 +8,7 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { ListFilters } from '../types/index';
 
 interface FilterBarProps {
@@ -19,19 +20,20 @@ interface FilterBarProps {
 
 type SortOption = 'price' | 'change24h' | 'market_cap';
 
-const SORT_OPTIONS: { label: string; value: SortOption }[] = [
-  { label: 'Price', value: 'price' },
-  { label: 'Change 24h', value: 'change24h' },
-  { label: 'Market Cap', value: 'market_cap' },
-];
-
 export const FilterBar: React.FC<FilterBarProps> = ({ 
   filters, 
   onFilterChange,
   isSorted = false,
   onSortToggle,
 }) => {
+  const { t } = useTranslation();
   const [sortPickerVisible, setSortPickerVisible] = useState(false);
+
+  const SORT_OPTIONS: { label: string; value: SortOption }[] = [
+    { label: t('tokensList.price'), value: 'price' },
+    { label: t('tokensList.change24h'), value: 'change24h' },
+    { label: t('tokensList.marketCap'), value: 'market_cap' },
+  ];
 
   const handleSearchChange = useCallback((text: string) => {
     onFilterChange({ search: text });
@@ -60,7 +62,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search tokens..."
+          placeholder={t('tokensList.search')}
           placeholderTextColor="#999"
           value={filters.search}
           onChangeText={handleSearchChange}

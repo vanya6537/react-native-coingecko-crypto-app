@@ -45,4 +45,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF',
   },
+  languageContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
 });

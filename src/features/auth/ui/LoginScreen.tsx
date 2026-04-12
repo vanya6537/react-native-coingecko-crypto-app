@@ -14,12 +14,14 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 interface LoginScreenProps {
   onLoginSuccess: (token: string) => void;
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('demo@example.com');
   const [password, setPassword] = useState('password123');
   const [loading, setLoading] = useState(false);
@@ -27,7 +29,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter both email and password');
+      Alert.alert(t('common.error'), t('auth.missingCredentials'));
       return;
     }
 
@@ -57,17 +59,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         <View style={styles.content}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>🪙 Crypto Tokens</Text>
-            <Text style={styles.subtitle}>Track your favorite cryptocurrencies</Text>
+            <Text style={styles.title}>{t('home.logo')} {t('home.title')}</Text>
+            <Text style={styles.subtitle}>{t('home.subtitle')}</Text>
           </View>
 
           {/* Form */}
           <View style={styles.form}>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={styles.label}>{t('auth.email')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter your email"
+                placeholder={t('auth.enterEmail')}
                 placeholderTextColor="#999"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -78,11 +80,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>{t('auth.password')}</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
                   style={styles.passwordInput}
-                  placeholder="Enter your password"
+                  placeholder={t('auth.enterPassword')}
                   placeholderTextColor="#999"
                   secureTextEntry={!showPassword}
                   value={password}
@@ -108,7 +110,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               {loading ? (
                 <ActivityIndicator color="#FFF" />
               ) : (
-                <Text style={styles.loginButtonText}>Sign In</Text>
+                <Text style={styles.loginButtonText}>{t('auth.signIn')}</Text>
               )}
             </TouchableOpacity>
 
@@ -119,14 +121,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               disabled={loading}
               activeOpacity={0.7}
             >
-              <Text style={styles.demoButtonText}>Use Demo Account</Text>
+              <Text style={styles.demoButtonText}>{t('auth.tryDemo')}</Text>
             </TouchableOpacity>
           </View>
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Demo credentials:</Text>
-            <Text style={styles.footerText}>demo@example.com / password123</Text>
+            <Text style={styles.footerText}>{t('auth.demoCredentials')}</Text>
+            <Text style={styles.footerText}>{t('auth.demoHint')}</Text>
           </View>
         </View>
       </SafeAreaView>
