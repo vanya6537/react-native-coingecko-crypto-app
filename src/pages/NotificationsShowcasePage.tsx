@@ -35,6 +35,7 @@ import {
 import { coingeckoAPI } from '../api/coingecko';
 import { queryKeys } from '../api/queryClient';
 import { useQueryWithLiveNotifications } from '../api/useQueryWithLiveNotifications';
+import { LanguageToggler } from '../shared/ui/LanguageToggler';
 import {
   Activity,
   RefreshCw,
@@ -209,6 +210,11 @@ export function NotificationsShowcasePage(): React.JSX.Element {
       <View style={styles.header}>
         <Activity size={24} color="#3b82f6" />
         <Text style={styles.title}>{t('notifications.title')}</Text>
+      </View>
+
+      {/* Language Toggler */}
+      <View style={styles.languageContainer}>
+        <LanguageToggler compact={false} />
       </View>
 
       {/* Stats Cards */}
@@ -446,6 +452,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginLeft: 12,
     color: '#1e293b',
+  },
+  languageContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   statsGrid: {
     flexDirection: 'row',
