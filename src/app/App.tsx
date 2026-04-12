@@ -14,6 +14,7 @@ import {
   TokensListPage,
   TokenDetailPage,
   PriceChartPage,
+  NotificationsShowcasePage,
 } from '../pages';
 import { ToastContainer } from '../features/notifications/ui/ToastContainer';
 import { $isAuthenticated, loginSuccess, logout } from '../features/auth';
@@ -56,6 +57,22 @@ export function App(): React.JSX.Element {
                   options={{
                     title: 'Crypto Tokens',
                     headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="NotificationsDemo"
+                  component={NotificationsShowcasePage}
+                  options={{
+                    title: 'Notifications & Demo',
+                    headerShown: true,
+                    headerBackTitle: 'Back',
+                    headerStyle: {
+                      backgroundColor: '#FFFFFF',
+                    },
+                    headerTitleStyle: {
+                      fontWeight: '700',
+                      fontSize: 18,
+                    },
                   }}
                 />
                 <Stack.Screen

@@ -36,6 +36,7 @@ import { coingeckoAPI } from '../api/coingecko';
 import { queryKeys } from '../api/queryClient';
 import { useQueryWithLiveNotifications } from '../api/useQueryWithLiveNotifications';
 import { LanguageToggler } from '../shared/ui/LanguageToggler';
+import { csvExportAPI, imageExportAPI } from '../features/export';
 import {
   Activity,
   RefreshCw,
@@ -44,6 +45,8 @@ import {
   BarChart3,
   Zap,
   TrendingUp,
+  FileDown,
+  Image as ImageIcon,
 } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
@@ -195,6 +198,23 @@ export function NotificationsShowcasePage(): React.JSX.Element {
     }
   }, [tokens, startLivePriceMonitoring, liveMonitoringActive, t]);
 
+  // Export tokens as CSV
+  const handleExportTokensCSV = useCallback(async () => {
+    if (!tokens || tokens.length === 0) {
+      errorToast('No tokens to export');
+      return;
+    }
+
+    try {
+      infoToast('Exporting tokens to CSV...');
+      await csvExportAPI.exportTokensAsCSV(tokens.slice(0, 20));
+      successToast('Tokens exported successfully!');
+    } catch (error) {
+      errorToast('Failed to export tokens');
+      console.error('CSV export error:', error);
+    }
+  }, [tokens, t]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -340,6 +360,18 @@ export function NotificationsShowcasePage(): React.JSX.Element {
           label="Clear All Cache"
           onPress={handleClearCache}
           bgColor="#ec4899"
+        />
+      </View>
+
+      {/* Export Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>📥 Export Data</Text>
+
+        <DemoButton
+          icon={<FileDown size={18} color="#fff" />}
+          label="Export Tokens as CSV"
+          onPress={handleExportTokensCSV}
+          bgColor="#14b8a6"
         />
       </View>
 

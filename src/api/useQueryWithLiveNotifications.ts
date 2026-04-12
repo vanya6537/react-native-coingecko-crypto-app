@@ -6,7 +6,7 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { infoToast, successToast, errorToast, warningToast } from '@/features/notifications/model/toastStore';
+import { infoToast, successToast, errorToast, warningToast } from '../features/notifications/model/toastStore';
 import { coingeckoAPI } from './coingecko';
 import { queryKeys } from './queryClient';
 import { prefetchTokenDetail, smartPrefetch } from './prefetch';

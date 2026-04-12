@@ -10,7 +10,9 @@ import {
   Text,
   SafeAreaView,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
+import { Activity } from 'lucide-react-native';
 import { useUnit } from 'effector-react';
 import type { Token } from '../shared/types';
 import {
@@ -133,12 +135,23 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
           <TokenItem token={item} onPress={handleTokenPress} />
         )}
         ListHeaderComponent={() => (
-          <FilterBar 
-            filters={filters} 
-            onFilterChange={setFilters}
-            isSorted={isSorted}
-            onSortToggle={handleSortToggle}
-          />
+          <>
+            <View style={styles.headerTop}>
+              <Text style={styles.headerTitle}>Tokens</Text>
+              <TouchableOpacity 
+                onPress={() => navigation.navigate('NotificationsDemo')}
+                style={styles.notificationButton}
+              >
+                <Activity size={24} color="#3b82f6" />
+              </TouchableOpacity>
+            </View>
+            <FilterBar 
+              filters={filters} 
+              onFilterChange={setFilters}
+              isSorted={isSorted}
+              onSortToggle={handleSortToggle}
+            />
+          </>
         )}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
@@ -165,6 +178,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1e293b',
+  },
+  notificationButton: {
+    padding: 8,
   },
   footerLoader: {
     paddingVertical: 20,

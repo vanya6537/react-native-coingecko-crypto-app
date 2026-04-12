@@ -5,7 +5,7 @@
 
 import { useEffect, useCallback, useRef } from 'react';
 import { useUnit } from 'effector-react';
-import { $priceAlertConfig, addPriceAlert, checkPrices } from '@/features/notifications';
+import { $priceAlertConfig, addPriceAlert, checkPrices } from '../../features/notifications';
 import { useTranslation } from 'react-i18next';
 import notifee from '@notifee/react-native';
 

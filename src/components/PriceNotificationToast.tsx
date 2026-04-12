@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useUnit } from 'effector-react';
-import { $themeConfig } from '@/features/theme';
+import { $themeConfig } from '../features/theme';
 
 interface PriceNotification {
   id: string;
