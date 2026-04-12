@@ -30,6 +30,7 @@
     "effector-react": "^23.3.0",
     "i18next": "^23.7.6",
     "lucide-react-native": "^1.8.0",
+    "moti": "^0.30.0",
     "react": "19.2.3",
     "react-i18next": "^14.0.0",
     "react-native": "0.84.1",

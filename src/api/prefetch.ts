@@ -93,7 +93,7 @@ export async function prefetchTrendingTokens(
   const trendingTokens = await queryClient.fetchQuery({
     queryKey: queryKeys.tokens.lists(),
     queryFn: async () => {
-      const tokens = await coingecko.getTokensList(topN, 0);
+      const tokens = await coingeckoAPI.getTokensList(topN, 0);
       return tokens;
     },
   });
@@ -102,7 +102,7 @@ export async function prefetchTrendingTokens(
   if (trendingTokens) {
     await prefetchTokensInBatch(
       queryClient,
-      trendingTokens.slice(0, topN).map((t) => t.id),
+      trendingTokens.slice(0, topN).map((t: any) => t.id),
       3
     );
   }
@@ -121,8 +121,8 @@ export function optimizeQueryCache(queryClient: QueryClient) {
   // Remove queries that haven't been used for 30 minutes
   const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
   queries.forEach((query) => {
-    if (query.observersCount === 0 && query.getObserversCount() === 0) {
-      // Query has no active observers
+    // Query has no active observers
+    if (query.getObserversCount() === 0) {
       if (query.state.dataUpdatedAt < thirtyMinutesAgo) {
         queryClient.removeQueries({
           queryKey: query.queryKey,

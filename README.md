@@ -992,6 +992,14 @@ API_TIMEOUT=10000
 - ✅ **Анимации** (🎬 Reanimated spring animations)
 - ✅ **Unit тесты** (🧪 Jest + Testing Library + примеры)
 
+### 🔥 NEW: Live Price Feed
+- ✅ **Real-time обновления** (📈 Красивый live-feed с анимациями)
+- ✅ **Spring анимации** (🎬 Smooth entrance/exit transitions)
+- ✅ **Real-time нотификации** (🔔 Встроено с notifee)
+- ✅ **Реалистичные данные** (💹 Случайные скачки ±7.5%)
+- ✅ **Встроенная тема** (🌙 Полная поддержка dark mode)
+- 📖 **Полная документация**: `LIVE_FEED_QUICKSTART.md`, `LIVE_PRICE_FEED_GUIDE.md`, `LIVE_FEED_INTEGRATION_EXAMPLES.md`
+
 ## Архитектура & Требования ТЗ ✅
 
 - ✅ **Четкое разделение слоев**: UI (components/screens) → Features → State → Data

@@ -20,7 +20,7 @@ import {
   AlertCircle,
   X,
 } from 'lucide-react-native';
-import { $toasts, removeToast, type ToastType } from '../model/toastStore';
+import { $toasts, removeToast, type ToastType, type Toast } from '../model/toastStore';
 
 const { width } = Dimensions.get('window');
 
@@ -67,7 +67,7 @@ export function ToastContainer(): React.JSX.Element {
 }
 
 interface ToastProps {
-  toast: ReturnType<typeof useUnit<typeof $toasts>>[0];
+  toast: Toast;
 }
 
 function Toast({ toast }: ToastProps): React.JSX.Element {

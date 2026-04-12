@@ -18,7 +18,7 @@ export const queryClientConfig: QueryClientConfig = {
       networkMode: 'online', // Only refetch on online
       refetchOnWindowFocus: true, // Refetch when window regains focus
       refetchOnReconnect: true, // Refetch when network reconnects
-      refetchOnMount: 'stale', // Refetch if data is stale on mount
+      refetchOnMount: 'always', // Refetch when component mounts
     },
     mutations: {
       retry: 1,

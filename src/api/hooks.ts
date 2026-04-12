@@ -11,7 +11,7 @@ import {
   InfiniteData,
 } from '@tanstack/react-query';
 import type { Token, TokenDetail, PriceHistory } from '../types/index';
-import { coingecko } from './coingecko';
+import { coingeckoAPI } from './coingecko';
 import { queryKeys } from './queryClient';
 
 /**
@@ -32,7 +32,7 @@ export const useTokensList = (
     queryKey: queryKeys.tokens.list(page, limit),
     queryFn: async () => {
       const offset = (page - 1) * limit;
-      return coingecko.getTokensList(limit, offset);
+      return coingeckoAPI.getTokensList(limit, offset);
     },
     ...options,
   });
@@ -63,7 +63,7 @@ export const useTokensInfinite = (
     queryKey: queryKeys.tokens.infinite(),
     queryFn: async ({ pageParam = 0 }) => {
       const offset = pageParam * pageSize;
-      return coingecko.getTokensList(pageSize, offset);
+      return coingeckoAPI.getTokensList(pageSize, offset);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
@@ -87,7 +87,7 @@ export const useTokenDetail = (
 ) => {
   return useQuery({
     queryKey: queryKeys.tokenDetail.detail(tokenId),
-    queryFn: () => coingecko.getTokenDetail(tokenId),
+    queryFn: () => coingeckoAPI.getTokenDetail(tokenId),
     enabled: !!tokenId, // Only run if tokenId exists
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 15 * 60 * 1000, // 15 minutes in cache
@@ -108,7 +108,7 @@ export const usePriceHistory = (
 ) => {
   return useQuery({
     queryKey: queryKeys.priceHistory.list(tokenId, days),
-    queryFn: () => coingecko.getPriceHistory(tokenId, days),
+    queryFn: () => coingeckoAPI.getPriceHistory(tokenId, days),
     enabled: !!tokenId,
     staleTime: 1 * 60 * 60 * 1000, // 1 hour - price history stable
     gcTime: 2 * 60 * 60 * 1000, // 2 hours in cache
@@ -131,7 +131,7 @@ export const useSearchTokens = (
     queryFn: async () => {
       if (!query) return [];
       // Filter tokens by query string
-      const tokens = await coingecko.getTokensList(250, 0);
+      const tokens = await coingeckoAPI.getTokensList(250, 0);
       return tokens.filter(
         (token) =>
           token.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -162,7 +162,7 @@ export const usePrefetchTokenDetail = () => {
   return (tokenId: string) => {
     queryClient.prefetchQuery({
       queryKey: queryKeys.tokenDetail.detail(tokenId),
-      queryFn: () => coingecko.getTokenDetail(tokenId),
+      queryFn: () => coingeckoAPI.getTokenDetail(tokenId),
       staleTime: 10 * 60 * 1000,
     });
   };

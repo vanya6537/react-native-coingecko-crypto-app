@@ -121,15 +121,15 @@ export function smartInvalidate(
   const keysToInvalidate: any[][] = [];
   
   queryClient.getQueryCache().getAll().forEach((query) => {
-    if (pattern(query.queryKey)) {
-      keysToInvalidate.push(query.queryKey);
+    if (pattern(Array.from(query.queryKey))) {
+      keysToInvalidate.push(Array.from(query.queryKey));
     }
   });
 
   if (keysToInvalidate.length > 0) {
     return Promise.all(
       keysToInvalidate.map((key) =>
-        queryClient.invalidateQueries({ queryKey: key, refetchType: 'stale' })
+        queryClient.invalidateQueries({ queryKey: key, refetchType: 'all' })
       )
     );
   }

@@ -32,8 +32,9 @@ import {
   formatCacheSize,
   aggressiveGC,
 } from '../api/optimization';
-import { coingecko } from '../api/coingecko';
+import { coingeckoAPI } from '../api/coingecko';
 import { queryKeys } from '../api/queryClient';
+import { useQueryWithLiveNotifications } from '../api/useQueryWithLiveNotifications';
 import {
   Activity,
   RefreshCw,
@@ -41,6 +42,7 @@ import {
   Trash2,
   BarChart3,
   Zap,
+  TrendingUp,
 } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
@@ -69,15 +71,27 @@ export function NotificationsShowcasePage(): React.JSX.Element {
   const queryClient = useQueryClient();
   const [cacheSize, setCacheSize] = useState(0);
   const [queryCount, setQueryCount] = useState(0);
+  const [liveMonitoringActive, setLiveMonitoringActive] = useState(false);
+  const liveMonitoringCleanupRef = React.useRef<(() => void) | null>(null);
 
   // Fetch first page of tokens
   const { data: tokens, isLoading } = useQuery({
     queryKey: queryKeys.tokens.list(1, 20),
     queryFn: async () => {
       infoToast(t('notifications.dataLoaded'));
-      return coingecko.getTokensList(20, 0);
+      return coingeckoAPI.getTokensList(20, 0);
     },
     staleTime: 5 * 60 * 1000,
+  });
+
+  // Live notifications integration
+  const {
+    tokens: liveTokens,
+    startLivePriceMonitoring,
+  } = useQueryWithLiveNotifications([], {
+    enablePrefetch: true,
+    prefetchNext: true,
+    notificationThreshold: 1.5,
   });
 
   // Update cache stats
@@ -157,6 +171,38 @@ export function NotificationsShowcasePage(): React.JSX.Element {
     }
   }, [tokens, queryClient, t]);
 
+  // Start/Stop live price monitoring
+  const handleStartLiveMonitoring = useCallback(() => {
+    if (liveMonitoringActive) {
+      // Stop monitoring
+      if (liveMonitoringCleanupRef.current) {
+        liveMonitoringCleanupRef.current();
+      }
+      setLiveMonitoringActive(false);
+      infoToast('Live monitoring stopped');
+      return;
+    }
+
+    if (tokens && tokens.length > 0) {
+      // Start monitoring
+      const cleanup = startLivePriceMonitoring(tokens.slice(0, 5), 2000);
+      liveMonitoringCleanupRef.current = cleanup;
+      setLiveMonitoringActive(true);
+      successToast('Live price monitoring started 🚀');
+    } else {
+      errorToast('No tokens available for monitoring');
+    }
+  }, [tokens, startLivePriceMonitoring, liveMonitoringActive, t]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (liveMonitoringCleanupRef.current) {
+        liveMonitoringCleanupRef.current();
+      }
+    };
+  }, []);
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
@@ -194,6 +240,41 @@ export function NotificationsShowcasePage(): React.JSX.Element {
           onPress={showRandomNotification}
           bgColor="#3b82f6"
         />
+      </View>
+
+      {/* Live Price Monitoring Section */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <TrendingUp size={20} color="#10b981" />
+          <Text style={styles.sectionTitle}>📊 Live Price Alerts</Text>
+        </View>
+        <Text style={styles.sectionSubtitle}>
+          Monitor top 5 tokens with real-time notifications
+        </Text>
+
+        <DemoButton
+          icon={<Activity size={18} color="#fff" />}
+          label={liveMonitoringActive ? '⏸ Stop Live Monitoring' : '▶ Start Live Monitoring'}
+          onPress={handleStartLiveMonitoring}
+          bgColor={liveMonitoringActive ? '#ef4444' : '#10b981'}
+        />
+
+        {liveMonitoringActive && tokens && tokens.length > 0 && (
+          <View style={styles.liveTokensContainer}>
+            <Text style={styles.liveTokensTitle}>Monitoring Tokens:</Text>
+            {tokens.slice(0, 5).map((token) => (
+              <View key={token.id} style={styles.liveTokenItem}>
+                <Text style={styles.liveTokenName}>{token.name}</Text>
+                <Text style={styles.liveTokenPrice}>
+                  ${token.current_price?.toFixed(2)}
+                </Text>
+              </View>
+            ))}
+            <Text style={styles.liveTokensNote}>
+              💡 Prices will update every 2 seconds with toast notifications
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* All Notification Types */}
@@ -398,11 +479,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
     color: '#1e293b',
     marginBottom: 4,
+    marginLeft: 8,
   },
   sectionSubtitle: {
     fontSize: 13,
@@ -422,6 +509,43 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
     marginLeft: 10,
+  },
+  liveTokensContainer: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+    backgroundColor: '#f0fdf4',
+    borderRadius: 8,
+    padding: 12,
+  },
+  liveTokensTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#166534',
+    marginBottom: 8,
+  },
+  liveTokenItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+  },
+  liveTokenName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#15803d',
+  },
+  liveTokenPrice: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#10b981',
+  },
+  liveTokensNote: {
+    fontSize: 11,
+    color: '#16a34a',
+    fontStyle: 'italic',
+    marginTop: 8,
   },
   loadingContainer: {
     alignItems: 'center',
