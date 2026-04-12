@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   Image,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import Animated, {
   Easing,
@@ -75,9 +76,13 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
     fetchPriceHistory(tokenId);
   }, [tokenId]);
 
-  const handleRetry = () => {
+  const handleRefresh = useCallback(() => {
     fetchTokenDetail(tokenId);
     fetchPriceHistory(tokenId);
+  }, [tokenId]);
+
+  const handleRetry = () => {
+    handleRefresh();
   };
 
   if (detailLoading && !tokenDetail) {
@@ -104,10 +109,16 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
         ? '#00C853'
         : '#D32F2F'
       : '#666';
+  const isRefreshing = (detailLoading || historyLoading) && (!!tokenDetail || priceHistory.length > 0);
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#1976D2" />
+        }
+      >
         {/* Header */}
         <Animated.View
           style={styles.header}

@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   View,
   ScrollView,
   StyleSheet,
   Text,
   SafeAreaView,
+  RefreshControl,
 } from 'react-native';
 import { useUnit } from 'effector-react';
 import {
@@ -38,9 +39,13 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
     fetchPriceHistory(tokenId);
   }, [tokenId]);
 
-  const handleRetry = () => {
+  const handleRefresh = useCallback(() => {
     fetchTokenDetail(tokenId);
     fetchPriceHistory(tokenId);
+  }, [tokenId]);
+
+  const handleRetry = () => {
+    handleRefresh();
   };
 
   if (detailLoading || historyLoading) {
@@ -67,10 +72,16 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
         ? '#00C853'
         : '#D32F2F'
       : '#666';
+  const isRefreshing = (detailLoading || historyLoading) && (!!tokenDetail || priceHistory.length > 0);
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#1976D2" />
+        }
+      >
         {/* Header with token info */}
         {tokenDetail && (
           <View style={styles.header}>

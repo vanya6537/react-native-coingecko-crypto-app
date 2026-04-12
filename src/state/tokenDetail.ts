@@ -22,12 +22,10 @@ export const $detailError = createStore<string | null>(null);
 export const $historyError = createStore<string | null>(null);
 
 $tokenDetail
-  .on(fetchTokenDetail, () => null)
   .on(fetchTokenDetail.doneData, (_, data) => data)
   .on(clearDetail, () => null);
 
 $priceHistory
-  .on(fetchPriceHistory, () => [])
   .on(fetchPriceHistory.doneData, (_, data) => data)
   .on(clearDetail, () => []);
 
