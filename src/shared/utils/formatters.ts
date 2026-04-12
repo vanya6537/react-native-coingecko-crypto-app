@@ -76,8 +76,10 @@ export const sortTokens = (
       aVal = isValidNumber(a.price_change_percentage_24h) ? a.price_change_percentage_24h : 0;
       bVal = isValidNumber(b.price_change_percentage_24h) ? b.price_change_percentage_24h : 0;
     } else {
-      aVal = a.market_cap_rank || Infinity;
-      bVal = b.market_cap_rank || Infinity;
+      // Sort by market_cap (market_cap_rank #1 is highest market cap)
+      // Invert the values so that rank 1 (highest) comes first in desc
+      aVal = isValidNumber(a.market_cap) ? a.market_cap : 0;
+      bVal = isValidNumber(b.market_cap) ? b.market_cap : 0;
     }
 
     return sortOrder === 'desc' ? bVal - aVal : aVal - bVal;

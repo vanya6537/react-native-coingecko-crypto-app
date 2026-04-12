@@ -79,7 +79,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           activeOpacity={0.7}
         >
           <Text style={styles.sortModeText}>
-            {isSorted ? '✓ Sorted' : 'Browse'}
+            {isSorted ? '⚙️ Enable Sort' : '🔍 Search'}
           </Text>
         </TouchableOpacity>
 
