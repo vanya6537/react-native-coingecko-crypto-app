@@ -1,6 +1,6 @@
 /**
  * App Entry Point - FSD Architecture
- * Orchestrates all features and pages
+ * Orchestrates all features and pages with global notifications
  */
 import React from 'react';
 import { enableScreens } from 'react-native-screens';
@@ -15,6 +15,7 @@ import {
   TokenDetailPage,
   PriceChartPage,
 } from '../pages';
+import { ToastContainer } from '../features/notifications/ui/ToastContainer';
 import { $isAuthenticated, loginSuccess, logout } from '../features/auth';
 
 // Enable optimized screens for React Navigation
@@ -33,66 +34,67 @@ export function App(): React.JSX.Element {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          {!isAuthenticated ? (
-            <Stack.Group screenOptions={{ headerShown: false }}>
-              <Stack.Screen
-                name="Login"
-                options={{ title: 'Login', headerShown: false }}
-              >
-                {() => <LoginPage onLoginSuccess={handleLoginSuccess} />}
-              </Stack.Screen>
-            </Stack.Group>
-          ) : (
-            <Stack.Group>
-              <Stack.Screen
-                name="TokensList"
-                component={TokensListPage}
-                options={{
-                  title: 'Crypto Tokens',
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="TokenDetail"
-                component={TokenDetailPage}
-                options={({ route }: any) => ({
-                  title: route.params?.tokenId || 'Token Detail',
-                  headerShown: true,
-                  headerBackTitle: 'Back',
-                  headerStyle: {
-                    backgroundColor: '#FFFFFF',
-                  },
-                  headerTitleStyle: {
-                    fontWeight: '700',
-                    fontSize: 18,
-                  },
-                })}
-              />
-              <Stack.Screen
-                name="PriceChart"
-                component={PriceChartPage}
-                options={({ route }: any) => ({
-                  title: route.params?.tokenName || 'Price Chart',
-                  headerShown: true,
-                  headerBackTitle: 'Back',
-                  headerStyle: {
-                    backgroundColor: '#FFFFFF',
-                  },
-                  headerTitleStyle: {
-                    fontWeight: '700',
-                    fontSize: 18,
-                  },
-                })}
-              />
-            </Stack.Group>
-          )}
-        </Stack.Navigator>
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
+            {!isAuthenticated ? (
+              <Stack.Group screenOptions={{ headerShown: false }}>
+                <Stack.Screen
+                  name="Login"
+                  options={{ title: 'Login', headerShown: false }}
+                >
+                  {() => <LoginPage onLoginSuccess={handleLoginSuccess} />}
+                </Stack.Screen>
+              </Stack.Group>
+            ) : (
+              <Stack.Group>
+                <Stack.Screen
+                  name="TokensList"
+                  component={TokensListPage}
+                  options={{
+                    title: 'Crypto Tokens',
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="TokenDetail"
+                  component={TokenDetailPage}
+                  options={({ route }: any) => ({
+                    title: route.params?.tokenId || 'Token Detail',
+                    headerShown: true,
+                    headerBackTitle: 'Back',
+                    headerStyle: {
+                      backgroundColor: '#FFFFFF',
+                    },
+                    headerTitleStyle: {
+                      fontWeight: '700',
+                      fontSize: 18,
+                    },
+                  })}
+                />
+                <Stack.Screen
+                  name="PriceChart"
+                  component={PriceChartPage}
+                  options={({ route }: any) => ({
+                    title: route.params?.tokenName || 'Price Chart',
+                    headerShown: true,
+                    headerBackTitle: 'Back',
+                    headerStyle: {
+                      backgroundColor: '#FFFFFF',
+                    },
+                    headerTitleStyle: {
+                      fontWeight: '700',
+                      fontSize: 18,
+                    },
+                  })}
+                />
+              </Stack.Group>
+            )}
+          </Stack.Navigator>
         </NavigationContainer>
+        <ToastContainer />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

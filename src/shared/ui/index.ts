@@ -9,3 +9,5 @@ export * from './PriceChart';
 export * from './SkeletonLoader';
 export * from './TokenDetailSections';
 export * from './ExpandedPriceChart';
+export { LivePriceFeed } from './LivePriceFeed';
+export { LiveDemoScreen } from './LiveDemoScreen';

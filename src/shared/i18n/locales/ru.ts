@@ -76,9 +76,17 @@ export const ru = {
     title: 'Уведомления',
     priceAlerts: 'Оповещения о цене',
     enableNotifications: 'Включить уведомления',
+    disableNotifications: 'Отключить уведомления',
     alertThreshold: 'Порог оповещения (%)',
     priceUp: 'Цена {{name}} выросла на {{percent}}%',
     priceDown: 'Цена {{name}} упала на {{percent}}%',
+    success: 'Уведомление отправлено успешно',
+    dataLoaded: 'Данные загружены успешно',
+    dataRefreshed: 'Данные обновлены',
+    cacheHit: 'Используются кэшированные данные',
+    prefetching: 'Предзагрузка данных...',
+    offlineMode: 'Офлайн режим: кэшированные данные',
+    reconnected: 'Соединение восстановлено',
   },
 
   // Export

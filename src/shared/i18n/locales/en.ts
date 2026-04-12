@@ -76,9 +76,17 @@ export const en = {
     title: 'Notifications',
     priceAlerts: 'Price Alerts',
     enableNotifications: 'Enable Notifications',
+    disableNotifications: 'Disable Notifications',
     alertThreshold: 'Alert Threshold (%)',
     priceUp: '{{name}} price increased by {{percent}}%',
     priceDown: '{{name}} price decreased by {{percent}}%',
+    success: 'Notification sent successfully',
+    dataLoaded: 'Data loaded successfully',
+    dataRefreshed: 'Data refreshed',
+    cacheHit: 'Using cached data',
+    prefetching: 'Prefetching data...',
+    offlineMode: 'Offline Mode: Using cached data',
+    reconnected: 'Connection restored',
   },
 
   // Export
