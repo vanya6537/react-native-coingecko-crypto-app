@@ -197,7 +197,7 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
                 <Text style={styles.expandButtonText}>📈 Fullscreen</Text>
               </TouchableOpacity>
             </View>
-            <PriceChart data={priceHistory} height={230} />
+            <PriceChart data={priceHistory} height={280} />
             <Text style={styles.chartHint}>👆 Tap & drag to explore prices</Text>
           </Animated.View>
         ) : null}
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingTop: 32,
   },
   chartHeader: {
     flexDirection: 'row',
@@ -324,12 +324,14 @@ const styles = StyleSheet.create({
   chartHint: {
     fontSize: 11,
     color: '#999',
-    marginTop: 6,
+    marginTop: 80,
+    marginLeft: 16,
     fontStyle: 'italic',
   },
   descriptionContainer: {
     paddingHorizontal: 16,
     paddingTop: 20,
+    paddingLeft: 16,
     paddingBottom: 8,
   },
   sectionTitle: {

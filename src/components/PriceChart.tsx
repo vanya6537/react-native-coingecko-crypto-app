@@ -41,8 +41,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<Point | null>(null);
   const panResponderRef = useRef<any>(null);
-  
-  // Reanimated shared values for animated selection
+
   const selectedOpacity = useSharedValue(0);
   const selectedScale = useSharedValue(1);
 
@@ -64,7 +63,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     );
   }
 
-  const prices = data.map((d: PriceHistory) => d.price);
+  const prices = data.map((entry: PriceHistory) => entry.price);
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
   const priceRange = maxPrice - minPrice || 1;
@@ -72,11 +71,11 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   const minIndex = prices.indexOf(minPrice);
   const maxIndex = prices.indexOf(maxPrice);
 
-  const points: Point[] = data.map((d: PriceHistory, i: number) => ({
-    x: chartPadding.left + (i / pointCountDivisor) * plotWidth,
-    y: chartPadding.top + ((maxPrice - d.price) / priceRange) * plotHeight,
-    price: d.price,
-    timestamp: d.timestamp,
+  const points: Point[] = data.map((entry: PriceHistory, index: number) => ({
+    x: chartPadding.left + (index / pointCountDivisor) * plotWidth,
+    y: chartPadding.top + ((maxPrice - entry.price) / priceRange) * plotHeight,
+    price: entry.price,
+    timestamp: entry.timestamp,
   }));
 
   const updateSelectedPoint = useCallback(
@@ -84,7 +83,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
       const relativeX = pageX - 16 - chartPadding.left;
       const normalizedX = Math.max(0, Math.min(relativeX, plotWidth));
       const index = Math.round((normalizedX / Math.max(plotWidth, 1)) * pointCountDivisor);
-      
+
       if (index >= 0 && index < data.length) {
         setSelectedIndex(index);
         setSelectedPoint(points[index]);
@@ -93,16 +92,15 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     [chartPadding.left, plotWidth, pointCountDivisor, data.length, points]
   );
 
-  // Gesture handler
   if (!panResponderRef.current) {
     panResponderRef.current = PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (evt: any) => {
-        updateSelectedPoint(evt.nativeEvent.pageX);
+      onPanResponderMove: (event: any) => {
+        updateSelectedPoint(event.nativeEvent.pageX);
       },
       onPanResponderRelease: () => {
-        // Keep selection visible
+        // Keep selection visible.
       },
       onPanResponderTerminate: () => {
         setSelectedIndex(null);
@@ -125,21 +123,28 @@ export const PriceChart: React.FC<PriceChartProps> = ({
         day: 'numeric',
       });
 
-  // Render SVG
   const renderChart = () => {
-    const linePoints = points.map((p) => `${p.x},${p.y}`).join(' ');
+    const linePoints = points.map((point) => `${point.x},${point.y}`).join(' ');
     const fillPoints = [
       `${chartPadding.left},${chartPadding.top + plotHeight}`,
-      ...points.map((p) => `${p.x},${p.y}`),
+      ...points.map((point) => `${point.x},${point.y}`),
       `${width - chartPadding.right},${chartPadding.top + plotHeight}`,
     ].join(' ');
     const minPoint = points[minIndex];
     const maxPoint = points[maxIndex];
 
-    const renderExtremeBadge = (point: Point, label: 'HIGH' | 'LOW', tone: string, position: 'top' | 'bottom') => {
+    const renderExtremeBadge = (
+      point: Point,
+      label: 'HIGH' | 'LOW',
+      tone: string,
+      position: 'top' | 'bottom'
+    ) => {
       const badgeWidth = 48;
       const badgeHeight = 20;
-      const x = Math.max(chartPadding.left, Math.min(point.x - badgeWidth / 2, width - chartPadding.right - badgeWidth));
+      const x = Math.max(
+        chartPadding.left,
+        Math.min(point.x - badgeWidth / 2, width - chartPadding.right - badgeWidth)
+      );
       const y = position === 'top' ? 8 : svgHeight - badgeHeight - 8;
 
       return (
@@ -161,7 +166,6 @@ export const PriceChart: React.FC<PriceChartProps> = ({
 
     return (
       <Svg width={width} height={svgHeight} style={styles.svg} viewBox={`0 0 ${width} ${svgHeight}`}>
-        {/* Grid lines */}
         {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
           <Line
             key={`grid-${ratio}`}
@@ -195,14 +199,12 @@ export const PriceChart: React.FC<PriceChartProps> = ({
           opacity="0.8"
         />
 
-        {/* Fill under curve */}
         <Polygon
           points={fillPoints}
           fill={isUp ? '#C8E6C9' : '#FFCDD2'}
           opacity="0.3"
         />
 
-        {/* Price curve */}
         <Polyline
           points={linePoints}
           fill="none"
@@ -216,10 +218,8 @@ export const PriceChart: React.FC<PriceChartProps> = ({
         {renderExtremeBadge(maxPoint, 'HIGH', '#00A152', 'top')}
         {renderExtremeBadge(minPoint, 'LOW', '#C62828', 'bottom')}
 
-        {/* Selected point indicator */}
         {selectedIndex !== null && selectedIndex >= 0 && selectedIndex < points.length && (
           <>
-            {/* Vertical line */}
             <Line
               x1={points[selectedIndex].x}
               y1={chartPadding.top}
@@ -230,7 +230,6 @@ export const PriceChart: React.FC<PriceChartProps> = ({
               strokeDasharray="4,4"
               opacity="0.6"
             />
-            {/* Circle at point */}
             <Circle
               cx={points[selectedIndex].x}
               cy={points[selectedIndex].y}
@@ -246,7 +245,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   };
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[styles.container, { height }]}
       entering={FadeIn.duration(400).delay(100)}
       layout={Layout.springify()}
@@ -259,9 +258,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
           <Text style={styles.dateDisplay}>{displayDate}</Text>
         </View>
         {selectedIndex !== null && (
-          <Animated.View
-            entering={ZoomIn.springify()}
-          >
+          <Animated.View entering={ZoomIn.springify()}>
             <Text style={styles.tooltipLabel}>
               Day {selectedIndex + 1}/{data.length}
             </Text>
@@ -277,23 +274,27 @@ export const PriceChart: React.FC<PriceChartProps> = ({
       </View>
 
       <View style={styles.legend}>
-        <View style={styles.legendItem}>
-          <View
+        <View style={styles.legendCard}>
+          <Text style={styles.legendLabel}>7D Low</Text>
+          <Text
             style={[
-              styles.legendColor,
-              { backgroundColor: minPrice === maxPrice ? '#999' : '#00C853' },
+              styles.legendValue,
+              { color: minPrice === maxPrice ? '#757575' : '#C62828' },
             ]}
-          />
-          <Text style={styles.legendText}>Low: {formatPrice(minPrice)}</Text>
+          >
+            {formatPrice(minPrice)}
+          </Text>
         </View>
-        <View style={styles.legendItem}>
-          <View
+        <View style={styles.legendCard}>
+          <Text style={styles.legendLabel}>7D High</Text>
+          <Text
             style={[
-              styles.legendColor,
-              { backgroundColor: minPrice === maxPrice ? '#999' : '#D32F2F' },
+              styles.legendValue,
+              { color: minPrice === maxPrice ? '#757575' : '#00A152' },
             ]}
-          />
-          <Text style={styles.legendText}>High: {formatPrice(maxPrice)}</Text>
+          >
+            {formatPrice(maxPrice)}
+          </Text>
         </View>
       </View>
     </Animated.View>
@@ -337,7 +338,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderRadius: 12,
     overflow: 'hidden',
-    marginBottom: 12,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: '#EEF2F5',
   },
@@ -346,28 +347,35 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   legend: {
-    flexDirection: 'column',
-    gap: 10,
-    paddingTop: 4,
-  },
-  legendItem: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 2,
+    gap: 10,
+    paddingTop: 2,
+    marginBottom: 40,
   },
-  legendColor: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  legendCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EEF2F5',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
-  legendText: {
+  legendLabel: {
     fontSize: 11,
-    color: '#666',
+    color: '#7A8691',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginBottom: 4,
+  },
+  legendValue: {
+    fontSize: 14,
+    fontWeight: '700',
   },
   emptyText: {
-    textAlign: 'center',
-    color: '#999',
     fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
   },
 });
