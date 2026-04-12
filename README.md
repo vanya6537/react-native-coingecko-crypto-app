@@ -396,19 +396,36 @@ npx react-native start --reset-cache
 
 ## 🧪 Тестирование
 
-### Manual QA checklist
-- [ ] Login экран работает (email/password)
-- [ ] Список загружается с CoinGecko API
-- [ ] Infinite scroll работает (5+ scroll iterations)
-- [ ] Поиск фильтрует БЕЗ переупорядочивания
-- [ ] Режим Sorted переупорядочивает и отключает infinite scroll
-- [ ] Раскрытие элемента открывает детали
-- [ ] График загружается с историей 7 дней
-- [ ] Свайп по графику работает (touch events)
-- [ ] Pull-to-refresh обновляет данные
-- [ ] Error state + retry при отсутствии сети
-- [ ] Loading skeletons показываются
-- [ ] Анимации плавные (FadeIn, Layout)
+### Запуск тестов
+
+```bash
+# Все тесты
+npm test
+
+# Watch mode
+npm test --watch
+
+# С покрытием
+npm test --coverage
+
+# Конкретный файл
+npm test api.test.ts
+```
+
+### Структура тестов
+- `src/features/*//__tests__/*.test.ts` - тесты feature'ов
+- `src/shared/__tests__/*.test.ts` - тесты утилит
+
+### Примеры тестов
+- **Favorites API** - AsyncStorage интеграция
+- **Theme colors** - валидация цветовых схем
+- **Formatters** - форматирование данных
+
+### Coverage целевые показатели
+- Branches: 50%
+- Functions: 50%
+- Lines: 50%
+- Statements: 50%
 
 ---
 
@@ -666,18 +683,26 @@ src/
 
 | Пакет | Версия | Назначение |
 |---|---|---|
-| react | 19.0.0 | UI framework |
+| react | 19.2.3 | UI framework |
 | react-native | 0.84.1 | Native platform |
-| @react-navigation/* | 6.x | Навигация |
-| effector | 23.2.0 | State management |
-| effector-react | 23.2.0 | React привязка |
-| react-native-reanimated | 3.10.1 | Анимации |
-| react-native-gesture-handler | 2.16.0 | Жесты |
-| react-native-svg | 15.2.0 | SVG графика |
+| @react-navigation/* | 7.x | Навигация |
+| effector | 23.4.4 | State management |
+| effector-react | 23.3.0 | React привязка |
+| react-native-reanimated | 4.3.0 | Анимации |
+| react-native-gesture-handler | 2.31.0 | Жесты |
+| react-native-svg | 15.15.4 | SVG графика |
 | d3 | 7.9.0 | Масштабирование |
-| axios | 1.7.2 | HTTP клиент |
-| react-native-mmkv | 2.11.1 | Кэширование |
-| @react-navigation/bottom-tabs | 7.x | Дополнительный navigation primitive |
+| axios | 1.15.0 | HTTP клиент |
+| react-native-mmkv | 4.3.1 | Кэширование |
+| **@react-native-async-storage/async-storage** | 1.23.1 | **Персистентное хранилище (Favorites)** |
+| **@react-native-community/netinfo** | 11.3.1 | **Обнаружение сети (Offline mode)** |
+| **i18next** | 23.7.6 | **Локализация** |
+| **react-i18next** | 14.0.0 | **React i18n интеграция** |
+| **react-native-notifee** | 7.8.0 | **Local Notifications** |
+| **react-native-fs** | 2.20.0 | **Работа с файлами (Export)** |
+| **react-native-share** | 10.0.1 | **Native Share (Export)** |
+| **react-native-view-shot** | 3.8.0 | **Capture экрана (Export)** |
+| **react-native-localize** | 3.1.0 | **Определение языка устройства** |
 
 ---
 
@@ -950,18 +975,31 @@ API_TIMEOUT=10000
 - ✅ LayoutAnimation для плавной анимации раскрытия
 - ✅ SVG граф без re-render всего списка
 
-## Возможные улучшения (5-10 часов work)
-- ✅ Skeleton loaders (реализовано)
-- ✅ Интерактивный график с жестами (реализовано)
-- Pull-to-refresh на TokensListScreen
-- Уведомления о скачках цены (Local Notifications)
-- Избранные токены (со звездочкой, AsyncStorage)
-- Анимации раскрытия (Reanimated spring animations)
-- Экспорт в CSV/изображение
-- Темный режим (Dark Mode)
-- Локализация (i18n)
-- Оффлайн режим
-- Unit тесты (Jest + React Native Testing Library)
+## Реализованные улучшения ✅
+
+### Фундаментальные функции
+- ✅ Skeleton loaders для всех экранов
+- ✅ Интерактивный график с жестами
+- ✅ Pull-to-refresh на TokensListScreen
+
+### Пользовательские функции
+- ✅ **Избранные токены** (⭐ со звездочкой, AsyncStorage persistence)
+- ✅ **Темный режим** (🌙 Light/Dark/Auto с сохранением)
+- ✅ **Локализация** (🌍 Русский + Английский, i18n)
+- ✅ **Уведомления о цене** (🔔 Local Notifications через notifee)
+- ✅ **Экспорт** (📥 CSV и PNG графиков через native Share)
+- ✅ **Оффлайн режим** (🔌 Кэширование и автосинхронизация)
+- ✅ **Анимации** (🎬 Reanimated spring animations)
+- ✅ **Unit тесты** (🧪 Jest + Testing Library + примеры)
+
+## Архитектура & Требования ТЗ ✅
+
+- ✅ **Четкое разделение слоев**: UI (components/screens) → Features → State → Data
+- ✅ **Переиспользуемые компоненты**: TokenItem, FilterBar, PriceChart, Skeleton
+- ✅ **Строгая типизация**: 100% TypeScript, strict mode
+- ✅ **Чистая структура**: FSD (Feature Sliced Design) architecture
+- ✅ **Оптимизация производительности**: FlatList, React.memo, Effector memoization
+- ✅ **Кэширование**: MMKV с TTL для всех API запросов
 
 ## Технический стек
 
