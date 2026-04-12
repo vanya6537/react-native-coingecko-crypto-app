@@ -65,10 +65,20 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
   }, []);
 
   const handleEndReached = useCallback(() => {
-    if (!isFetchingNextPage && hasMore && !isLoadingInitial) {
+    // Only fetch if:
+    // - not already fetching next page
+    // - more data available
+    // - not still loading initial data
+    // - tokens exist (avoid fetching on empty list)
+    if (
+      !isFetchingNextPage && 
+      hasMore && 
+      !isLoadingInitial && 
+      tokens.length > 0
+    ) {
       fetchNextPage();
     }
-  }, [isFetchingNextPage, hasMore, isLoadingInitial]);
+  }, [isFetchingNextPage, hasMore, isLoadingInitial, tokens.length]);
 
   const handleTokenPress = useCallback((token: Token) => {
     navigation.navigate('TokenDetail', { tokenId: token.id });
@@ -111,7 +121,7 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
           <FilterBar filters={filters} onFilterChange={setFilters} />
         )}
         onEndReached={handleEndReached}
-        onEndReachedThreshold={0.7}
+        onEndReachedThreshold={0.5}
         onRefresh={handleRefresh}
         refreshing={isRefreshing}
         ListFooterComponent={() =>
@@ -121,6 +131,11 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
             </View>
           ) : null
         }
+        // Performance optimizations
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        removeClippedSubviews={true}
+        scrollIndicatorInsets={{ right: 1 }}
       />
     </SafeAreaView>
   );

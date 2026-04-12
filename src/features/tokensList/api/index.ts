@@ -29,10 +29,21 @@ export const tokensListAPI = {
             sparkline: false,
           },
         });
-        return response.data;
+        // Ensure unique tokens by ID
+        const seen = new Set<string>();
+        const unique = response.data.filter(token => {
+          if (seen.has(token.id)) {
+            console.warn(`⚠️ Duplicate token detected: ${token.id}`);
+            return false;
+          }
+          seen.add(token.id);
+          return true;
+        });
+        return unique;
       }, 3);
 
       cache.set(cacheKey, data, TOKENS_CACHE_TTL);
+      console.log(`✅ Fetched ${data.length} tokens from page ${page}`);
       return data;
     } catch (error) {
       console.error('Failed to fetch tokens:', error);

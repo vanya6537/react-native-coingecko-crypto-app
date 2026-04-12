@@ -31,6 +31,21 @@ const initialUIState: ListUIState = {
   isEmpty: false,
 };
 
+// Helper to deduplicate tokens by ID while preserving order
+const deduplicateTokens = (tokens: Token[]): Token[] => {
+  const seen = new Set<string>();
+  const unique: Token[] = [];
+  
+  for (const token of tokens) {
+    if (!seen.has(token.id)) {
+      seen.add(token.id);
+      unique.push(token);
+    }
+  }
+  
+  return unique;
+};
+
 // Stores
 export const $currentPage = createStore<number>(1)
   .on(fetchInitialTokens, () => 1)
@@ -44,7 +59,8 @@ export const $tokens = createStore<Token[]>([])
   .on(resetTokens, () => [])
   .on(fetchTokensPageFx.doneData, (tokens: Token[], data: Token[]) => {
     const currentPage = $currentPage.getState();
-    return currentPage === 1 ? data : [...tokens, ...data];
+    const merged = currentPage === 1 ? data : [...tokens, ...data];
+    return deduplicateTokens(merged);
   });
 
 export const $isFetchingNextPage = createStore<boolean>(false)
