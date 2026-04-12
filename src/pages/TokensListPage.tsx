@@ -2,7 +2,7 @@
  * Pages - Tokens List Page
  * Composes TokensList feature
  */
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import {
   View,
   FlatList,
@@ -29,7 +29,7 @@ import {
 import { TokenItem, FilterBar } from '../components';
 import { ErrorState, EmptyState } from '../components/StateComponents';
 import { TokenListLoadingSkeleton } from '../components/SkeletonLoader';
-import { filterTokens } from '../shared/utils/formatters';
+import { filterTokens, sortTokens } from '../shared/utils/formatters';
 
 interface TokensListPageProps {
   navigation: any;
@@ -46,15 +46,25 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
     $hasMore,
   ]);
 
+  const [isSorted, setIsSorted] = useState(false);
+
   // Initial load on mount
   useEffect(() => {
     fetchInitialTokens();
   }, []);
 
-  // Memoize filtered tokens
-  const filteredTokens = useMemo(() => {
-    return filterTokens(tokens, filters.search, filters.sortBy, filters.sortOrder);
-  }, [tokens, filters]);
+  // Apply only search filter (NO reordering)
+  const searchFilteredTokens = useMemo(() => {
+    return filterTokens(tokens, filters.search);
+  }, [tokens, filters.search]);
+
+  // Apply sort only if explicitly enabled
+  const displayTokens = useMemo(() => {
+    if (isSorted) {
+      return sortTokens(searchFilteredTokens, filters.sortBy, filters.sortOrder);
+    }
+    return searchFilteredTokens;
+  }, [searchFilteredTokens, isSorted, filters.sortBy, filters.sortOrder]);
 
   const handleRetry = useCallback(() => {
     fetchInitialTokens();
@@ -65,24 +75,24 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
   }, []);
 
   const handleEndReached = useCallback(() => {
-    // Only fetch if:
-    // - not already fetching next page
-    // - more data available
-    // - not still loading initial data
-    // - tokens exist (avoid fetching on empty list)
     if (
       !isFetchingNextPage && 
       hasMore && 
       !isLoadingInitial && 
-      tokens.length > 0
+      tokens.length > 0 &&
+      !isSorted // Don't infinite scroll when sorted
     ) {
       fetchNextPage();
     }
-  }, [isFetchingNextPage, hasMore, isLoadingInitial, tokens.length]);
+  }, [isFetchingNextPage, hasMore, isLoadingInitial, tokens.length, isSorted]);
 
   const handleTokenPress = useCallback((token: Token) => {
     navigation.navigate('TokenDetail', { tokenId: token.id });
   }, [navigation]);
+
+  const handleSortToggle = useCallback(() => {
+    setIsSorted(!isSorted);
+  }, [isSorted]);
 
   if (isLoadingInitial && tokens.length === 0) {
     return (
@@ -103,7 +113,12 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
   if (uiState.isEmpty) {
     return (
       <SafeAreaView style={styles.container}>
-        <FilterBar filters={filters} onFilterChange={setFilters} />
+        <FilterBar 
+          filters={filters} 
+          onFilterChange={setFilters}
+          isSorted={isSorted}
+          onSortToggle={handleSortToggle}
+        />
         <EmptyState message="No tokens found" />
       </SafeAreaView>
     );
@@ -112,20 +127,25 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={filteredTokens}
+        data={displayTokens}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TokenItem token={item} onPress={handleTokenPress} />
         )}
         ListHeaderComponent={() => (
-          <FilterBar filters={filters} onFilterChange={setFilters} />
+          <FilterBar 
+            filters={filters} 
+            onFilterChange={setFilters}
+            isSorted={isSorted}
+            onSortToggle={handleSortToggle}
+          />
         )}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
         onRefresh={handleRefresh}
         refreshing={isRefreshing}
         ListFooterComponent={() =>
-          isFetchingNextPage && hasMore ? (
+          isFetchingNextPage && hasMore && !isSorted ? (
             <View style={styles.footerLoader}>
               <ActivityIndicator size="large" color="#1976D2" />
             </View>

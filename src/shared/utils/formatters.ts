@@ -44,22 +44,28 @@ export const formatMarketCap = (cap: number | null | undefined): string => {
 
 export const filterTokens = (
   tokens: Token[],
-  search: string,
-  sortBy: string,
-  sortOrder: string
-) => {
-  let filtered = tokens;
-
-  // Filter by name/symbol
-  if (search) {
-    const q = search.toLowerCase();
-    filtered = filtered.filter(
-      (t) => t.name.toLowerCase().includes(q) || t.symbol.toLowerCase().includes(q)
-    );
+  search: string
+): Token[] => {
+  if (!search) {
+    return tokens;
   }
 
-  // Sort
-  filtered.sort((a, b) => {
+  // Only search - NO reordering
+  const q = search.toLowerCase();
+  return tokens.filter(
+    (t) => t.name.toLowerCase().includes(q) || t.symbol.toLowerCase().includes(q)
+  );
+};
+
+// Separate sorting function for explicit sorting action
+export const sortTokens = (
+  tokens: Token[],
+  sortBy: string,
+  sortOrder: string
+): Token[] => {
+  const sorted = [...tokens]; // Clone to avoid mutation
+
+  sorted.sort((a, b) => {
     let aVal = 0;
     let bVal = 0;
 
@@ -77,5 +83,5 @@ export const filterTokens = (
     return sortOrder === 'desc' ? bVal - aVal : aVal - bVal;
   });
 
-  return filtered;
+  return sorted;
 };

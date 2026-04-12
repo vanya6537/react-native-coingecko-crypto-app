@@ -13,6 +13,8 @@ import type { ListFilters } from '../types/index';
 interface FilterBarProps {
   filters: ListFilters;
   onFilterChange: (filters: Partial<ListFilters>) => void;
+  isSorted?: boolean;
+  onSortToggle?: () => void;
 }
 
 type SortOption = 'price' | 'change24h' | 'market_cap';
@@ -23,7 +25,12 @@ const SORT_OPTIONS: { label: string; value: SortOption }[] = [
   { label: 'Market Cap', value: 'market_cap' },
 ];
 
-export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange }) => {
+export const FilterBar: React.FC<FilterBarProps> = ({ 
+  filters, 
+  onFilterChange,
+  isSorted = false,
+  onSortToggle,
+}) => {
   const [sortPickerVisible, setSortPickerVisible] = useState(false);
 
   const handleSearchChange = useCallback((text: string) => {
@@ -33,7 +40,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange })
   const handleSortChange = useCallback((sortBy: SortOption) => {
     setSortPickerVisible(false);
     onFilterChange({ sortBy });
-  }, [onFilterChange]);
+    // Auto-enable sorting when changing sort option
+    if (!isSorted && onSortToggle) {
+      onSortToggle();
+    }
+  }, [onFilterChange, isSorted, onSortToggle]);
 
   const handleToggleSortOrder = useCallback(() => {
     const newOrder = filters.sortOrder === 'desc' ? 'asc' : 'desc';
@@ -58,21 +69,43 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange })
 
       {/* Filter/Sort Controls */}
       <View style={styles.controlsRow}>
-        {/* Sort Picker Button */}
+        {/* Sort Mode Toggle */}
         <TouchableOpacity
-          style={styles.sortButton}
+          style={[
+            styles.sortModeButton,
+            isSorted && styles.sortModeButtonActive,
+          ]}
+          onPress={onSortToggle}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.sortModeText}>
+            {isSorted ? '✓ Sorted' : 'Browse'}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Sort Picker Button (only available when sorted) */}
+        <TouchableOpacity
+          style={[
+            styles.sortButton,
+            !isSorted && styles.sortButtonDisabled,
+          ]}
           onPress={() => setSortPickerVisible(true)}
           activeOpacity={0.7}
+          disabled={!isSorted}
         >
           <Text style={styles.sortButtonText}>{currentSortLabel}</Text>
           <Text style={styles.sortButtonIcon}>⚙</Text>
         </TouchableOpacity>
 
-        {/* Sort Order Toggle */}
+        {/* Sort Order Toggle (only available when sorted) */}
         <TouchableOpacity
-          style={styles.sortOrderButton}
+          style={[
+            styles.sortOrderButton,
+            !isSorted && styles.sortOrderButtonDisabled,
+          ]}
           onPress={handleToggleSortOrder}
           activeOpacity={0.7}
+          disabled={!isSorted}
         >
           <Text style={styles.sortOrderSymbol}>{sortOrderSymbol}</Text>
         </TouchableOpacity>
@@ -154,6 +187,25 @@ const styles = StyleSheet.create({
     gap: 8,
     alignItems: 'center',
   },
+  sortModeButton: {
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  sortModeButtonActive: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
+  },
+  sortModeText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#333',
+  },
   sortButton: {
     flex: 1,
     flexDirection: 'row',
@@ -163,6 +215,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  sortButtonDisabled: {
+    backgroundColor: '#ccc',
+    opacity: 0.5,
   },
   sortButtonText: {
     fontSize: 14,
@@ -180,6 +236,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#333',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  sortOrderButtonDisabled: {
+    backgroundColor: '#ccc',
+    opacity: 0.5,
   },
   sortOrderSymbol: {
     fontSize: 18,
