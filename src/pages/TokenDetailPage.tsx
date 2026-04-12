@@ -37,6 +37,7 @@ import {
 } from '../components';
 import { ErrorState } from '../components/StateComponents';
 import { formatPrice, formatChange, formatMarketCap } from '../shared/utils/formatters';
+import { LanguageToggler } from '../shared/ui/LanguageToggler';
 
 interface TokenDetailPageProps {
   route: any;
@@ -135,6 +136,9 @@ export const TokenDetailPage: React.FC<TokenDetailPageProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.languageContainer}>
+        <LanguageToggler compact={true} />
+      </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -198,6 +202,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
+  },
+  languageContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
   },
   priceSectionStyle: {
     paddingHorizontal: 16,

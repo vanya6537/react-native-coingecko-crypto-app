@@ -3,11 +3,12 @@
  * Full-screen price chart
  */
 import React, { useEffect } from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
 import { useUnit } from 'effector-react';
 import { $priceHistory, fetchPriceHistory } from '../features/tokenDetail';
 import { ExpandedPriceChart } from '../components/ExpandedPriceChart';
 import { FullscreenChartLoadingSkeleton } from '../components/SkeletonLoader';
+import { LanguageToggler } from '../shared/ui/LanguageToggler';
 
 interface PriceChartPageProps {
   route: any;
@@ -31,6 +32,9 @@ export const PriceChartPage: React.FC<PriceChartPageProps> = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.languageContainer}>
+        <LanguageToggler compact={true} />
+      </View>
       <ExpandedPriceChart data={priceHistory} tokenName={tokenName} />
     </SafeAreaView>
   );
