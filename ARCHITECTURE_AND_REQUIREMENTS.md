@@ -322,14 +322,14 @@ Features:
 6. **Architecture** соответствует требованиям
 
 ### ⚖️ Компромиссы
-1. **React Query** установлена, но не используется (Effector + axios достаточно)
-   - *Причина*: Effector обеспечивает лучший control над состоянием, react-query был бы над-инженерингом
+1. **Axios + Effector без React Query**
+  - *Причина*: для текущего объема приложения отдельный query-layer был бы лишним; один axios client + Effector effects проще и лучше соответствует KISS
 2. **Client-side фильтрация** вместо server-side
    - *Причина*: CoinGecko API не поддерживает фильтрацию по change24h, проще на клиенте
 3. **SVG график** вместо более сложной библиотеки (react-native-chart-kit)
    - *Причина*: Полный контроль, меньше зависимостей, лучше performance
 4. **MMKV persist** - optional (время не позволило, но архитектура готова)
-   - *Причина*: Основной кэш через axios достаточен для сессии
+  - *Причина*: основной runtime-кэш уже закрыт через MMKV + API layer TTL
 
 ### 🔮 Возможные улучшения (для future)
 1. Persisted cache через MMKV на app restart

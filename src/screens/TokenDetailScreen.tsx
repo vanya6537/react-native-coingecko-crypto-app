@@ -5,8 +5,6 @@ import {
   StyleSheet,
   Text,
   SafeAreaView,
-  Image,
-  TouchableOpacity,
   RefreshControl,
 } from 'react-native';
 import Animated, {
@@ -26,9 +24,14 @@ import {
 } from '../state/index';
 import {
   ChartLoadingSkeleton,
+  ChartSectionHeader,
+  DescriptionSection,
   ErrorState,
   PriceChart,
+  StatsSection,
   TokenDetailLoadingSkeleton,
+  TokenIdentityHeader,
+  TokenPriceSummary,
 } from '../components/index';
 import { formatPrice, formatChange, formatMarketCap } from '../utils/formatters';
 
@@ -71,15 +74,14 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
     $detailError,
   ]);
 
-  useEffect(() => {
-    fetchTokenDetail(tokenId);
-    fetchPriceHistory(tokenId);
-  }, [tokenId]);
-
   const handleRefresh = useCallback(() => {
     fetchTokenDetail(tokenId);
     fetchPriceHistory(tokenId);
   }, [tokenId]);
+
+  useEffect(() => {
+    handleRefresh();
+  }, [handleRefresh]);
 
   const handleRetry = () => {
     handleRefresh();
@@ -110,6 +112,21 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
         : '#D32F2F'
       : '#666';
   const isRefreshing = (detailLoading || historyLoading) && (!!tokenDetail || priceHistory.length > 0);
+  const detailStats = [
+    {
+      label: 'Market Cap Rank',
+      value: `#${tokenDetail.market_cap_rank || 'N/A'}`,
+    },
+    ...(tokenDetail.market_cap
+      ? [{ label: 'Market Cap', value: formatMarketCap(tokenDetail.market_cap) }]
+      : []),
+    ...(tokenDetail.ath
+      ? [{ label: 'All-Time High', value: formatPrice(tokenDetail.ath) }]
+      : []),
+    ...(tokenDetail.atl
+      ? [{ label: 'All-Time Low', value: formatPrice(tokenDetail.atl) }]
+      : []),
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -119,73 +136,43 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#1976D2" />
         }
       >
-        {/* Header */}
         <Animated.View
-          style={styles.header}
           entering={luxuryEnter(0, 0.55)}
           layout={luxuryLayout}
         >
-          <Image source={{ uri: tokenDetail.image }} style={styles.tokenImage} />
-          <View style={styles.tokenInfo}>
-            <Text style={styles.tokenName}>{tokenDetail.name}</Text>
-            <Text style={styles.tokenSymbol}>{tokenDetail.symbol.toUpperCase()}</Text>
-          </View>
+          <TokenIdentityHeader
+            image={tokenDetail.image}
+            name={tokenDetail.name}
+            symbol={tokenDetail.symbol}
+          />
         </Animated.View>
 
-        {/* Price Section */}
         <Animated.View
-          style={styles.priceSection}
           entering={luxuryEnter(Math.round(ENTRANCE_BASE_DURATION / PHI), 0.8)}
           layout={luxuryLayout}
         >
-          <Text style={styles.currentPrice}>{formatPrice(tokenDetail.current_price)}</Text>
-          <Text style={[styles.change24h, { color: changeColor }]}>
-            {formatChange(tokenDetail.price_change_percentage_24h)}
-          </Text>
+          <TokenPriceSummary
+            price={formatPrice(tokenDetail.current_price)}
+            change={formatChange(tokenDetail.price_change_percentage_24h)}
+            changeColor={changeColor}
+          />
         </Animated.View>
 
-        {/* Stats Grid */}
         <Animated.View
-          style={styles.statsGrid}
+          style={styles.statsSection}
           entering={luxuryEnter(Math.round((ENTRANCE_BASE_DURATION / PHI) * PHI), 1)}
           layout={luxuryLayout}
         >
-          <View style={styles.statBox}>
-            <Text style={styles.statLabel}>Market Cap Rank</Text>
-            <Text style={styles.statValue}>#{tokenDetail.market_cap_rank || 'N/A'}</Text>
-          </View>
-
-          {tokenDetail.market_cap && (
-            <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Market Cap</Text>
-              <Text style={styles.statValue}>{formatMarketCap(tokenDetail.market_cap)}</Text>
-            </View>
-          )}
-
-          {tokenDetail.ath && (
-            <View style={styles.statBox}>
-              <Text style={styles.statLabel}>All-Time High</Text>
-              <Text style={styles.statValue}>{formatPrice(tokenDetail.ath)}</Text>
-            </View>
-          )}
-
-          {tokenDetail.atl && (
-            <View style={styles.statBox}>
-              <Text style={styles.statLabel}>All-Time Low</Text>
-              <Text style={styles.statValue}>{formatPrice(tokenDetail.atl)}</Text>
-            </View>
-          )}
+          <StatsSection items={detailStats} />
         </Animated.View>
 
-        {/* Price Chart */}
         {historyLoading && priceHistory.length === 0 ? (
           <View style={styles.chartContainer}>
-            <View style={styles.chartHeader}>
-              <Text style={styles.chartTitle}>7-Day Price History</Text>
-              <TouchableOpacity style={styles.expandButton} disabled={true} activeOpacity={1}>
-                <Text style={styles.expandButtonText}>📈 Fullscreen</Text>
-              </TouchableOpacity>
-            </View>
+            <ChartSectionHeader
+              title="7-Day Price History"
+              actionLabel="📈 Fullscreen"
+              disabled={true}
+            />
             <ChartLoadingSkeleton height={180} compact={true} />
           </View>
         ) : priceHistory.length > 0 ? (
@@ -194,34 +181,27 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
             entering={luxuryEnter(Math.round((ENTRANCE_BASE_DURATION / PHI) * (PHI + 0.45)), 1.1)}
             layout={luxuryLayout}
           >
-            <View style={styles.chartHeader}>
-              <Text style={styles.chartTitle}>7-Day Price History</Text>
-              <TouchableOpacity
-                style={styles.expandButton}
-                onPress={() =>
-                  navigation.navigate('PriceChart', {
-                    tokenId,
-                    tokenName: tokenDetail.name,
-                  })
-                }
-              >
-                <Text style={styles.expandButtonText}>📈 Fullscreen</Text>
-              </TouchableOpacity>
-            </View>
+            <ChartSectionHeader
+              title="7-Day Price History"
+              actionLabel="📈 Fullscreen"
+              onPress={() =>
+                navigation.navigate('PriceChart', {
+                  tokenId,
+                  tokenName: tokenDetail.name,
+                })
+              }
+            />
             <PriceChart data={priceHistory} height={280} />
             <Text style={styles.chartHint}>👆 Tap & drag to explore prices</Text>
           </Animated.View>
         ) : null}
 
-        {/* Description */}
         {tokenDetail.description && (
           <Animated.View
-            style={styles.descriptionContainer}
             entering={luxuryEnter(Math.round((ENTRANCE_BASE_DURATION / PHI) * (PHI + 1)), 0.9)}
             layout={luxuryLayout}
           >
-            <Text style={styles.sectionTitle}>About</Text>
-            <Text style={styles.descriptionText}>{tokenDetail.description}</Text>
+            <DescriptionSection description={tokenDetail.description} />
           </Animated.View>
         )}
 
@@ -236,129 +216,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  centerContent: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  tokenImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 16,
-  },
-  tokenInfo: {
-    flex: 1,
-  },
-  tokenName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#212121',
-  },
-  tokenSymbol: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
-  },
-  priceSection: {
+  statsSection: {
     paddingHorizontal: 16,
     paddingTop: 20,
-    alignItems: 'flex-start',
-  },
-  currentPrice: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#212121',
-  },
-  change24h: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 8,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    gap: 12,
-  },
-  statBox: {
-    flex: 1,
-    minWidth: '48%',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 10,
-    padding: 12,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 8,
-  },
-  statValue: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#212121',
   },
   chartContainer: {
     paddingHorizontal: 16,
     paddingTop: 32,
   },
-  chartHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  chartTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#212121',
-  },
-  expandButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#E3F2FD',
-    borderRadius: 6,
-  },
-  expandButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#1976D2',
-  },
   chartHint: {
     fontSize: 11,
     color: '#999',
-    marginTop: 80,
-    marginLeft: 16,
+    marginTop: 8,
+    marginLeft: 4,
     fontStyle: 'italic',
-  },
-  descriptionContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingLeft: 16,
-    paddingBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#212121',
-    marginBottom: 12,
-  },
-  descriptionText: {
-    fontSize: 14,
-    color: '#555',
-    lineHeight: 20,
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#D32F2F',
-    fontWeight: '600',
   },
 });

@@ -17,14 +17,16 @@ import {
   fetchTokenDetail,
   fetchPriceHistory,
 } from '../state/index';
-import { ErrorState, FullscreenChartLoadingSkeleton } from '../components';
+import {
+  ErrorState,
+  FullscreenChartLoadingSkeleton,
+  StatsSection,
+  TokenPriceSummary,
+} from '../components';
 import { ExpandedPriceChart } from '../components/ExpandedPriceChart';
 import { formatPrice, formatChange, formatMarketCap } from '../utils/formatters';
 
-export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
-  route,
-  navigation,
-}) => {
+export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({ route }) => {
   const { tokenId, tokenName } = route.params;
   const [tokenDetail, priceHistory, detailLoading, historyLoading, historyError] = useUnit([
     $tokenDetail,
@@ -34,15 +36,14 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
     $historyError,
   ]);
 
-  useEffect(() => {
-    fetchTokenDetail(tokenId);
-    fetchPriceHistory(tokenId);
-  }, [tokenId]);
-
   const handleRefresh = useCallback(() => {
     fetchTokenDetail(tokenId);
     fetchPriceHistory(tokenId);
   }, [tokenId]);
+
+  useEffect(() => {
+    handleRefresh();
+  }, [handleRefresh]);
 
   const handleRetry = () => {
     handleRefresh();
@@ -73,6 +74,26 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
         : '#D32F2F'
       : '#666';
   const isRefreshing = (detailLoading || historyLoading) && (!!tokenDetail || priceHistory.length > 0);
+  const marketStats = tokenDetail
+    ? [
+        {
+          label: 'Market Rank',
+          value: `#${tokenDetail.market_cap_rank || 'N/A'}`,
+        },
+        ...(tokenDetail.market_cap
+          ? [{ label: 'Market Cap', value: formatMarketCap(tokenDetail.market_cap) }]
+          : []),
+        ...(tokenDetail.total_volume
+          ? [{ label: '24h Volume', value: formatMarketCap(tokenDetail.total_volume) }]
+          : []),
+        ...(tokenDetail.ath
+          ? [{ label: 'All-Time High', value: formatPrice(tokenDetail.ath) }]
+          : []),
+        ...(tokenDetail.atl
+          ? [{ label: 'All-Time Low', value: formatPrice(tokenDetail.atl) }]
+          : []),
+      ]
+    : [];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -82,65 +103,28 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#1976D2" />
         }
       >
-        {/* Header with token info */}
         {tokenDetail && (
           <View style={styles.header}>
             <Text style={styles.tokenName}>{tokenDetail.name}</Text>
-            <Text style={styles.currentPrice}>{formatPrice(tokenDetail.current_price)}</Text>
-            <Text style={[styles.priceChange, { color: changeColor }]}>
-              {formatChange(tokenDetail.price_change_percentage_24h)}
-            </Text>
+            <TokenPriceSummary
+              price={formatPrice(tokenDetail.current_price)}
+              change={formatChange(tokenDetail.price_change_percentage_24h)}
+              changeColor={changeColor}
+              containerStyle={styles.headerPriceSummary}
+            />
           </View>
         )}
 
-        {/* Interactive expanded chart */}
         {priceHistory.length > 0 && (
           <ExpandedPriceChart data={priceHistory} tokenName={tokenName || tokenId} />
         )}
 
-        {/* Additional stats */}
         {tokenDetail && (
-          <View style={styles.detailsSection}>
-            <Text style={styles.sectionTitle}>Market Statistics</Text>
-            <View style={styles.detailsGrid}>
-              <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>Market Rank</Text>
-                <Text style={styles.detailValue}>#{tokenDetail.market_cap_rank || 'N/A'}</Text>
-              </View>
-
-              {tokenDetail.market_cap && (
-                <View style={styles.detailItem}>
-                  <Text style={styles.detailLabel}>Market Cap</Text>
-                  <Text style={styles.detailValue}>
-                    {formatMarketCap(tokenDetail.market_cap)}
-                  </Text>
-                </View>
-              )}
-
-              {tokenDetail.total_volume && (
-                <View style={styles.detailItem}>
-                  <Text style={styles.detailLabel}>24h Volume</Text>
-                  <Text style={styles.detailValue}>
-                    {formatMarketCap(tokenDetail.total_volume)}
-                  </Text>
-                </View>
-              )}
-
-              {tokenDetail.ath && (
-                <View style={styles.detailItem}>
-                  <Text style={styles.detailLabel}>All-Time High</Text>
-                  <Text style={styles.detailValue}>{formatPrice(tokenDetail.ath)}</Text>
-                </View>
-              )}
-
-              {tokenDetail.atl && (
-                <View style={styles.detailItem}>
-                  <Text style={styles.detailLabel}>All-Time Low</Text>
-                  <Text style={styles.detailValue}>{formatPrice(tokenDetail.atl)}</Text>
-                </View>
-              )}
-            </View>
-          </View>
+          <StatsSection
+            title="Market Statistics"
+            items={marketStats}
+            containerStyle={styles.detailsSection}
+          />
         )}
 
         <View style={{ height: 20 }} />
@@ -166,56 +150,12 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 4,
   },
-  currentPrice: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#212121',
-    marginBottom: 8,
-  },
-  priceChange: {
-    fontSize: 16,
-    fontWeight: '600',
+  headerPriceSummary: {
+    paddingHorizontal: 0,
+    paddingTop: 0,
   },
   detailsSection: {
     paddingHorizontal: 20,
     paddingVertical: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#212121',
-    marginBottom: 12,
-  },
-  detailsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  detailItem: {
-    flex: 1,
-    minWidth: '48%',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 10,
-    padding: 12,
-  },
-  detailLabel: {
-    fontSize: 11,
-    color: '#666',
-    marginBottom: 6,
-  },
-  detailValue: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#212121',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#D32F2F',
-    fontWeight: '600',
   },
 });

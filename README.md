@@ -89,6 +89,7 @@ src/
 │   ├── TokenItem.tsx       — Элемент списка (memo optimized)
 │   ├── FilterBar.tsx       — Sort picker + search input
 │   ├── PriceChart.tsx      — Интерактивный SVG график + Reanimated
+│   ├── TokenDetailSections.tsx — Мелкие секции detail/fullscreen экранов
 │   ├── SkeletonLoader.tsx  — Loading states
 │   └── StateComponents.tsx — Error/Empty компоненты
 │
@@ -113,29 +114,39 @@ src/
    - Встроенные effects для async операций
    - Легко тестировать
 
-2. **Infinite Scroll + пагинация**
+2. **Axios как единый data layer**
+  - Один HTTP клиент в `api/client.ts`
+  - Interceptors для API key и обработки rate limit
+  - Retry и кэширование остаются рядом с API методами, без лишнего orchestration слоя
+
+3. **Infinite Scroll + пагинация**
    - Используются Effector stores: `$currentPage`, `$hasMore`, `$isFetchingNextPage`
    - FlatList с `onEndReached` и `onEndReachedThreshold={0.5}`
-   - Accumulative токены (как в React Query)
+  - Accumulative токены в Effector store
 
-3. **Фильтрация**
+4. **Фильтрация**
    - Client-side через `filterTokens()` утилиту
    - Применяется к локальному массиву, быстрее чем API запросы
    - Поддерживает поиск по названию, сортировку по цене/change24h/market_cap
 
-4. **Оптимизация производительности**
+5. **Оптимизация производительности**
    - `React.memo` для TokenItem с кастомным компаратором
    - `getItemLayout` для FlatList (виртуализация)
    - `removeClippedSubviews={true}` для снижения памяти
    - `maxToRenderPerBatch={10}` для плавного скроллинга
    - Кэширование результатов (MMKV 5мин для списка, 1ч для истории)
 
-5. **Интерактивный график**
+6. **Интерактивный график**
    - SVG полилиния с D3 расчетами масштабирования
    - `PanResponder` для drag-to-select
    - Reanimated для анимации выбранной точки (ZoomIn, FadeIn)
 
-6. **Анимации**
+7. **Композиция экранов через маленькие секции**
+  - Screens отвечают за загрузку данных и navigation
+  - `TokenDetailSections.tsx` содержит мелкие переиспользуемые UI-блоки
+  - Меньше дублирования между detail и fullscreen chart экранами
+
+8. **Анимации**
    - React Native Reanimated 3 для входящих анимаций
    - `FadeIn` для появления элементов
    - `SlideInUp` для поднимающихся элементов (статы, график)
@@ -263,7 +274,7 @@ src/
 | d3 | 7.9.0 | Масштабирование |
 | axios | 1.7.2 | HTTP клиент |
 | react-native-mmkv | 2.11.1 | Кэширование |
-| @tanstack/react-query | 5.47.0 | (installed, not used) |
+| @react-navigation/bottom-tabs | 7.x | Дополнительный navigation primitive |
 
 ---
 
@@ -283,8 +294,8 @@ src/
 
 ### Возможные улучшения
 1. Persisted cache на перезагрузку приложения
-2. Pull-to-refresh
-3. Fullscreen chart экран с более подробным анализом
+2. Расширить использование bottom tabs, если появятся новые разделы приложения
+3. Fullscreen chart экран с еще более подробным анализом периода
 4. Dark mode
 5. Локализация (i18n)
 6. Unit тесты (Jest + Testing Library)
