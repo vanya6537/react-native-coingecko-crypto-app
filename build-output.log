@@ -1,8 +1,0 @@
-Command line invocation:
-    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace CryptoTokensApp.xcworkspace -scheme CryptoTokensApp -configuration Debug -destination "generic/platform=iOS Simulator" clean build
-
-User defaults from command line:
-    IDEPackageSupportUseBuiltinSCM = YES
-
-2026-04-10 16:14:51.907 xcodebuild[10050:20301867] Writing error result bundle to /var/folders/76/hllb7h1d3hzb2wgy5jlwl9sh0000gn/T/ResultBundle_2026-10-04_16-14-0051.xcresult
-xcodebuild: error: 'CryptoTokensApp.xcworkspace' does not exist.
