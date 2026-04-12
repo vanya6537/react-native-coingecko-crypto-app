@@ -3,7 +3,7 @@
  * Visual notification UI with animations & lucide icons
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,14 @@ import {
   Dimensions,
 } from 'react-native';
 import { useUnit } from 'effector-react';
-import { MotiView } from 'moti';
+import Reanimated, {
+  Easing,
+  FadeIn,
+  FadeOut,
+  Layout,
+  SlideInUp,
+  SlideOutUp,
+} from 'react-native-reanimated';
 import {
   CheckCircle2,
   XCircle,
@@ -74,13 +81,22 @@ function Toast({ toast }: ToastProps): React.JSX.Element {
   const colors = TOAST_COLORS[toast.type];
   const IconComponent = TOAST_ICONS[toast.type];
 
+  useEffect(() => {
+    // Auto-dismiss after duration
+    const timer = setTimeout(() => {
+      removeToast(toast.id);
+    }, toast.duration);
+
+    return () => clearTimeout(timer);
+  }, [toast.id, toast.duration]);
+
   return (
-    <MotiView
-      from={{ opacity: 0, translateY: -20 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      exit={{ opacity: 0, translateY: -20 }}
-      transition={{ type: 'timing', duration: 300 }}
-      style={[styles.toastWrapper]}
+    <Reanimated.View
+      key={toast.id}
+      entering={SlideInUp.duration(300).easing(Easing.out(Easing.cubic))}
+      exiting={SlideOutUp.duration(300).easing(Easing.in(Easing.cubic))}
+      layout={Layout.springify()}
+      style={styles.toastWrapper}
     >
       <View style={[styles.toast, { backgroundColor: colors.bg }]}>
         <View style={styles.toastContent}>
@@ -118,7 +134,7 @@ function Toast({ toast }: ToastProps): React.JSX.Element {
           <X size={18} color={colors.text} />
         </TouchableOpacity>
       </View>
-    </MotiView>
+    </Reanimated.View>
   );
 }
 
