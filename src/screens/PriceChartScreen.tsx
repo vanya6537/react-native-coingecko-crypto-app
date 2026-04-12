@@ -79,20 +79,20 @@ export const PriceChartScreen: React.FC<{ route: any; navigation: any }> = ({ ro
   const marketStats = tokenDetail
     ? [
         {
-          label: 'Market Rank',
+          label: t('charts.marketRank'),
           value: `#${tokenDetail.market_cap_rank || 'N/A'}`,
         },
         ...(tokenDetail.market_cap
-          ? [{ label: 'Market Cap', value: formatMarketCap(tokenDetail.market_cap) }]
+          ? [{ label: t('charts.marketCap'), value: formatMarketCap(tokenDetail.market_cap) }]
           : []),
         ...(tokenDetail.total_volume
-          ? [{ label: '24h Volume', value: formatMarketCap(tokenDetail.total_volume) }]
+          ? [{ label: t('charts.volume24h'), value: formatMarketCap(tokenDetail.total_volume) }]
           : []),
         ...(tokenDetail.ath
-          ? [{ label: 'All-Time High', value: formatPrice(tokenDetail.ath) }]
+          ? [{ label: t('charts.allTimeHigh'), value: formatPrice(tokenDetail.ath) }]
           : []),
         ...(tokenDetail.atl
-          ? [{ label: 'All-Time Low', value: formatPrice(tokenDetail.atl) }]
+          ? [{ label: t('charts.allTimeLow'), value: formatPrice(tokenDetail.atl) }]
           : []),
       ]
     : [];

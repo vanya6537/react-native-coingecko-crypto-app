@@ -26,6 +26,7 @@ import {
 import { TokenItem, FilterBar } from '../components/index';
 import { ErrorState, EmptyState } from '../components/StateComponents';
 import { TokenListLoadingSkeleton } from '../components/SkeletonLoader';
+import { LanguageToggler } from '../shared/ui/LanguageToggler';
 import { filterTokens } from '../utils/formatters';
 
 export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }: { navigation: any }) => {
@@ -128,6 +129,9 @@ export const TokensListScreen: React.FC<{ navigation: any }> = ({ navigation }: 
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.languageContainer}>
+        <LanguageToggler compact={true} />
+      </View>
       <FlatList
         data={filteredTokens}
         keyExtractor={(item: Token) => item.id}
@@ -161,6 +165,11 @@ const ITEM_HEIGHT = 100; // Approximate height of TokenItem, adjust as needed
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  languageContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     backgroundColor: '#FFFFFF',
   },
   listHeader: {

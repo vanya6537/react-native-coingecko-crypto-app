@@ -270,11 +270,6 @@ export function NotificationsShowcasePage(): React.JSX.Element {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Activity size={24} color="#3b82f6" />
-        <Text style={styles.title}>{t('notifications.title')}</Text>
-      </View>
 
       {/* Language Toggler */}
       <View style={styles.languageContainer}>

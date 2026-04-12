@@ -17,6 +17,7 @@ import Animated, {
   Layout,
 } from 'react-native-reanimated';
 import { useUnit } from 'effector-react';
+import { useTranslation } from 'react-i18next';
 import {
   $tokenDetail,
   $priceHistory,
@@ -71,6 +72,7 @@ export const TokenDetailPage: React.FC<TokenDetailPageProps> = ({
   route,
   navigation,
 }: TokenDetailPageProps) => {
+  const { t } = useTranslation();
   const { tokenId } = route.params;
   const [tokenDetail, priceHistory, detailLoading, historyLoading, detailError] = useUnit([
     $tokenDetail,
@@ -116,7 +118,7 @@ export const TokenDetailPage: React.FC<TokenDetailPageProps> = ({
     return (
       <SafeAreaView style={styles.container}>
         <ErrorState
-          error={detailError || 'Token not found'}
+          error={detailError || t('tokenDetail.notFound')}
           onRetry={handleRetry}
           showRetry={!!handleRetry}
         />
@@ -126,12 +128,12 @@ export const TokenDetailPage: React.FC<TokenDetailPageProps> = ({
 
   const changeColor = (tokenDetail.price_change_percentage_24h ?? 0) >= 0 ? '#00C853' : '#D32F2F';
   const statsItems = [
-    { label: 'Market Cap Rank', value: `#${tokenDetail.market_cap_rank ?? 'N/A'}` },
-    { label: 'Current Price', value: formatPrice(tokenDetail.current_price) },
-    { label: 'Market Cap', value: formatMarketCap(tokenDetail.market_cap) },
-    { label: '24h Volume', value: formatMarketCap(tokenDetail.total_volume) },
-    { label: 'ATH', value: formatPrice(tokenDetail.ath) },
-    { label: 'ATL', value: formatPrice(tokenDetail.atl) },
+    { label: t('tokenDetail.marketCapRank'), value: `#${tokenDetail.market_cap_rank ?? 'N/A'}` },
+    { label: t('tokenDetail.currentPrice'), value: formatPrice(tokenDetail.current_price) },
+    { label: t('tokenDetail.marketCap'), value: formatMarketCap(tokenDetail.market_cap) },
+    { label: t('tokenDetail.volume24hLabel'), value: formatMarketCap(tokenDetail.total_volume) },
+    { label: t('tokenDetail.ath'), value: formatPrice(tokenDetail.ath) },
+    { label: t('tokenDetail.atl'), value: formatPrice(tokenDetail.atl) },
   ];
 
   return (
@@ -174,12 +176,12 @@ export const TokenDetailPage: React.FC<TokenDetailPageProps> = ({
           <Animated.View entering={luxuryEnter(180, 1.6)} layout={luxuryLayout}>
             <View style={styles.chartContainer}>
               <ChartSectionHeader
-                title="7-Day Price History"
-                actionLabel="Expand"
+                title={t('tokenDetail.priceHistory7Day')}
+                actionLabel={t('tokenDetail.expandChart')}
                 onPress={handleExpandChart}
               />
               {historyLoading ? (
-                <Text style={styles.loadingText}>Loading chart...</Text>
+                <Text style={styles.loadingText}>{t('tokenDetail.loadingChart')}</Text>
               ) : (
                 <PriceChart data={priceHistory} height={300} />
               )}

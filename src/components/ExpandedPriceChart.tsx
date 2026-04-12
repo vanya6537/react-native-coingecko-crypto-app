@@ -16,6 +16,7 @@ import Svg, {
   Rect,
   Text as SvgText,
 } from 'react-native-svg';
+import { useTranslation } from 'react-i18next';
 import type { PriceHistory } from '../types/index';
 import { formatPrice } from '../utils/formatters';
 
@@ -36,6 +37,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
   data,
   tokenName,
 }) => {
+  const { t } = useTranslation();
   const width = Dimensions.get('window').width - 40;
   const chartHeight = 300;
   const chartPadding = { top: 30, right: 16, bottom: 44, left: 56 };
@@ -48,7 +50,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
   if (!data || data.length === 0) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No price history available</Text>
+        <Text style={styles.emptyText}>{t('expandedChart.noHistory')}</Text>
       </View>
     );
   }
@@ -116,12 +118,12 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Text style={styles.title}>{tokenName} Price Chart (7 Days)</Text>
+      <Text style={styles.title}>{tokenName} {t('expandedChart.title')}</Text>
 
       {/* Price Display */}
       <View style={styles.priceCard}>
         <View>
-          <Text style={styles.currentLabel}>Current Price</Text>
+          <Text style={styles.currentLabel}>{t('expandedChart.currentPrice')}</Text>
           <Text
             style={[
               styles.currentPrice,
@@ -135,7 +137,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
 
         <View style={styles.statsColumn}>
           <View style={styles.stat}>
-            <Text style={styles.statLabel}>Change</Text>
+            <Text style={styles.statLabel}>{t('expandedChart.change')}</Text>
             <Text
               style={[
                 styles.statValue,
@@ -147,7 +149,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
           </View>
 
           <View style={styles.stat}>
-            <Text style={styles.statLabel}>Position</Text>
+            <Text style={styles.statLabel}>{t('expandedChart.position')}</Text>
             <Text style={styles.statValue}>
               {selectedIndex !== null ? selectedIndex + 1 : data.length}/{data.length}
             </Text>
@@ -266,7 +268,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
             fontWeight="700"
             textAnchor="middle"
           >
-            7D HIGH
+            {t('expandedChart.high')}
           </SvgText>
           <Rect
             x={Math.max(chartPadding.left, Math.min(minPoint.x - 34, width - chartPadding.right - 68))}
@@ -284,7 +286,7 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
             fontWeight="700"
             textAnchor="middle"
           >
-            7D LOW
+            {t('expandedChart.low')}
           </SvgText>
 
           {/* Selected point indicator */}
@@ -339,31 +341,30 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
       {/* Stats Panel */}
       <View style={styles.statsPanel}>
         <View style={styles.statItem}>
-          <Text style={styles.statLabel}>7-Day High</Text>
+          <Text style={styles.statLabel}>{t('expandedChart.highLabel')}</Text>
           <Text style={styles.statHighValue}>{formatPrice(maxPrice)}</Text>
         </View>
 
         <View style={styles.divider} />
 
         <View style={styles.statItem}>
-          <Text style={styles.statLabel}>7-Day Low</Text>
+          <Text style={styles.statLabel}>{t('expandedChart.lowLabel')}</Text>
           <Text style={styles.statLowValue}>{formatPrice(minPrice)}</Text>
         </View>
 
         <View style={styles.divider} />
 
         <View style={styles.statItem}>
-          <Text style={styles.statLabel}>7-Day Avg</Text>
+          <Text style={styles.statLabel}>{t('expandedChart.avgLabel')}</Text>
           <Text style={styles.statValue}>{formatPrice(avgPrice)}</Text>
         </View>
       </View>
 
       {/* Instructions */}
       <View style={styles.instructionsBox}>
-        <Text style={styles.instructionLabel}>💡 Tip</Text>
+        <Text style={styles.instructionLabel}>{t('expandedChart.tip')}</Text>
         <Text style={styles.instructionText}>
-          Drag your finger across the chart to view price at any point. The vertical line and
-          value indicator will follow your selection.
+          {t('expandedChart.dragTip')}
         </Text>
       </View>
 

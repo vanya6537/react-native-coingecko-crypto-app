@@ -81,7 +81,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           activeOpacity={0.7}
         >
           <Text style={styles.sortModeText}>
-            {isSorted ? '⚙️ Enable Sort' : '🔍 Search'}
+            {isSorted ? t('tokensList.sortMode') : t('tokensList.searchMode')}
           </Text>
         </TouchableOpacity>
 
@@ -122,7 +122,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Sort By</Text>
+            <Text style={styles.modalTitle}>{t('tokensList.sortByTitle')}</Text>
             <ScrollView showsVerticalScrollIndicator={false}>
               {SORT_OPTIONS.map((option) => (
                 <TouchableOpacity

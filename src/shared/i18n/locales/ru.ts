@@ -16,6 +16,7 @@ export const ru = {
     back: 'Назад',
     settings: 'Параметры',
     about: 'О приложении',
+    tryAgain: 'Повторить',
   },
 
   // Navigation
@@ -31,6 +32,7 @@ export const ru = {
     title: 'Криптовалюты',
     search: 'Поиск токенов...',
     sortBy: 'Сортировать по',
+    sortByTitle: 'Сортировать по',
     marketCap: 'Капитализация',
     price: 'Цена',
     change24h: 'Изменение за 24ч',
@@ -38,6 +40,9 @@ export const ru = {
     trySearching: 'Попробуйте изменить поиск',
     loadMore: 'Загрузить еще',
     pullToRefresh: 'Потяните для обновления',
+    searchMode: '🔍 Поиск',
+    sortMode: '⚙️ Сортировка',
+    tryAdjusting: 'Попробуйте изменить фильтры поиска',
   },
 
   // TokenDetail
@@ -53,6 +58,16 @@ export const ru = {
     chart: 'График цены',
     fullscreen: 'Полный экран',
     explore: 'Исследовать цены',
+    notFound: 'Токен не найден',
+    marketCapRank: 'Рейтинг капитализации',
+    currentPrice: 'Текущая цена',
+    volume24hLabel: 'Объем за 24ч',
+    ath: 'Максимум',
+    atl: 'Минимум',
+    about: 'О токене',
+    priceHistory7Day: 'История цены за 7 дней',
+    expandChart: 'Развернуть',
+    loadingChart: 'Загрузка графика...',
   },
 
   // Favorites
@@ -154,6 +169,7 @@ export const ru = {
     serverError: 'Ошибка сервера. Попробуйте позже.',
     dataError: 'Ошибка при загрузке данных.',
     notFound: 'Данные не найдены.',
+    oops: 'Ой!',
   },
 
   // Success
@@ -202,6 +218,11 @@ export const ru = {
     priceHistory: 'История цены за 7 дней',
     fullscreen: '📈 Полный экран',
     marketStatistics: 'Статистика рынка',
+    marketRank: 'Рейтинг рынка',
+    marketCap: 'Капитализация рынка',
+    volume24h: 'Объем за 24ч',
+    allTimeHigh: 'Максимум всех времен',
+    allTimeLow: 'Минимум всех времен',
   },
 
   // Filter
@@ -218,5 +239,22 @@ export const ru = {
     errorNotification: 'Уведомление об ошибке',
     queriesCached: 'Запросов в кеше',
     cacheSize: 'Размер кеша',
+  },
+
+  // Expanded Chart
+  expandedChart: {
+    noHistory: 'История цены недоступна',
+    title: 'График цены (7 дней)',
+    currentPrice: 'Текущая цена',
+    change: 'Изменение',
+    position: 'Позиция',
+    high: 'Максимум 7 дней',
+    low: 'Минимум 7 дней',
+    avg: 'Среднее за 7 дней',
+    highLabel: 'Максимум за 7 дней',
+    lowLabel: 'Минимум за 7 дней',
+    avgLabel: 'Среднее за 7 дней',
+    tip: '💡 Совет',
+    dragTip: 'Потяните пальцем по графику чтобы увидеть цену в любой точке. Вертикальная линия и индикатор значения будут следовать вашему выбору.',
   },
 };

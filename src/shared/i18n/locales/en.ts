@@ -16,6 +16,7 @@ export const en = {
     back: 'Back',
     settings: 'Settings',
     about: 'About',
+    tryAgain: 'Try Again',
   },
 
   // Navigation
@@ -31,6 +32,7 @@ export const en = {
     title: 'Cryptocurrencies',
     search: 'Search tokens...',
     sortBy: 'Sort by',
+    sortByTitle: 'Sort By',
     marketCap: 'Market Cap',
     price: 'Price',
     change24h: '24h Change',
@@ -38,6 +40,9 @@ export const en = {
     trySearching: 'Try changing your search',
     loadMore: 'Load More',
     pullToRefresh: 'Pull to refresh',
+    searchMode: '🔍 Search',
+    sortMode: '⚙️ Enable Sort',
+    tryAdjusting: 'Try adjusting your search filters',
   },
 
   // TokenDetail
@@ -53,6 +58,16 @@ export const en = {
     chart: 'Price Chart',
     fullscreen: 'Fullscreen',
     explore: 'Explore prices',
+    notFound: 'Token not found',
+    marketCapRank: 'Market Cap Rank',
+    currentPrice: 'Current Price',
+    volume24hLabel: '24h Volume',
+    ath: 'ATH',
+    atl: 'ATL',
+    about: 'About',
+    priceHistory7Day: '7-Day Price History',
+    expandChart: 'Expand',
+    loadingChart: 'Loading chart...',
   },
 
   // Favorites
@@ -154,6 +169,7 @@ export const en = {
     serverError: 'Server error. Try again later.',
     dataError: 'Error loading data.',
     notFound: 'Data not found.',
+    oops: 'Oops!',
   },
 
   // Success
@@ -202,6 +218,11 @@ export const en = {
     priceHistory: '7-Day Price History',
     fullscreen: '📈 Fullscreen',
     marketStatistics: 'Market Statistics',
+    marketRank: 'Market Rank',
+    marketCap: 'Market Cap',
+    volume24h: '24h Volume',
+    allTimeHigh: 'All-Time High',
+    allTimeLow: 'All-Time Low',
   },
 
   // Filter
@@ -218,5 +239,22 @@ export const en = {
     errorNotification: 'Error Notification',
     queriesCached: 'Queries Cached',
     cacheSize: 'Cache Size',
+  },
+
+  // Expanded Chart
+  expandedChart: {
+    noHistory: 'No price history available',
+    title: 'Price Chart (7 Days)',
+    currentPrice: 'Current Price',
+    change: 'Change',
+    position: 'Position',
+    high: '7D High',
+    low: '7D Low',
+    avg: '7D Average',
+    highLabel: '7-Day High',
+    lowLabel: '7-Day Low',
+    avgLabel: '7-Day Average',
+    tip: '💡 Tip',
+    dragTip: 'Drag your finger across the chart to view price at any point. The vertical line and value indicator will follow your selection.',
   },
 };

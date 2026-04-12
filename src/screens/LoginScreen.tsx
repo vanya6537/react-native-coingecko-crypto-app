@@ -12,6 +12,7 @@ import {
   Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { LanguageToggler } from '../shared/ui/LanguageToggler';
 
 interface LoginScreenProps {
   onLoginSuccess: (token: string) => void;
@@ -53,6 +54,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <SafeAreaView style={styles.safeArea}>
+        <View style={styles.languageContainer}>
+          <LanguageToggler compact={true} />
+        </View>
         <View style={styles.content}>
           {/* Header */}
           <View style={styles.header}>
@@ -143,6 +147,10 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  languageContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   content: {
     flex: 1,

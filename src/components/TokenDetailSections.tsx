@@ -8,6 +8,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 interface TokenIdentityHeaderProps {
   image: string;
@@ -113,14 +114,19 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
 );
 
 export const DescriptionSection: React.FC<DescriptionSectionProps> = ({
-  title = 'About',
+  title,
   description,
-}) => (
-  <View style={styles.descriptionContainer}>
-    <Text style={styles.sectionTitle}>{title}</Text>
-    <Text style={styles.descriptionText}>{description}</Text>
-  </View>
-);
+}) => {
+  const { t } = useTranslation();
+  const displayTitle = title || t('tokenDetail.about');
+  
+  return (
+    <View style={styles.descriptionContainer}>
+      <Text style={styles.sectionTitle}>{displayTitle}</Text>
+      <Text style={styles.descriptionText}>{description}</Text>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   identityHeader: {

@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 interface ErrorBoundaryProps {
   error: string;
@@ -14,28 +15,34 @@ export const ErrorState: React.FC<ErrorBoundaryProps> = ({
   error,
   onRetry,
   showRetry = true,
-}: ErrorBoundaryProps) => (
-  <View style={styles.container}>
-    <Text style={styles.errorIcon}>⚠️</Text>
-    <Text style={styles.errorTitle}>Oops!</Text>
-    <Text style={styles.errorMessage}>{error}</Text>
-    {showRetry && onRetry && (
-      <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
-        <Text style={styles.retryText}>Try Again</Text>
-      </TouchableOpacity>
-    )}
-  </View>
-);
+}: ErrorBoundaryProps) => {
+  const { t } = useTranslation();
+  return (
+    <View style={styles.container}>
+      <Text style={styles.errorIcon}>⚠️</Text>
+      <Text style={styles.errorTitle}>{t('errors.oops')}</Text>
+      <Text style={styles.errorMessage}>{error}</Text>
+      {showRetry && onRetry && (
+        <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
+          <Text style={styles.retryText}>{t('common.tryAgain')}</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+};
 
 export const EmptyState: React.FC<{ message?: string }> = ({
   message = 'No tokens found',
-}) => (
-  <View style={styles.container}>
-    <Text style={styles.emptyIcon}>📭</Text>
-    <Text style={styles.emptyText}>{message}</Text>
-    <Text style={styles.emptySubtext}>Try adjusting your search filters</Text>
-  </View>
-);
+}) => {
+  const { t } = useTranslation();
+  return (
+    <View style={styles.container}>
+      <Text style={styles.emptyIcon}>📭</Text>
+      <Text style={styles.emptyText}>{message || t('tokensList.noTokens')}</Text>
+      <Text style={styles.emptySubtext}>{t('tokensList.tryAdjusting')}</Text>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

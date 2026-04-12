@@ -102,7 +102,7 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
   if (!tokenDetail) {
     return (
       <SafeAreaView style={styles.container}>
-        <ErrorState error={detailError || 'Failed to load token'} onRetry={handleRetry} />
+        <ErrorState error={detailError || t('tokenDetail.notFound')} onRetry={handleRetry} />
       </SafeAreaView>
     );
   }
@@ -116,17 +116,17 @@ export const TokenDetailScreen: React.FC<{ route: any; navigation: any }> = ({
   const isRefreshing = (detailLoading || historyLoading) && (!!tokenDetail || priceHistory.length > 0);
   const detailStats = [
     {
-      label: 'Market Cap Rank',
+      label: t('tokenDetail.marketCapRank'),
       value: `#${tokenDetail.market_cap_rank || 'N/A'}`,
     },
     ...(tokenDetail.market_cap
-      ? [{ label: 'Market Cap', value: formatMarketCap(tokenDetail.market_cap) }]
+      ? [{ label: t('tokenDetail.marketCap'), value: formatMarketCap(tokenDetail.market_cap) }]
       : []),
     ...(tokenDetail.ath
-      ? [{ label: 'All-Time High', value: formatPrice(tokenDetail.ath) }]
+      ? [{ label: t('tokenDetail.ath'), value: formatPrice(tokenDetail.ath) }]
       : []),
     ...(tokenDetail.atl
-      ? [{ label: 'All-Time Low', value: formatPrice(tokenDetail.atl) }]
+      ? [{ label: t('tokenDetail.atl'), value: formatPrice(tokenDetail.atl) }]
       : []),
   ];
 
