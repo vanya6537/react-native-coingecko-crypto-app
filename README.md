@@ -6,6 +6,14 @@
 
 ---
 
+## 📹 Demo
+
+![Crypto Tokens App Demo](./crypto-screen-recording-pixel3a.mp4)
+
+Screen recording from Pixel 3a showing the full app flow: token list with infinite scroll, filtering, sorting, and interactive price charts.
+
+---
+
 ## 🎯 Функциональность
 
 ### ✅ Реализованные требования ТЗ
