@@ -81,11 +81,6 @@ export const AnimatedInput: React.FC<AnimatedInputProps> = ({
       [400, 700],
       Extrapolate.CLAMP
     ) as any,
-    color: isFocused
-      ? color
-      : interpolate(focusValue.value, [0, 1], [0.6, 1], Extrapolate.CLAMP) < 0.8
-        ? '#9E9E9E'
-        : color,
     transform: [
       {
         translateY: interpolate(focusValue.value, [0, 1], [8, -8], Extrapolate.CLAMP),
@@ -93,14 +88,18 @@ export const AnimatedInput: React.FC<AnimatedInputProps> = ({
     ],
   }));
 
-  const containerStyle = useAnimatedStyle(() => ({
-    borderBottomColor: error
-      ? '#F44336'
-      : isFocused
-        ? color
-        : interpolate(focusValue.value, [0, 0.5, 1], ['#E0E0E0', '#BDBDBD', color], Extrapolate.CLAMP),
-    borderBottomWidth: isFocused ? 2 : 1,
-  }));
+  const containerStyle = useAnimatedStyle(() => {
+    const borderColor = isFocused
+      ? color
+      : interpolate(focusValue.value, [0, 1], [0.6, 1], Extrapolate.CLAMP) < 0.8
+        ? '#9E9E9E'
+        : color;
+
+    return {
+      borderBottomColor: isFocused ? color : error ? '#F44336' : borderColor,
+      borderBottomWidth: isFocused ? 2 : 1,
+    };
+  });
 
   const iconStyle = useAnimatedStyle(() => ({
     color: error
@@ -133,7 +132,15 @@ export const AnimatedInput: React.FC<AnimatedInputProps> = ({
         )}
 
         {/* Label */}
-        <Animated.Text style={[styles.label, labelStyle]}>
+        <Animated.Text
+          style={[
+            styles.label,
+            labelStyle,
+            {
+              color: isFocused ? color : '#9E9E9E',
+            },
+          ]}
+        >
           {label}
         </Animated.Text>
 

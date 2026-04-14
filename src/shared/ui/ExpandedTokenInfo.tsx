@@ -16,7 +16,6 @@ import Animated, {
   BounceInUp,
   ZoomIn,
   Layout,
-  staggeredWith,
 } from 'react-native-reanimated';
 import type { Token, PriceHistory } from '../types';
 import { formatPrice } from '../utils/formatters';

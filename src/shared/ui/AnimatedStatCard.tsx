@@ -115,9 +115,8 @@ const styles = StyleSheet.create({
   },
   colorBar: {
     height: 3,
-    borderRadius: 2,
-    marginBottom: 8,
     borderRadius: 1.5,
+    marginBottom: 8,
   },
   label: {
     fontSize: 11,

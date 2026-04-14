@@ -224,7 +224,6 @@ const styles = StyleSheet.create({
     top: -40,
     fontSize: 12,
     fontWeight: '600',
-    whiteSpace: 'nowrap',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,

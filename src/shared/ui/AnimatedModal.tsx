@@ -20,7 +20,7 @@ import Animated, {
   Layout,
 } from 'react-native-reanimated';
 
-interface AnimatedModalProps extends Omit<ModalProps, 'children'> {
+interface AnimatedModalProps {
   children: React.ReactNode;
   visible: boolean;
   onDismiss: () => void;
@@ -28,6 +28,8 @@ interface AnimatedModalProps extends Omit<ModalProps, 'children'> {
   backdropOpacity?: number;
   animationType?: 'fade' | 'slide' | 'zoom';
   delay?: number;
+  transparent?: boolean;
+  hardwareAccelerated?: boolean;
 }
 
 export const AnimatedModal: React.FC<AnimatedModalProps> = ({
@@ -38,7 +40,8 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
   backdropOpacity = 0.5,
   animationType = 'zoom',
   delay = 0,
-  ...modalProps
+  transparent = true,
+  hardwareAccelerated = true,
 }) => {
   const getEnteringAnimation = () => {
     switch (animationType) {
@@ -67,10 +70,10 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
   return (
     <Modal
       visible={visible}
-      transparent
+      transparent={transparent}
       animationType="none"
+      hardwareAccelerated={hardwareAccelerated}
       onRequestClose={onDismiss}
-      {...modalProps}
     >
       {/* Animated Backdrop */}
       <Animated.View

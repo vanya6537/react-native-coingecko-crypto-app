@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import Animated, {
   FadeInDown,
-  ScaleIn,
+  ZoomIn,
   Layout,
   useSharedValue,
   withRepeat,
@@ -88,7 +88,7 @@ export const AnimatedBadge: React.FC<AnimatedBadgeProps> = ({
           pulseStyle,
           style,
         ]}
-        entering={ScaleIn.duration(300).delay(delay)}
+        entering={ZoomIn.duration(300).delay(delay)}
         layout={Layout.springify()}
       />
     );
