@@ -21,6 +21,7 @@ import { formatPrice, formatCompactNumber } from '../utils/formatters';
 import { PriceChart } from './PriceChart';
 import { TimeRangeSelector, type TimeRange } from '../../components/TimeRangeSelector';
 import { LoaderComponent } from './Loader';
+import { ChartLoadingSkeleton, SkeletonLoader } from '../../components/SkeletonLoader';
 
 interface StatItem {
   label: string;
@@ -127,7 +128,7 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
             style={styles.chartLoading}
             entering={FadeInDown.duration(300)}
           >
-            <LoaderComponent size={140} text={t('loader.chartData')} />
+            <ChartLoadingSkeleton height={240} compact={true} />
           </Animated.View>
         ) : priceHistory && priceHistory.length > 0 ? (
           <Animated.View
@@ -155,7 +156,14 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
       >
         {isLoadingHistory ? (
           <View style={styles.statsLoadingContainer}>
-            <LoaderComponent size={60} text={t('loader.statistics')} />
+            <View style={styles.statsSkeletonGrid}>
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <View key={i} style={styles.statsSkeletonItem}>
+                  <SkeletonLoader width="60%" height={12} borderRadius={6} />
+                  <SkeletonLoader width="85%" height={16} borderRadius={8} />
+                </View>
+              ))}
+            </View>
           </View>
         ) : (
           <View style={styles.statsGrid}>
@@ -188,7 +196,10 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
           </Animated.Text>
           {isLoadingHistory ? (
             <View style={styles.descriptionLoadingContainer}>
-              <LoaderComponent size={50} text={t('loader.description')} />
+              <SkeletonLoader width="100%" height={14} borderRadius={6} />
+              <SkeletonLoader width="96%" height={14} borderRadius={6} />
+              <SkeletonLoader width="88%" height={14} borderRadius={6} />
+              <SkeletonLoader width="72%" height={14} borderRadius={6} />
             </View>
           ) : (
             <Animated.Text
@@ -322,9 +333,19 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   descriptionLoadingContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
     paddingVertical: 12,
-    minHeight: 60,
+    gap: 8,
+  },
+  statsSkeletonGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  statsSkeletonItem: {
+    flex: 1,
+    minWidth: '45%',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    gap: 6,
   },
 });

@@ -32,9 +32,9 @@ import {
 } from '../features/tokensList';
 import { FilterBar } from '../components';
 import { ErrorState, EmptyState } from '../components/StateComponents';
-import { TokenListLoadingSkeleton } from '../components/SkeletonLoader';
+import { TokenListLoadingSkeleton, TokenItemSkeleton } from '../components/SkeletonLoader';
 import { LanguageToggler } from '../shared/ui/LanguageToggler';
-import { LoaderComponent } from '../shared/ui/Loader';
+import { Loader } from '../shared/ui/Loader';
 import { filterTokens, sortTokens } from '../shared/utils/formatters';
 
 interface TokensListPageProps {
@@ -192,7 +192,11 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
         ListFooterComponent={() =>
           isFetchingNextPage && hasMore && !isSorted ? (
             <View style={styles.footerLoader}>
-              <LoaderComponent size={80} text="Loading next..." />
+              {[1, 2, 3].map((i) => (
+                <View key={i} style={styles.footerSkeletonItem}>
+                  <TokenItemSkeleton />
+                </View>
+              ))}
             </View>
           ) : null
         }
@@ -235,7 +239,10 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   footerLoader: {
-    paddingVertical: 20,
-    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  footerSkeletonItem: {
+    marginHorizontal: 12,
+    marginVertical: 6,
   },
 });

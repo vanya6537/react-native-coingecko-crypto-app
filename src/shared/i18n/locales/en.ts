@@ -72,6 +72,7 @@ export const en = {
 
   // Stats
   stats: {
+    marketCapRank: 'Market Cap Rank',
     label: 'Statistics',
     loading: 'Loading statistics...',
     marketCap: 'Market Cap',
