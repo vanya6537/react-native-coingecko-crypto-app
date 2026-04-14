@@ -135,12 +135,12 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
       <FlatList
         data={displayTokens}
         keyExtractor={(item) => item.id}
-        renExpandableTokenItem 
-            token={item} 
+        renderItem={({ item }) => (
+          <ExpandableTokenItem
+            token={item}
             expandedState={expandedState}
             priceHistoryDays={7}
-         
-          <TokenItem token={item} onPress={handleTokenPress} />
+          />
         )}
         ListHeaderComponent={() => (
           <>

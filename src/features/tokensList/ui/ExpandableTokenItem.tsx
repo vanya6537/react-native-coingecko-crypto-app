@@ -48,7 +48,7 @@ const ExpandableTokenItemComponent: React.FC<ExpandableTokenItemProps> = ({
     {
       enabled: isExpanded,
     }
-  );
+  ) as any; // Type assertion needed due to API return type mismatch
 
   const handleToggleExpand = (tokenId: string) => {
     expandedState.toggleExpanded(tokenId);
