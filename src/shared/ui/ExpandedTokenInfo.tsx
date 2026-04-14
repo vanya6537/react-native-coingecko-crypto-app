@@ -14,14 +14,11 @@ import {
 import Animated, {
   FadeInDown,
   FadeOutUp,
-  BounceInUp,
-  ZoomIn,
   Layout,
 } from 'react-native-reanimated';
 import type { Token, PriceHistory } from '../types';
 import { formatPrice } from '../utils/formatters';
 import { PriceChart } from './PriceChart';
-import { AnimatedStatCard } from './AnimatedStatCard';
 import { TimeRangeSelector, type TimeRange } from '../../components/TimeRangeSelector';
 
 interface StatItem {
@@ -39,19 +36,7 @@ interface ExpandedTokenInfoProps {
   showTimeRangeSelector?: boolean;
 }
 
-const AnimatedView = Animated.createAnimatedComponent(View);
 
-// Color mapping for stat cards
-const getColorForStat = (label: string): string => {
-  const colorMap: Record<string, string> = {
-    'Market Cap': '#1976D2',
-    'Volume': '#FF6B6B',
-    'ATH': '#00C853',
-    'ATL': '#FFA500',
-    'Market Cap Rank': '#7C3AED',
-  };
-  return colorMap[label] || '#1976D2';
-};
 
 const getChartTitleByTimeRange = (timeRange: TimeRange): string => {
   const titleMap: Record<TimeRange, string> = {
@@ -136,7 +121,7 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
         {isLoadingHistory ? (
           <Animated.View
             style={styles.chartLoading}
-            entering={ZoomIn.duration(300)}
+            entering={FadeInDown.duration(300)}
           >
             <ActivityIndicator size="large" color="#1976D2" />
             <Animated.Text
@@ -164,30 +149,17 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
         )}
       </Animated.View>
 
-      {/* Stats Section with staggered animations */}
+      {/* Stats Section - minimal plain text */}
       <Animated.View
         style={styles.statsSection}
-        entering={FadeInDown.duration(600).delay(300).springify()}
+        entering={FadeInDown.duration(400).delay(300).springify()}
         layout={Layout.springify()}
       >
-        <Animated.Text
-          style={styles.sectionTitle}
-          entering={FadeInDown.duration(500).delay(250)}
-        >
-          Статистика
-        </Animated.Text>
         <View style={styles.statsGrid}>
           {defaultStats.map((stat, index) => (
-            <View
-              key={`${stat.label}-${index}`}
-              style={styles.statCardWrapper}
-            >
-              <AnimatedStatCard
-                label={stat.label}
-                value={stat.value}
-                color={getColorForStat(stat.label)}
-                delay={320 + index * 80}
-              />
+            <View key={`${stat.label}-${index}`} style={styles.statItem}>
+              <Text style={styles.statLabel}>{stat.label}</Text>
+              <Text style={styles.statValue}>{stat.value}</Text>
             </View>
           ))}
         </View>
@@ -282,35 +254,21 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 12,
   },
-  statCardWrapper: {
-    flex: 1,
-    minWidth: '45%',
-  },
   statItem: {
     flex: 1,
     minWidth: '45%',
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    borderLeftWidth: 3,
-    borderLeftColor: '#1976D2',
-  },
-  statItemRight: {
-    marginLeft: 'auto',
-    borderLeftColor: '#FF6B6B',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   statLabel: {
-    fontSize: 11,
-    color: '#9E9E9E',
-    marginBottom: 6,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    fontSize: 12,
+    color: '#757575',
+    marginBottom: 4,
+    fontWeight: '500',
   },
   statValue: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '600',
     color: '#212121',
   },
   descriptionSection: {

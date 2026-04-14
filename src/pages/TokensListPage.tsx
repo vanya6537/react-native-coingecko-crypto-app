@@ -2,7 +2,7 @@
  * Pages - Tokens List Page
  * Composes TokensList feature with scroll animations
  */
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import React, { useEffect, useMemo, useCallback, useState, useRef } from 'react';
 import {
   View,
   FlatList,
@@ -54,6 +54,7 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
 
   const [isSorted, setIsSorted] = useState(false);
   const expandedState = useExpandedToken();
+  const flatListRef = useRef<FlatList>(null);
 
   // Initial load on mount
   useEffect(() => {
@@ -72,6 +73,23 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
     }
     return searchFilteredTokens;
   }, [searchFilteredTokens, isSorted, filters.sortBy, filters.sortOrder]);
+
+  // Auto-scroll to expanded token
+  useEffect(() => {
+    const expandedTokenId = expandedState.expandedTokenId;
+    if (expandedTokenId && flatListRef.current) {
+      const index = displayTokens.findIndex(token => token.id === expandedTokenId);
+      if (index !== -1) {
+        setTimeout(() => {
+          flatListRef.current?.scrollToIndex({
+            index,
+            animated: true,
+            viewPosition: 0.3,
+          });
+        }, 100);
+      }
+    }
+  }, [expandedState.expandedTokenId, displayTokens]);
 
   const handleRetry = useCallback(() => {
     fetchInitialTokens();
@@ -131,6 +149,7 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
+        ref={flatListRef}
         data={displayTokens}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
