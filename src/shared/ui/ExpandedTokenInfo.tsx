@@ -21,6 +21,7 @@ import Animated, {
 import type { Token, PriceHistory } from '../types';
 import { formatPrice } from '../utils/formatters';
 import { PriceChart } from './PriceChart';
+import { AnimatedStatCard } from './AnimatedStatCard';
 
 interface StatItem {
   label: string;
@@ -35,6 +36,18 @@ interface ExpandedTokenInfoProps {
 }
 
 const AnimatedView = Animated.createAnimatedComponent(View);
+
+// Color mapping for stat cards
+const getColorForStat = (label: string): string => {
+  const colorMap: Record<string, string> = {
+    'Market Cap': '#1976D2',
+    'Volume': '#FF6B6B',
+    'ATH': '#00C853',
+    'ATL': '#FFA500',
+    'Market Cap Rank': '#7C3AED',
+  };
+  return colorMap[label] || '#1976D2';
+};
 
 const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
   token,
@@ -131,32 +144,17 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
         </Animated.Text>
         <View style={styles.statsGrid}>
           {defaultStats.map((stat, index) => (
-            <AnimatedView
+            <View
               key={`${stat.label}-${index}`}
-              style={[
-                styles.statItem,
-                index % 2 === 1 && styles.statItemRight,
-              ]}
-              entering={staggeredWith(
-                150,
-                BounceInUp.duration(600).delay(350),
-                index
-              )}
-              layout={Layout.springify()}
+              style={styles.statCardWrapper}
             >
-              <Animated.Text
-                style={styles.statLabel}
-                entering={FadeInDown.duration(400).delay(360 + index * 150)}
-              >
-                {stat.label}
-              </Animated.Text>
-              <Animated.Text
-                style={styles.statValue}
-                entering={FadeInDown.duration(500).delay(380 + index * 150)}
-              >
-                {stat.value}
-              </Animated.Text>
-            </AnimatedView>
+              <AnimatedStatCard
+                label={stat.label}
+                value={stat.value}
+                color={getColorForStat(stat.label)}
+                delay={320 + index * 80}
+              />
+            </View>
           ))}
         </View>
       </Animated.View>
@@ -247,6 +245,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 12,
     marginTop: 12,
+  },
+  statCardWrapper: {
+    flex: 1,
+    minWidth: '45%',
   },
   statItem: {
     flex: 1,
