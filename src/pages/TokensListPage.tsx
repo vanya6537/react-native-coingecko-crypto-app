@@ -93,9 +93,6 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
     }
   }, [isFetchingNextPage, hasMore, isLoadingInitial, tokens.length, isSorted]);
 
-  const handleTokenPress = useCallback((token: Token) => {
-    navigation.navigate('TokenDetail', { tokenId: token.id });
-  }, [navigation]);
 
   const handleSortToggle = useCallback(() => {
     setIsSorted(!isSorted);

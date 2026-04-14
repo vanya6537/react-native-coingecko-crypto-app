@@ -1,9 +1,11 @@
 /**
  * Expandable Token Item Container
  * Orchestrates TokenItem with expansion state and data loading
+ * Integrated with Effector state for time range selection
  */
 
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
+import { useUnit } from 'effector-react';
 import {
   useExpandedToken,
   useOptimizedTokenExpanded,
@@ -11,6 +13,13 @@ import {
 } from '../../../shared/hooks';
 import { TokenItem, ExpandedTokenInfo } from '../../../shared/ui';
 import { useTokenDetail, usePriceHistory } from '../../../api/hooks';
+import {
+  $selectedTimeRange,
+  $priceHistory,
+  $historyLoading,
+  fetchPriceHistoryByTimeRange,
+  setSelectedTimeRange,
+} from '../../../state/tokenDetail';
 import type { Token } from '../../../shared/types';
 
 interface ExpandableTokenItemProps {
@@ -25,6 +34,11 @@ const ExpandableTokenItemComponent: React.FC<ExpandableTokenItemProps> = ({
   priceHistoryDays = 7,
 }) => {
   const isExpanded = expandedState.isExpanded(token.id);
+
+  // Connect to Effector state for time range selection
+  const selectedTimeRange = useUnit($selectedTimeRange);
+  const priceHistory = useUnit($priceHistory);
+  const historyLoading = useUnit($historyLoading);
 
   // Optimize data loading only when expanded
   useOptimizedTokenExpanded({
@@ -41,24 +55,42 @@ const ExpandableTokenItemComponent: React.FC<ExpandableTokenItemProps> = ({
     }
   );
 
-  // Load price history (will use cache if available)
-  const { data: priceHistory, isLoading: isLoadingHistory } = usePriceHistory(
-    token.id,
-    priceHistoryDays,
-    {
-      enabled: isExpanded,
+  // Load price history on expansion or time range change
+  useEffect(() => {
+    if (isExpanded) {
+      fetchPriceHistoryByTimeRange({
+        tokenId: token.id,
+        timeRange: selectedTimeRange,
+      });
     }
-  ) as any; // Type assertion needed due to API return type mismatch
+  }, [isExpanded, token.id, selectedTimeRange]);
+
+  // Legacy price history fetching for backwards compatibility
+  const { data: legacyPriceHistory, isLoading: isLoadingLegacyHistory } =
+    usePriceHistory(
+      token.id,
+      priceHistoryDays,
+      {
+        enabled: isExpanded && selectedTimeRange === '7d',
+      }
+    ) as any; // Type assertion needed due to API return type mismatch
 
   const handleToggleExpand = (tokenId: string) => {
     expandedState.toggleExpanded(tokenId);
   };
 
+  const handleTimeRangeChange = (range: typeof selectedTimeRange) => {
+    setSelectedTimeRange(range);
+  };
+
   const expandedContent = isExpanded ? (
     <ExpandedTokenInfo
       token={tokenDetail || token}
-      priceHistory={priceHistory}
-      isLoadingHistory={isLoadingHistory}
+      priceHistory={priceHistory.length > 0 ? priceHistory : legacyPriceHistory}
+      isLoadingHistory={historyLoading || isLoadingLegacyHistory}
+      selectedTimeRange={selectedTimeRange}
+      onTimeRangeChange={handleTimeRangeChange}
+      showTimeRangeSelector={true}
     />
   ) : null;
 
@@ -68,7 +100,7 @@ const ExpandableTokenItemComponent: React.FC<ExpandableTokenItemProps> = ({
       isExpanded={isExpanded}
       onToggleExpand={handleToggleExpand}
       expandedContent={expandedContent}
-      isLoadingExpanded={isLoadingDetail || isLoadingHistory}
+      isLoadingExpanded={isLoadingDetail || historyLoading || isLoadingLegacyHistory}
     />
   );
 };

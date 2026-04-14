@@ -15,7 +15,6 @@ import { useUnit } from 'effector-react';
 import {
   LoginPage,
   TokensListPage,
-  TokenDetailPage,
   PriceChartPage,
   NotificationsShowcasePage,
 } from '../pages';
@@ -83,22 +82,6 @@ export function App(): React.JSX.Element {
                           fontSize: 18,
                         },
                       }}
-                    />
-                    <Stack.Screen
-                      name="TokenDetail"
-                      component={TokenDetailPage}
-                      options={({ route }: any) => ({
-                        title: route.params?.tokenId || 'Token Detail',
-                        headerShown: true,
-                        headerBackTitle: 'Back',
-                        headerStyle: {
-                          backgroundColor: '#FFFFFF',
-                        },
-                        headerTitleStyle: {
-                          fontWeight: '700',
-                          fontSize: 18,
-                        },
-                      })}
                     />
                     <Stack.Screen
                       name="PriceChart"

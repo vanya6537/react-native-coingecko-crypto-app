@@ -1,6 +1,7 @@
 /**
  * Expanded token information display with fancy animations
  * Shows additional token details, price chart, and statistics with staggered animations
+ * Integrated with time range selector for flexible chart periods
  */
 
 import React, { memo } from 'react';
@@ -21,6 +22,7 @@ import type { Token, PriceHistory } from '../types';
 import { formatPrice } from '../utils/formatters';
 import { PriceChart } from './PriceChart';
 import { AnimatedStatCard } from './AnimatedStatCard';
+import { TimeRangeSelector, type TimeRange } from '../../components/TimeRangeSelector';
 
 interface StatItem {
   label: string;
@@ -32,6 +34,9 @@ interface ExpandedTokenInfoProps {
   priceHistory?: PriceHistory[];
   isLoadingHistory?: boolean;
   stats?: StatItem[];
+  selectedTimeRange?: TimeRange;
+  onTimeRangeChange?: (range: TimeRange) => void;
+  showTimeRangeSelector?: boolean;
 }
 
 const AnimatedView = Animated.createAnimatedComponent(View);
@@ -48,11 +53,26 @@ const getColorForStat = (label: string): string => {
   return colorMap[label] || '#1976D2';
 };
 
+const getChartTitleByTimeRange = (timeRange: TimeRange): string => {
+  const titleMap: Record<TimeRange, string> = {
+    '1d': 'Цена за последний день',
+    '7d': 'Цена за последние 7 дней',
+    '30d': 'Цена за последние 30 дней',
+    '90d': 'Цена за последние 90 дней',
+    '1y': 'Цена за последний год',
+    'all': 'Вся история цены',
+  };
+  return titleMap[timeRange] || 'Цена за последние 7 дней';
+};
+
 const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
   token,
   priceHistory,
   isLoadingHistory = false,
   stats,
+  selectedTimeRange = '7d',
+  onTimeRangeChange,
+  showTimeRangeSelector = false,
 }) => {
   const defaultStats: StatItem[] =
     stats ||
@@ -79,12 +99,28 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
       },
     ];
 
+  const chartTitle = getChartTitleByTimeRange(selectedTimeRange);
+
   return (
     <Animated.ScrollView
       style={styles.container}
       scrollEventThrottle={16}
       layout={Layout.springify()}
     >
+      {/* Time Range Selector - conditionally rendered */}
+      {showTimeRangeSelector && onTimeRangeChange && (
+        <Animated.View
+          entering={FadeInDown.duration(400).delay(50).springify()}
+          exiting={FadeOutUp.duration(300)}
+          layout={Layout.springify()}
+        >
+          <TimeRangeSelector
+            selectedRange={selectedTimeRange}
+            onRangeChange={onTimeRangeChange}
+          />
+        </Animated.View>
+      )}
+
       {/* Price Chart Section with animation */}
       <Animated.View
         style={styles.chartSection}
@@ -96,7 +132,7 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
           style={styles.sectionTitle}
           entering={FadeInDown.duration(500).delay(50)}
         >
-          Цена за последние 7 дней
+          {chartTitle}
         </Animated.Text>
         {isLoadingHistory ? (
           <Animated.View
@@ -189,7 +225,9 @@ export const ExpandedTokenInfo = memo(
     return (
       prevProps.token.id === nextProps.token.id &&
       prevProps.isLoadingHistory === nextProps.isLoadingHistory &&
-      prevProps.priceHistory?.length === nextProps.priceHistory?.length
+      prevProps.priceHistory?.length === nextProps.priceHistory?.length &&
+      prevProps.selectedTimeRange === nextProps.selectedTimeRange &&
+      prevProps.showTimeRangeSelector === nextProps.showTimeRangeSelector
     );
   }
 );

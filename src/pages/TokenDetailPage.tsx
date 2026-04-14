@@ -24,9 +24,13 @@ import {
   $detailLoading,
   $historyLoading,
   $detailError,
+  $selectedTimeRange,
   fetchTokenDetail,
   fetchPriceHistory,
+  fetchPriceHistoryByTimeRange,
+  setSelectedTimeRange,
 } from '../features/tokenDetail';
+import type { TimeRange } from '../components/TimeRangeSelector';
 import {
   TokenDetailLoadingSkeleton,
   TokenIdentityHeader,
@@ -74,18 +78,19 @@ export const TokenDetailPage: React.FC<TokenDetailPageProps> = ({
 }: TokenDetailPageProps) => {
   const { t } = useTranslation();
   const { tokenId } = route.params;
-  const [tokenDetail, priceHistory, detailLoading, historyLoading, detailError] = useUnit([
+  const [tokenDetail, priceHistory, detailLoading, historyLoading, detailError, selectedTimeRange] = useUnit([
     $tokenDetail,
     $priceHistory,
     $detailLoading,
     $historyLoading,
     $detailError,
+    $selectedTimeRange,
   ]);
 
   const handleRefresh = useCallback(() => {
     fetchTokenDetail(tokenId);
-    fetchPriceHistory(tokenId);
-  }, [tokenId]);
+    fetchPriceHistoryByTimeRange({ tokenId, timeRange: selectedTimeRange });
+  }, [tokenId, selectedTimeRange]);
 
   useEffect(() => {
     handleRefresh();
@@ -94,6 +99,11 @@ export const TokenDetailPage: React.FC<TokenDetailPageProps> = ({
   const handleRetry = () => {
     handleRefresh();
   };
+
+  const handleTimeRangeChange = useCallback((newRange: TimeRange) => {
+    setSelectedTimeRange(newRange);
+    fetchPriceHistoryByTimeRange({ tokenId, timeRange: newRange });
+  }, [tokenId]);
 
   const handleExpandChart = () => {
     if (tokenDetail) {
@@ -183,7 +193,13 @@ export const TokenDetailPage: React.FC<TokenDetailPageProps> = ({
               {historyLoading ? (
                 <Text style={styles.loadingText}>{t('tokenDetail.loadingChart')}</Text>
               ) : (
-                <PriceChart data={priceHistory} height={300} />
+                <PriceChart
+                  data={priceHistory}
+                  height={300}
+                  selectedTimeRange={selectedTimeRange}
+                  onTimeRangeChange={handleTimeRangeChange}
+                  showTimeRangeSelector={true}
+                />
               )}
             </View>
           </Animated.View>

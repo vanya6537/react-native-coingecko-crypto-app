@@ -1,7 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
-  PanResponder,
   StyleSheet,
   Dimensions,
   Text,
@@ -16,8 +15,16 @@ import Svg, {
   Rect,
   Text as SvgText,
 } from 'react-native-svg';
+import Animated, {
+  FadeIn,
+  useSharedValue,
+  withSpring,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 import type { PriceHistory } from '../types/index';
+import { TimeRangeSelector, type TimeRange } from './TimeRangeSelector';
 import { formatPrice } from '../utils/formatters';
 
 interface ChartPoint {
@@ -26,26 +33,35 @@ interface ChartPoint {
   price: number;
   timestamp: number;
   index: number;
+  dayLabel: string;
 }
 
 interface ExpandedPriceChartProps {
   data: PriceHistory[];
   tokenName: string;
+  selectedTimeRange?: TimeRange;
+  onTimeRangeChange?: (range: TimeRange) => void;
+  showTimeRangeSelector?: boolean;
 }
 
 export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
   data,
   tokenName,
+  selectedTimeRange = '7d',
+  onTimeRangeChange,
+  showTimeRangeSelector = false,
 }) => {
   const { t } = useTranslation();
-  const width = Dimensions.get('window').width - 40;
-  const chartHeight = 300;
-  const chartPadding = { top: 30, right: 16, bottom: 44, left: 56 };
+  const width = Dimensions.get('window').width - 20;
+  const chartHeight = 500;
+  const chartPadding = { top: 28, right: 16, bottom: 80, left: 56 };
   const plotWidth = width - chartPadding.left - chartPadding.right;
   const plotHeight = chartHeight - chartPadding.top - chartPadding.bottom;
   
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const panResponderRef = useRef<any>(null);
+  const selectedOpacity = useSharedValue(0);
+  const selectedScale = useSharedValue(1);
+  const touchX = useSharedValue(0);
 
   if (!data || data.length === 0) {
     return (
@@ -64,13 +80,26 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
   const minIndex = prices.indexOf(minPrice);
   const maxIndex = prices.indexOf(maxPrice);
 
+  // Generate day labels
+  const generateDayLabel = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
   const points: ChartPoint[] = data.map((d, i) => ({
     x: chartPadding.left + (i / pointCountDivisor) * plotWidth,
     y: chartPadding.top + ((maxPrice - d.price) / priceRange) * plotHeight,
     price: d.price,
     timestamp: d.timestamp,
     index: i,
+    dayLabel: generateDayLabel(d.timestamp),
   }));
+
+  // Determine visible day labels with more spacing for larger datasets
+  const labelInterval = Math.max(1, Math.floor(data.length / 10)); // Show ~10 labels for better readability
+  const visibleLabelIndices = points
+    .map((_, i) => i)
+    .filter((i) => i % labelInterval === 0 || i === data.length - 1);
 
   const updateSelectedPoint = useCallback(
     (pageX: number) => {
@@ -81,18 +110,33 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
     [chartPadding.left, plotWidth, pointCountDivisor, data.length]
   );
 
-  if (!panResponderRef.current) {
-    panResponderRef.current = PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (evt) => {
-        updateSelectedPoint(evt.nativeEvent.pageX);
-      },
-      onPanResponderRelease: () => {
-        // Keep selection
-      },
+  // Gesture handler
+  const pan = Gesture.Pan()
+    .onUpdate((event) => {
+      touchX.value = event.x;
+      updateSelectedPoint(event.absoluteX);
+    })
+    .onEnd(() => {
+      // Keep selection
     });
-  }
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: selectedOpacity.value,
+      transform: [{ scale: selectedScale.value }],
+    };
+  });
+
+  // Update animations based on selection
+  React.useEffect(() => {
+    if (selectedIndex !== null) {
+      selectedOpacity.value = withSpring(1, { damping: 8 });
+      selectedScale.value = withSpring(1.1, { damping: 8 });
+    } else {
+      selectedOpacity.value = withSpring(0, { damping: 8 });
+      selectedScale.value = withSpring(1, { damping: 8 });
+    }
+  }, [selectedIndex, selectedOpacity, selectedScale]);
 
   const lastPrice = prices[prices.length - 1];
   const firstPrice = prices[0];
@@ -105,19 +149,230 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
   const minPoint = points[minIndex];
   const maxPoint = points[maxIndex];
   const displayDate = selectedPoint
-    ? new Date(selectedPoint.timestamp).toLocaleDateString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-      })
+    ? selectedPoint.dayLabel
     : new Date(data[data.length - 1].timestamp).toLocaleDateString('en-US', {
         weekday: 'short',
         month: 'short',
         day: 'numeric',
       });
 
+  const renderChart = () => {
+    const fillPoints = [
+      `${chartPadding.left},${chartPadding.top + plotHeight}`,
+      ...points.map((p) => `${p.x},${p.y}`),
+      `${width - chartPadding.right},${chartPadding.top + plotHeight}`,
+    ].join(' ');
+
+    return (
+      <Svg
+        width={width}
+        height={chartHeight}
+        style={styles.svg}
+        viewBox={`0 0 ${width} ${chartHeight}`}
+      >
+        {/* Grid background */}
+        <Rect width={width} height={chartHeight} fill="#FAFAFA" />
+
+        {/* Horizontal grid lines with labels */}
+        {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+          const gridY = chartPadding.top + ratio * plotHeight;
+          const gridPrice = maxPrice - priceRange * ratio;
+          return (
+            <G key={`grid-${ratio}`}>
+              <Line
+                x1={chartPadding.left}
+                y1={gridY}
+                x2={width - chartPadding.right}
+                y2={gridY}
+                stroke="#E0E0E0"
+                strokeWidth="0.4"
+              />
+              <SvgText
+                x={chartPadding.left - 8}
+                y={gridY + 5}
+                fontSize="11"
+                fill="#888"
+                fontFamily="system-ui"
+                textAnchor="end"
+              >
+                {formatPrice(gridPrice)}
+              </SvgText>
+            </G>
+          );
+        })}
+
+        {/* Min/Max indicator lines */}
+        <Line
+          x1={chartPadding.left}
+          y1={maxPoint.y}
+          x2={width - chartPadding.right}
+          y2={maxPoint.y}
+          stroke="#B0BEC5"
+          strokeWidth="0.8"
+          strokeDasharray="3,2"
+          opacity="0.6"
+        />
+        <Line
+          x1={chartPadding.left}
+          y1={minPoint.y}
+          x2={width - chartPadding.right}
+          y2={minPoint.y}
+          stroke="#CFD8DC"
+          strokeWidth="0.8"
+          strokeDasharray="3,2"
+          opacity="0.6"
+        />
+
+        {/* Area fill under curve */}
+        <Polygon
+          points={fillPoints}
+          fill={isUp ? '#C8E6C9' : '#FFCDD2'}
+          opacity="0.2"
+        />
+
+        {/* Main price curve */}
+        <Polyline
+          points={points.map((p) => `${p.x},${p.y}`).join(' ')}
+          fill="none"
+          stroke={isUp ? '#00C853' : '#D32F2F'}
+          strokeWidth="2.4"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+
+        {/* Min/Max circles */}
+        <Circle cx={maxPoint.x} cy={maxPoint.y} r="5" fill="#00C853" stroke="#FFF" strokeWidth="2" />
+        <Circle cx={minPoint.x} cy={minPoint.y} r="5" fill="#D32F2F" stroke="#FFF" strokeWidth="2" />
+
+        {/* High badge */}
+        <Rect
+          x={Math.max(chartPadding.left, Math.min(maxPoint.x - 40, width - chartPadding.right - 80))}
+          y={Math.max(4, maxPoint.y - 32)}
+          width="80"
+          height="24"
+          rx="12"
+          fill="#E8F5E9"
+        />
+        <SvgText
+          x={Math.max(chartPadding.left, Math.min(maxPoint.x - 40, width - chartPadding.right - 80)) + 40}
+          y={Math.max(4, maxPoint.y - 32) + 16}
+          fontSize="11"
+          fill="#1B5E20"
+          fontWeight="700"
+          fontFamily="system-ui"
+          textAnchor="middle"
+        >
+          {t('expandedChart.high')}
+        </SvgText>
+
+        {/* Low badge */}
+        <Rect
+          x={Math.max(chartPadding.left, Math.min(minPoint.x - 38, width - chartPadding.right - 76))}
+          y={Math.min(chartHeight - 28, minPoint.y + 12)}
+          width="76"
+          height="24"
+          rx="12"
+          fill="#FFEBEE"
+        />
+        <SvgText
+          x={Math.max(chartPadding.left, Math.min(minPoint.x - 38, width - chartPadding.right - 76)) + 38}
+          y={Math.min(chartHeight - 28, minPoint.y + 12) + 16}
+          fontSize="11"
+          fill="#B71C1C"
+          fontWeight="700"
+          fontFamily="system-ui"
+          textAnchor="middle"
+        >
+          {t('expandedChart.low')}
+        </SvgText>
+
+        {/* Day labels on X axis */}
+        {visibleLabelIndices.map((idx) => {
+          const point = points[idx];
+          return (
+            <G key={`day-label-${idx}`}>
+              <Line
+                x1={point.x}
+                y1={chartPadding.top + plotHeight}
+                x2={point.x}
+                y2={chartPadding.top + plotHeight + 8}
+                stroke="#D0D0D0"
+                strokeWidth="0.8"
+              />
+              <SvgText
+                x={point.x}
+                y={chartPadding.top + plotHeight + 26}
+                fontSize="12"
+                fill="#444"
+                fontWeight="600"
+                fontFamily="system-ui"
+                textAnchor="middle"
+              >
+                {point.dayLabel}
+              </SvgText>
+            </G>
+          );
+        })}
+
+        {/* Selected point indicator */}
+        {selectedIndex !== null && selectedIndex >= 0 && selectedIndex < points.length && (
+          <>
+            {/* Vertical line */}
+            <Line
+              x1={points[selectedIndex].x}
+              y1={chartPadding.top}
+              x2={points[selectedIndex].x}
+              y2={chartPadding.top + plotHeight}
+              stroke="#1976D2"
+              strokeWidth="1"
+              strokeDasharray="3,3"
+              opacity="0.5"
+            />
+            {/* Selection circle */}
+            <Circle
+              cx={points[selectedIndex].x}
+              cy={points[selectedIndex].y}
+              r="6"
+              fill={isUp ? '#00C853' : '#D32F2F'}
+              stroke="#FFF"
+              strokeWidth="2.5"
+            />
+            {/* Tooltip background */}
+            <Rect
+              x={Math.max(5, points[selectedIndex].x - 40)}
+              y={Math.max(5, points[selectedIndex].y - 28)}
+              width="80"
+              height="24"
+              rx="6"
+              fill="#1976D2"
+              opacity="0.95"
+            />
+            {/* Tooltip text */}
+            <SvgText
+              x={Math.max(20, points[selectedIndex].x - 20)}
+              y={Math.max(22, points[selectedIndex].y - 8)}
+              fontSize="12"
+              fill="#FFF"
+              fontWeight="700"
+              fontFamily="system-ui"
+              textAnchor="middle"
+            >
+              {formatPrice(points[selectedIndex].price)}
+            </SvgText>
+          </>
+        )}
+      </Svg>
+    );
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {showTimeRangeSelector && onTimeRangeChange && (
+        <TimeRangeSelector
+          selectedRange={selectedTimeRange}
+          onRangeChange={onTimeRangeChange}
+        />
+      )}
       <Text style={styles.title}>{tokenName} {t('expandedChart.title')}</Text>
 
       {/* Price Display */}
@@ -158,185 +413,22 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
       </View>
 
       {/* Interactive Chart */}
-      <View
-        style={{
-          height: chartHeight,
-          marginVertical: 20,
-          backgroundColor: '#FFF',
-          borderRadius: 14,
-          overflow: 'hidden',
-          borderWidth: 1,
-          borderColor: '#EEF2F5',
-        }}
-        {...panResponderRef.current.panHandlers}
-      >
-        <Svg
-          width={width}
-          height={chartHeight}
-          style={styles.svg}
-          viewBox={`0 0 ${width} ${chartHeight}`}
+      <GestureDetector gesture={pan}>
+        <Animated.View
+          style={{
+            height: chartHeight,
+            marginVertical: 20,
+            backgroundColor: '#FFF',
+            borderRadius: 14,
+            overflow: 'hidden',
+            borderWidth: 1,
+            borderColor: '#EEF2F5',
+          }}
+          entering={FadeIn.duration(300).delay(100)}
         >
-          {/* Grid background */}
-          <Rect width={width} height={chartHeight} fill="#FAFAFA" />
-
-          {/* Horizontal grid lines with labels */}
-          {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
-            const gridY = chartPadding.top + ratio * plotHeight;
-            const gridPrice = maxPrice - priceRange * ratio;
-            return (
-              <G key={`grid-${ratio}`}>
-                <Line
-                  x1={chartPadding.left}
-                  y1={gridY}
-                  x2={width - chartPadding.right}
-                  y2={gridY}
-                  stroke="#E0E0E0"
-                  strokeWidth="0.5"
-                />
-                <SvgText
-                  x={chartPadding.left - 8}
-                  y={gridY + 4}
-                  fontSize="10"
-                  fill="#999"
-                  fontFamily="system-ui"
-                  textAnchor="end"
-                >
-                  {formatPrice(gridPrice)}
-                </SvgText>
-              </G>
-            );
-          })}
-
-          <Line
-            x1={chartPadding.left}
-            y1={maxPoint.y}
-            x2={width - chartPadding.right}
-            y2={maxPoint.y}
-            stroke="#B0BEC5"
-            strokeWidth="1"
-            strokeDasharray="4,4"
-            opacity="0.8"
-          />
-          <Line
-            x1={chartPadding.left}
-            y1={minPoint.y}
-            x2={width - chartPadding.right}
-            y2={minPoint.y}
-            stroke="#CFD8DC"
-            strokeWidth="1"
-            strokeDasharray="4,4"
-            opacity="0.8"
-          />
-
-          {/* Area fill under curve */}
-          <Polygon
-            points={[
-              `${chartPadding.left},${chartPadding.top + plotHeight}`,
-              ...points.map((p) => `${p.x},${p.y}`),
-              `${width - chartPadding.right},${chartPadding.top + plotHeight}`,
-            ].join(' ')}
-            fill={isUp ? '#C8E6C9' : '#FFCDD2'}
-            opacity="0.2"
-          />
-
-          {/* Main price curve */}
-          <Polyline
-            points={points.map((p) => `${p.x},${p.y}`).join(' ')}
-            fill="none"
-            stroke={isUp ? '#00C853' : '#D32F2F'}
-            strokeWidth="2.5"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-
-          <Circle cx={maxPoint.x} cy={maxPoint.y} r="5" fill="#00C853" stroke="#FFF" strokeWidth="2" />
-          <Circle cx={minPoint.x} cy={minPoint.y} r="5" fill="#D32F2F" stroke="#FFF" strokeWidth="2" />
-
-          <Rect
-            x={Math.max(chartPadding.left, Math.min(maxPoint.x - 36, width - chartPadding.right - 72))}
-            y={Math.max(6, maxPoint.y - 30)}
-            width="72"
-            height="22"
-            rx="11"
-            fill="#E8F5E9"
-          />
-          <SvgText
-            x={Math.max(chartPadding.left, Math.min(maxPoint.x - 36, width - chartPadding.right - 72)) + 36}
-            y={Math.max(6, maxPoint.y - 30) + 14}
-            fontSize="10"
-            fill="#1B5E20"
-            fontWeight="700"
-            textAnchor="middle"
-          >
-            {t('expandedChart.high')}
-          </SvgText>
-          <Rect
-            x={Math.max(chartPadding.left, Math.min(minPoint.x - 34, width - chartPadding.right - 68))}
-            y={Math.min(chartHeight - 28, minPoint.y + 10)}
-            width="68"
-            height="22"
-            rx="11"
-            fill="#FFEBEE"
-          />
-          <SvgText
-            x={Math.max(chartPadding.left, Math.min(minPoint.x - 34, width - chartPadding.right - 68)) + 34}
-            y={Math.min(chartHeight - 28, minPoint.y + 10) + 14}
-            fontSize="10"
-            fill="#B71C1C"
-            fontWeight="700"
-            textAnchor="middle"
-          >
-            {t('expandedChart.low')}
-          </SvgText>
-
-          {/* Selected point indicator */}
-          {selectedIndex !== null && selectedIndex >= 0 && selectedIndex < points.length && (
-            <>
-              {/* Vertical line */}
-              <Line
-                x1={points[selectedIndex].x}
-                y1={chartPadding.top}
-                x2={points[selectedIndex].x}
-                y2={chartPadding.top + plotHeight}
-                stroke="#1976D2"
-                strokeWidth="1"
-                strokeDasharray="3,3"
-                opacity="0.5"
-              />
-              {/* Selection circle */}
-              <Circle
-                cx={points[selectedIndex].x}
-                cy={points[selectedIndex].y}
-                r="5"
-                fill={isUp ? '#00C853' : '#D32F2F'}
-                stroke="#FFF"
-                strokeWidth="2"
-              />
-              {/* Tooltip background */}
-              <Rect
-                x={Math.max(5, points[selectedIndex].x - 35)}
-                y={Math.max(5, points[selectedIndex].y - 25)}
-                width="70"
-                height="20"
-                rx="4"
-                fill="#1976D2"
-                opacity="0.9"
-              />
-              {/* Tooltip text */}
-              <SvgText
-                x={Math.max(10, points[selectedIndex].x - 30)}
-                y={Math.max(18, points[selectedIndex].y - 10)}
-                fontSize="11"
-                fill="#FFF"
-                fontWeight="600"
-                fontFamily="system-ui"
-              >
-                {formatPrice(points[selectedIndex].price)}
-              </SvgText>
-            </>
-          )}
-        </Svg>
-      </View>
+          {renderChart()}
+        </Animated.View>
+      </GestureDetector>
 
       {/* Stats Panel */}
       <View style={styles.statsPanel}>
@@ -358,6 +450,13 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
           <Text style={styles.statLabel}>{t('expandedChart.avgLabel')}</Text>
           <Text style={styles.statValue}>{formatPrice(avgPrice)}</Text>
         </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.statItem}>
+          <Text style={styles.statLabel}>Points</Text>
+          <Text style={styles.statValue}>{data.length}</Text>
+        </View>
       </View>
 
       {/* Instructions */}
@@ -377,60 +476,60 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingHorizontal: 16,
+    paddingTop: 14,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
     color: '#212121',
-    marginBottom: 16,
+    marginBottom: 18,
   },
   priceCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    borderRadius: 14,
+    padding: 18,
+    marginBottom: 18,
   },
   currentLabel: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#666',
-    marginBottom: 4,
+    marginBottom: 5,
   },
   currentPrice: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '700',
-    marginBottom: 4,
+    marginBottom: 5,
   },
   dateLabel: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#999',
   },
   statsColumn: {
-    gap: 12,
+    gap: 14,
   },
   stat: {
     alignItems: 'flex-end',
   },
   statLabel: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#666',
   },
   statValue: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
     color: '#212121',
   },
   statHighValue: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
     color: '#00C853',
   },
   statLowValue: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
     color: '#D32F2F',
   },
@@ -441,9 +540,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     backgroundColor: '#FAFAFA',
-    borderRadius: 12,
-    paddingVertical: 18,
-    marginVertical: 16,
+    borderRadius: 14,
+    paddingVertical: 20,
+    marginVertical: 18,
   },
   statItem: {
     alignItems: 'center',
@@ -455,22 +554,22 @@ const styles = StyleSheet.create({
   },
   instructionsBox: {
     backgroundColor: '#E3F2FD',
-    borderRadius: 8,
-    padding: 12,
-    marginVertical: 16,
+    borderRadius: 10,
+    padding: 14,
+    marginVertical: 18,
     borderLeftWidth: 4,
     borderLeftColor: '#1976D2',
   },
   instructionLabel: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
     color: '#1976D2',
-    marginBottom: 4,
+    marginBottom: 5,
   },
   instructionText: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#1565C0',
-    lineHeight: 16,
+    lineHeight: 18,
   },
   emptyContainer: {
     flex: 1,
