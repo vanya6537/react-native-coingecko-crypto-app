@@ -26,12 +26,14 @@ interface ExpandableTokenItemProps {
   token: Token;
   expandedState: ExpandedTokenState;
   priceHistoryDays?: number;
+  isFetchingNextPage?: boolean;
 }
 
 const ExpandableTokenItemComponent: React.FC<ExpandableTokenItemProps> = ({
   token,
   expandedState,
   priceHistoryDays = 7,
+  isFetchingNextPage = false,
 }) => {
   const isExpanded = expandedState.isExpanded(token.id);
 
@@ -101,6 +103,7 @@ const ExpandableTokenItemComponent: React.FC<ExpandableTokenItemProps> = ({
       onToggleExpand={handleToggleExpand}
       expandedContent={expandedContent}
       isLoadingExpanded={isLoadingDetail || historyLoading || isLoadingLegacyHistory}
+      isFetchingNextPage={isFetchingNextPage}
     />
   );
 };
@@ -113,7 +116,8 @@ export const ExpandableTokenItem = memo(
       prevProps.token.id === nextProps.token.id &&
       prevProps.expandedState.expandedTokenId ===
         nextProps.expandedState.expandedTokenId &&
-      prevProps.priceHistoryDays === nextProps.priceHistoryDays
+      prevProps.priceHistoryDays === nextProps.priceHistoryDays &&
+      prevProps.isFetchingNextPage === nextProps.isFetchingNextPage
     );
   }
 );

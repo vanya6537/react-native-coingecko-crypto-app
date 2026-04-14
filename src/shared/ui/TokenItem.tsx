@@ -10,7 +10,6 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import Animated, {
   FadeIn,
   FadeOut,
@@ -28,6 +27,7 @@ import Animated, {
 import type { Token } from '../types';
 import { formatPrice, formatChange } from '../utils/formatters';
 import { LoaderComponent } from './Loader';
+import { ChartLoadingSkeleton, SkeletonLoader } from '../../components/SkeletonLoader';
 
 interface TokenItemProps {
   token: Token;
@@ -36,6 +36,7 @@ interface TokenItemProps {
   onToggleExpand?: (tokenId: string) => void;
   expandedContent?: ReactNode;
   isLoadingExpanded?: boolean;
+  isFetchingNextPage?: boolean;
 }
 
 const TokenItemComponent: React.FC<TokenItemProps> = ({
@@ -45,8 +46,8 @@ const TokenItemComponent: React.FC<TokenItemProps> = ({
   onToggleExpand,
   expandedContent,
   isLoadingExpanded = false,
+  isFetchingNextPage = false,
 }) => {
-  const { t } = useTranslation();
   // Animation values
   const expandProgress = useSharedValue(isExpanded ? 1 : 0);
   const containerScale = useSharedValue(1);
@@ -87,15 +88,20 @@ const TokenItemComponent: React.FC<TokenItemProps> = ({
 
   return (
     <Animated.View
-      style={styles.wrapper}
+      style={[styles.wrapper, isLoadingExpanded && { opacity: 0.7 }]}
       layout={Layout.springify()}
       entering={FadeIn.duration(150)}
     >
       <TouchableOpacity
-        style={[styles.container, isExpanded && styles.containerExpanded]}
+        style={[styles.container, isExpanded && styles.containerExpanded, isFetchingNextPage && styles.containerLoading]}
         onPress={handleHeaderPress}
         activeOpacity={0.7}
       >
+        {isFetchingNextPage && (
+          <View style={styles.paginationLoaderOverlay}>
+            <LoaderComponent size={40} />
+          </View>
+        )}
         <Image source={{ uri: token.image }} style={styles.icon} />
         <View style={styles.info}>
           <Text style={styles.name}>{token.name}</Text>
@@ -116,10 +122,56 @@ const TokenItemComponent: React.FC<TokenItemProps> = ({
         <Animated.View
           entering={FadeIn.duration(200)}
           layout={Layout.springify()}
+          style={styles.expandedWrapper}
         >
           {isLoadingExpanded ? (
             <View style={styles.expandedContentContainer}>
-              <LoaderComponent size={60} text={t('loader.expandedContent')} />
+              {/* Chart Skeleton */}
+              <Animated.View
+                entering={FadeInDown.duration(400).delay(0).damping(1.2)}
+                layout={Layout.springify()}
+              >
+                <ChartLoadingSkeleton height={240} compact={true} />
+              </Animated.View>
+              
+              {/* Stats Skeleton Grid */}
+              <Animated.View
+                entering={FadeInDown.duration(400).delay(100).damping(1.2)}
+                layout={Layout.springify()}
+              >
+                <View style={styles.statsSkeletonGrid}>
+                  {[1, 2, 3, 4, 5, 6].map((item) => (
+                    <Animated.View
+                      key={item}
+                      entering={FadeInDown.duration(400).delay(150 + item * 50).damping(1.2)}
+                      layout={Layout.springify()}
+                      style={styles.statsSkeletonItem}
+                    >
+                      <SkeletonLoader width="60%" height={12} />
+                      <SkeletonLoader width="85%" height={16} />
+                    </Animated.View>
+                  ))}
+                </View>
+              </Animated.View>
+              
+              {/* Description Skeleton */}
+              <Animated.View
+                entering={FadeInDown.duration(400).delay(500).damping(1.2)}
+                layout={Layout.springify()}
+                style={styles.descriptionLoadingContainer}
+              >
+                {[0, 1, 2, 3].map((lineIndex) => (
+                  <Animated.View
+                    key={lineIndex}
+                    entering={FadeInDown.duration(300).delay(550 + lineIndex * 60).damping(1.2)}
+                  >
+                    <SkeletonLoader
+                      width={['100%', '96%', '88%', '72%'][lineIndex]}
+                      height={12}
+                    />
+                  </Animated.View>
+                ))}
+              </Animated.View>
             </View>
           ) : expandedContent ? (
             <View style={styles.expandedContentContainer}>
@@ -141,7 +193,8 @@ export const TokenItem = memo(TokenItemComponent, (prevProps, nextProps) => {
     prevProps.token.price_change_percentage_24h ===
       nextProps.token.price_change_percentage_24h &&
     prevProps.isExpanded === nextProps.isExpanded &&
-    prevProps.isLoadingExpanded === nextProps.isLoadingExpanded
+    prevProps.isLoadingExpanded === nextProps.isLoadingExpanded &&
+    prevProps.isFetchingNextPage === nextProps.isFetchingNextPage
   );
 });
 
@@ -224,6 +277,52 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#1976D2',
     fontWeight: '700',
+  },
+  containerLoading: {
+    opacity: 0.6,
+  },
+  paginationLoaderOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    zIndex: 10,
+  },
+  expandedWrapper: {
+    position: 'relative',
+  },
+  expandedLoadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    zIndex: 20,
+    borderBottomLeftRadius: 14,
+    borderBottomRightRadius: 14,
+  },
+  statsSkeletonGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginVertical: 12,
+  },
+  statsSkeletonItem: {
+    width: '48%',
+    paddingVertical: 8,
+    gap: 6,
+  },
+  descriptionLoadingContainer: {
+    marginTop: 12,
+    gap: 8,
   },
   expandedContentContainer: {
     paddingVertical: 16,

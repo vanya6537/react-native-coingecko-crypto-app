@@ -15,7 +15,7 @@ interface LoaderProps {
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export const Loader: React.FC<LoaderProps> = ({ size = 64 }) => {
+export const LoaderComponent: React.FC<LoaderProps> = ({ size = 64 }) => {
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
 

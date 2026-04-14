@@ -34,7 +34,7 @@ import { FilterBar } from '../components';
 import { ErrorState, EmptyState } from '../components/StateComponents';
 import { TokenListLoadingSkeleton, TokenItemSkeleton } from '../components/SkeletonLoader';
 import { LanguageToggler } from '../shared/ui/LanguageToggler';
-import { Loader } from '../shared/ui/Loader';
+import { LoaderComponent } from '../shared/ui/Loader';
 import { filterTokens, sortTokens } from '../shared/utils/formatters';
 
 interface TokensListPageProps {
