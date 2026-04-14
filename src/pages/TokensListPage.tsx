@@ -32,9 +32,8 @@ import {
 } from '../features/tokensList';
 import { FilterBar } from '../components';
 import { ErrorState, EmptyState } from '../components/StateComponents';
-import { TokenListLoadingSkeleton, TokenItemSkeleton } from '../components/SkeletonLoader';
+import { TokenListLoadingSkeleton } from '../components/SkeletonLoader';
 import { LanguageToggler } from '../shared/ui/LanguageToggler';
-import { LoaderComponent } from '../shared/ui/Loader';
 import { filterTokens, sortTokens } from '../shared/utils/formatters';
 
 interface TokensListPageProps {
@@ -84,9 +83,10 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
           flatListRef.current?.scrollToIndex({
             index,
             animated: true,
-            viewPosition: 0.3,
+            viewPosition: 0,
+            
           });
-        }, 100);
+        }, 200);
       }
     }
   }, [expandedState.expandedTokenId, displayTokens]);
@@ -152,17 +152,21 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
         ref={flatListRef}
         data={displayTokens}
         keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
-          <Animated.View
-            entering={FadeInDown.duration(400).delay(index * 50)}
-            layout={Layout.springify()}
-          >
-            <ExpandableTokenItem
-              token={item}
-              expandedState={expandedState}
-            />
-          </Animated.View>
-        )}
+        renderItem={({ item, index }) => {
+          const isLastItem = index === displayTokens.length - 1;
+          return (
+            <Animated.View
+              entering={FadeInDown.duration(400).delay(index * 50)}
+              layout={Layout.springify()}
+            >
+              <ExpandableTokenItem
+                token={item}
+                expandedState={expandedState}
+                isFetchingNextPage={isLastItem && isFetchingNextPage && hasMore && !isSorted}
+              />
+            </Animated.View>
+          );
+        }}
         ListHeaderComponent={() => (
           <>
             <View style={styles.headerTop}>
@@ -189,17 +193,6 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
         onEndReachedThreshold={0.5}
         onRefresh={handleRefresh}
         refreshing={isRefreshing}
-        ListFooterComponent={() =>
-          isFetchingNextPage && hasMore && !isSorted ? (
-            <View style={styles.footerLoader}>
-              {[1, 2, 3].map((i) => (
-                <View key={i} style={styles.footerSkeletonItem}>
-                  <TokenItemSkeleton />
-                </View>
-              ))}
-            </View>
-          ) : null
-        }
         // Performance optimizations
         maxToRenderPerBatch={10}
         updateCellsBatchingPeriod={50}
@@ -237,12 +230,5 @@ const styles = StyleSheet.create({
   },
   notificationButton: {
     padding: 8,
-  },
-  footerLoader: {
-    paddingVertical: 12,
-  },
-  footerSkeletonItem: {
-    marginHorizontal: 12,
-    marginVertical: 6,
   },
 });

@@ -61,11 +61,11 @@ const styles = StyleSheet.create({
   container: {
     paddingVertical: 8,
     backgroundColor: '#f8f9fa',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#e9ecef',
   },
   scrollContent: {
-    paddingHorizontal: 8,
+    // paddingHorizontal: 8,
     gap: 5,
   },
   button: {
