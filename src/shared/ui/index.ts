@@ -12,7 +12,6 @@ export * from './SkeletonLoader';
 export * from './TokenDetailSections';
 export * from './ExpandedPriceChart';
 export { ExpandedTokenInfo } from './ExpandedTokenInfo';
-export { LivePriceFeed } from './LivePriceFeed';
 export { LanguageToggler } from './LanguageToggler';
 
 // Animated components - Premium UI with WOW effects
