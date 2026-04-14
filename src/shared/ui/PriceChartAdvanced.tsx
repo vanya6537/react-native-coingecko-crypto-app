@@ -1,8 +1,3 @@
-/**
- * Advanced PriceChart with animations and TradingView-like features
- * Includes gradient fills, interactive crosshair, smooth animations, and volume indicators
- */
-
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View,
@@ -22,8 +17,6 @@ import Svg, {
   Defs,
   LinearGradient,
   Stop,
-  Path,
-  Ellipse,
 } from 'react-native-svg';
 import Animated, {
   FadeIn,
@@ -35,7 +28,6 @@ import Animated, {
   withSpring,
   withTiming,
   Easing,
-  runOnJS,
   useAnimatedStyle,
 } from 'react-native-reanimated';
 import type { PriceHistory } from '../types/index';
@@ -53,16 +45,23 @@ interface Point {
   timestamp: number;
 }
 
+const HEADER_HEIGHT = 72;
+const LEGEND_HEIGHT = 64;
+const MIN_CHART_HEIGHT = 220;
+
 export const PriceChart: React.FC<PriceChartProps> = ({
   data,
   height = 280,
 }) => {
   const screenWidth = Dimensions.get('window').width;
-  const width = screenWidth - 16; // Minimal padding for small screens
-  const svgHeight = height - 120;
-  const chartPadding = { top: 20, right: 12, bottom: 30, left: 12 }; // Reduced padding
-  const plotWidth = width - chartPadding.left - chartPadding.right;
-  const plotHeight = svgHeight - chartPadding.top - chartPadding.bottom;
+  const width = screenWidth - 16;
+
+  const chartPadding = { top: 24, right: 12, bottom: 36, left: 12 };
+  const chartHeight = Math.max(height - HEADER_HEIGHT - LEGEND_HEIGHT, MIN_CHART_HEIGHT);
+  const svgHeight = chartHeight;
+
+  const plotWidth = Math.max(width - chartPadding.left - chartPadding.right, 1);
+  const plotHeight = Math.max(svgHeight - chartPadding.top - chartPadding.bottom, 1);
 
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<Point | null>(null);
@@ -70,29 +69,28 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   const panResponderRef = useRef<any>(null);
 
   const selectedOpacity = useSharedValue(0);
-  const selectedScale = useSharedValue(1);
-  const crosshairOpacity = useSharedValue(0);
-  const tooltipScale = useSharedValue(0.8);
+  const tooltipScale = useSharedValue(0.92);
 
   useEffect(() => {
     if (selectedIndex !== null) {
-      selectedOpacity.value = withSpring(1, { damping: 7, mass: 0.8 });
-      selectedScale.value = withSpring(1.3, { damping: 7, mass: 0.8 });
-      crosshairOpacity.value = withSpring(1, { damping: 8 });
-      tooltipScale.value = withSpring(1, { damping: 8 });
+      selectedOpacity.value = withSpring(1, { damping: 8, mass: 0.8 });
+      tooltipScale.value = withSpring(1, { damping: 8, mass: 0.8 });
     } else {
       selectedOpacity.value = withTiming(0, {
-        duration: 200,
+        duration: 180,
         easing: Easing.out(Easing.ease),
       });
-      selectedScale.value = withTiming(1, {
-        duration: 200,
+      tooltipScale.value = withTiming(0.92, {
+        duration: 180,
         easing: Easing.out(Easing.ease),
       });
-      crosshairOpacity.value = withTiming(0, { duration: 200 });
-      tooltipScale.value = withTiming(0.8, { duration: 200 });
     }
-  }, [selectedIndex, selectedOpacity, selectedScale, crosshairOpacity, tooltipScale]);
+  }, [selectedIndex, selectedOpacity, tooltipScale]);
+
+  const tooltipAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: tooltipScale.value }],
+    opacity: selectedOpacity.value,
+  }));
 
   if (!data || data.length === 0) {
     return (
@@ -118,14 +116,14 @@ export const PriceChart: React.FC<PriceChartProps> = ({
         price: entry.price,
         timestamp: entry.timestamp,
       })),
-    [data, pointCountDivisor, plotWidth, plotHeight, chartPadding.top, maxPrice, priceRange]
+    [data, pointCountDivisor, plotWidth, plotHeight, chartPadding.left, chartPadding.top, maxPrice, priceRange]
   );
 
   const updateSelectedPoint = useCallback(
     (pageX: number) => {
       const relativeX = pageX - 16 - chartPadding.left;
       const normalizedX = Math.max(0, Math.min(relativeX, plotWidth));
-      const index = Math.round((normalizedX / Math.max(plotWidth, 1)) * pointCountDivisor);
+      const index = Math.round((normalizedX / plotWidth) * pointCountDivisor);
 
       if (index >= 0 && index < data.length) {
         setSelectedIndex(index);
@@ -144,7 +142,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
         updateSelectedPoint(event.nativeEvent.pageX);
       },
       onPanResponderRelease: () => {
-        // Keep selection visible
+        // keep selection
       },
       onPanResponderTerminate: () => {
         setSelectedIndex(null);
@@ -183,12 +181,6 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     const minPoint = points[minIndex];
     const maxPoint = points[maxIndex];
 
-    // Generate smooth curve path for animated effect
-    const curvePath = generateSmoothPath(
-      points.map((p) => `${p.x},${p.y}`),
-      chartPadding.top + plotHeight
-    );
-
     const renderExtremeBadge = (
       point: Point,
       label: 'HIGH' | 'LOW',
@@ -197,16 +189,39 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     ) => {
       const badgeWidth = 56;
       const badgeHeight = 24;
+
       const x = Math.max(
         chartPadding.left,
         Math.min(point.x - badgeWidth / 2, width - chartPadding.right - badgeWidth)
       );
-      const y = position === 'top' ? 4 : svgHeight - badgeHeight - 4;
+
+      const y =
+        position === 'top'
+          ? Math.max(4, Math.min(point.y - badgeHeight - 10, svgHeight - badgeHeight - 4))
+          : Math.max(4, Math.min(point.y + 10, svgHeight - badgeHeight - 4));
 
       return (
         <G key={`${label}-badge`}>
-          <Rect x={x} y={y} width={badgeWidth} height={badgeHeight} rx={10} fill={tone} opacity={0.15} />
-          <Rect x={x} y={y} width={badgeWidth} height={badgeHeight} rx={10} fill="none" stroke={tone} strokeWidth="1.5" opacity={0.5} />
+          <Rect
+            x={x}
+            y={y}
+            width={badgeWidth}
+            height={badgeHeight}
+            rx={10}
+            fill={tone}
+            opacity={0.15}
+          />
+          <Rect
+            x={x}
+            y={y}
+            width={badgeWidth}
+            height={badgeHeight}
+            rx={10}
+            fill="none"
+            stroke={tone}
+            strokeWidth="1.5"
+            opacity={0.5}
+          />
           <SvgText
             x={x + badgeWidth / 2}
             y={y + 16}
@@ -222,7 +237,12 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     };
 
     return (
-      <Svg width={width} height={svgHeight} style={styles.svg} viewBox={`0 0 ${width+80} ${svgHeight+90}`}>
+      <Svg
+        width={width}
+        height={svgHeight}
+        style={styles.svg}
+        viewBox={`0 0 ${width+78} ${svgHeight}`}
+      >
         <Defs>
           <LinearGradient id="priceGradientUp" x1="0%" y1="0%" x2="0%" y2="100%">
             <Stop offset="0%" stopColor="#4CAF50" stopOpacity="0.4" />
@@ -232,14 +252,8 @@ export const PriceChart: React.FC<PriceChartProps> = ({
             <Stop offset="0%" stopColor="#F44336" stopOpacity="0.4" />
             <Stop offset="100%" stopColor="#F44336" stopOpacity="0.02" />
           </LinearGradient>
-          <LinearGradient id="gridGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <Stop offset="0%" stopColor="#E0E0E0" stopOpacity="0" />
-            <Stop offset="50%" stopColor="#E0E0E0" stopOpacity="0.3" />
-            <Stop offset="100%" stopColor="#E0E0E0" stopOpacity="0" />
-          </LinearGradient>
         </Defs>
 
-        {/* Animated Grid */}
         {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
           <Line
             key={`grid-${ratio}`}
@@ -253,7 +267,6 @@ export const PriceChart: React.FC<PriceChartProps> = ({
           />
         ))}
 
-        {/* Min/Max reference lines */}
         <Line
           x1={chartPadding.left}
           y1={maxPoint.y}
@@ -275,26 +288,21 @@ export const PriceChart: React.FC<PriceChartProps> = ({
           opacity="0.3"
         />
 
-        {/* Gradient fill area */}
         <Polygon
           points={fillPoints}
           fill={isUp ? 'url(#priceGradientUp)' : 'url(#priceGradientDown)'}
         />
 
-        {/* Main price line with glow effect */}
-        <G>
-          <Polyline
-            points={linePoints}
-            fill="none"
-            stroke={isUp ? '#4CAF50' : '#F44336'}
-            strokeWidth="3.5"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            opacity="0.3"
-          />
-        </G>
+        <Polyline
+          points={linePoints}
+          fill="none"
+          stroke={isUp ? '#4CAF50' : '#F44336'}
+          strokeWidth="3.5"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          opacity="0.3"
+        />
 
-        {/* Main price line */}
         <Polyline
           points={linePoints}
           fill="none"
@@ -304,36 +312,44 @@ export const PriceChart: React.FC<PriceChartProps> = ({
           strokeLinecap="round"
         />
 
-        {/* Interactive data points */}
         {points.map((point, index) => (
           <G key={`point-${index}`}>
-            {/* Hover background circle */}
             {hoveredIndex === index && (
-              <Circle cx={point.x} cy={point.y} r="12" fill={isUp ? '#4CAF50' : '#F44336'} opacity="0.15" />
+              <Circle
+                cx={point.x}
+                cy={point.y}
+                r="12"
+                fill={isUp ? '#4CAF50' : '#F44336'}
+                opacity="0.15"
+              />
             )}
-            {/* Point indicator */}
+
             <Circle
               cx={point.x}
               cy={point.y}
               r={index === minIndex || index === maxIndex ? 5 : 2.5}
-              fill={index === minIndex ? '#F44336' : index === maxIndex ? '#4CAF50' : isUp ? '#00C853' : '#D32F2F'}
+              fill={
+                index === minIndex
+                  ? '#F44336'
+                  : index === maxIndex
+                    ? '#4CAF50'
+                    : isUp
+                      ? '#00C853'
+                      : '#D32F2F'
+              }
               opacity={index === minIndex || index === maxIndex ? 1 : hoveredIndex === index ? 0.8 : 0.5}
             />
           </G>
         ))}
 
-        {/* Min/Max circle indicators */}
         <Circle cx={maxPoint.x} cy={maxPoint.y} r="5.5" fill="none" stroke="#4CAF50" strokeWidth="2" opacity="0.8" />
         <Circle cx={minPoint.x} cy={minPoint.y} r="5.5" fill="none" stroke="#F44336" strokeWidth="2" opacity="0.8" />
 
-        {/* Extreme badges */}
         {renderExtremeBadge(maxPoint, 'HIGH', '#4CAF50', 'top')}
         {renderExtremeBadge(minPoint, 'LOW', '#F44336', 'bottom')}
 
-        {/* Crosshair and selection indicator */}
         {selectedIndex !== null && selectedIndex >= 0 && selectedIndex < points.length && (
           <G opacity={0.7}>
-            {/* Vertical crosshair line */}
             <Line
               x1={points[selectedIndex].x}
               y1={chartPadding.top}
@@ -344,7 +360,6 @@ export const PriceChart: React.FC<PriceChartProps> = ({
               strokeDasharray="5,5"
               opacity="0.6"
             />
-            {/* Horizontal line to point */}
             <Line
               x1={chartPadding.left}
               y1={points[selectedIndex].y}
@@ -355,7 +370,6 @@ export const PriceChart: React.FC<PriceChartProps> = ({
               strokeDasharray="4,4"
               opacity="0.4"
             />
-            {/* Main selection circle with pulse */}
             <G>
               <Circle
                 cx={points[selectedIndex].x}
@@ -381,79 +395,73 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     );
   };
 
-  const selectedAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: selectedScale.value },
-      { translateY: selectedIndex !== null ? 0 : 10 },
-    ],
-    opacity: selectedOpacity.value,
-  }));
-
   return (
     <Animated.View
       style={[styles.container, { height }]}
       entering={FadeInDown.duration(500).delay(100)}
       layout={Layout.springify()}
     >
-      <Animated.View style={[styles.header, selectedAnimatedStyle]}>
+      <View style={styles.header}>
         <View>
           <Text style={[styles.priceDisplay, { color: isUp ? '#00C853' : '#D32F2F' }]}>
             {formatPrice(displayPrice)}
           </Text>
           <Text style={styles.dateDisplay}>{displayDate}</Text>
         </View>
+
         {selectedIndex !== null && (
           <Animated.View
             entering={ZoomIn.springify()}
             exiting={FadeOut.duration(200)}
-            style={[styles.tooltipBadge, selectedAnimatedStyle]}
+            style={[styles.tooltipBadge, tooltipAnimatedStyle]}
           >
             <Text style={styles.tooltipLabel}>
               Day {selectedIndex + 1} / {data.length}
             </Text>
             <Text style={[styles.tooltipChange, { color: priceChange >= 0 ? '#4CAF50' : '#F44336' }]}>
-              {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
+              {priceChange >= 0 ? '+' : ''}
+              {priceChange.toFixed(2)}%
             </Text>
           </Animated.View>
         )}
-      </Animated.View>
+      </View>
 
-      <View style={[styles.chart, { height: height - 120 }]} {...panResponderRef.current.panHandlers}>
+      <View
+        style={[styles.chart, { height: chartHeight }]}
+        {...panResponderRef.current.panHandlers}
+      >
         {renderChart()}
       </View>
 
-      <Animated.View style={[styles.legendSection, selectedAnimatedStyle]}>
+      <View style={styles.legendSection}>
         <View style={styles.legendCard}>
           <Text style={styles.legendLabel}>7D Low</Text>
           <Text style={[styles.legendValue, { color: '#F44336' }]}>
             {formatPrice(minPrice)}
           </Text>
         </View>
+
         <View style={styles.legendDivider} />
+
         <View style={styles.legendCard}>
           <Text style={styles.legendLabel}>7D High</Text>
           <Text style={[styles.legendValue, { color: '#4CAF50' }]}>
             {formatPrice(maxPrice)}
           </Text>
         </View>
+
         <View style={styles.legendDivider} />
+
         <View style={styles.legendCard}>
           <Text style={styles.legendLabel}>Range</Text>
           <Text style={styles.legendValue}>
             {formatPrice(maxPrice - minPrice)}
           </Text>
         </View>
-      </Animated.View>
+      </View>
     </Animated.View>
   );
 };
-
-// Helper function to generate smooth curve SVG path
-function generateSmoothPath(points: string[], baselineY: number): string {
-  if (points.length < 2) return '';
-  // Implementation would go here for cubic bezier curves
-  return '';
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -463,6 +471,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   header: {
+    minHeight: HEADER_HEIGHT,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -472,29 +481,22 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F0F0F0',
   },
   priceDisplay: {
-    marginLeft: 24,
     fontSize: 22,
     fontWeight: '700',
     marginBottom: 4,
   },
   dateDisplay: {
-    marginLeft: 24,
     fontSize: 12,
     color: '#757575',
     fontWeight: '500',
   },
   tooltipBadge: {
     backgroundColor: '#1976D2',
-    marginRight: 36,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
-    fontSize: 18,
     alignItems: 'center',
-    // flex
-    flexDirection: 'column',
     justifyContent: 'center',
-    alignContent: 'center',
   },
   tooltipLabel: {
     color: '#FFF',
@@ -508,6 +510,7 @@ const styles = StyleSheet.create({
   },
   chart: {
     overflow: 'hidden',
+    justifyContent: 'center',
   },
   svg: {
     backgroundColor: 'transparent',
@@ -520,8 +523,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   legendSection: {
+    minHeight: LEGEND_HEIGHT,
     flexDirection: 'row',
     justifyContent: 'space-around',
+    alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 12,
     backgroundColor: '#FAFAFA',
@@ -545,6 +550,7 @@ const styles = StyleSheet.create({
   },
   legendDivider: {
     width: 1,
+    alignSelf: 'stretch',
     backgroundColor: '#E0E0E0',
     opacity: 0.4,
   },
