@@ -15,6 +15,7 @@ import {
 import { Activity } from 'lucide-react-native';
 import { useUnit } from 'effector-react';
 import type { Token } from '../shared/types';
+import { useExpandedToken } from '../shared/hooks';
 import {
   fetchInitialTokens,
   refreshTokens,
@@ -27,8 +28,9 @@ import {
   $isRefreshing,
   $isFetchingNextPage,
   $hasMore,
+  ExpandableTokenItem,
 } from '../features/tokensList';
-import { TokenItem, FilterBar } from '../components';
+import { FilterBar } from '../components';
 import { ErrorState, EmptyState } from '../components/StateComponents';
 import { TokenListLoadingSkeleton } from '../components/SkeletonLoader';
 import { LanguageToggler } from '../shared/ui/LanguageToggler';
@@ -50,6 +52,7 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
   ]);
 
   const [isSorted, setIsSorted] = useState(false);
+  const expandedState = useExpandedToken();
 
   // Initial load on mount
   useEffect(() => {
@@ -132,7 +135,11 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
       <FlatList
         data={displayTokens}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        renExpandableTokenItem 
+            token={item} 
+            expandedState={expandedState}
+            priceHistoryDays={7}
+         
           <TokenItem token={item} onPress={handleTokenPress} />
         )}
         ListHeaderComponent={() => (
