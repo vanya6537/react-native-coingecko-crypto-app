@@ -140,27 +140,32 @@ export const tokenDetailAPI = {
     tokenId: string,
     fromDate: Date | string,
     toDate: Date | string = new Date(),
-    cacheTTL?: number
+    cacheTTL?: number,
+    interval: 'daily' | 'hourly' = 'daily'
   ): Promise<PriceHistory[]> {
-    // Преобразовать в Unix timestamps (секунды) для CoinGecko API
-    let fromTimestamp: number;
-    let toTimestamp: number;
+    // Преобразовать в Date объекты и нормализовать на полночь UTC
+    let fromDateObj: Date;
+    let toDateObj: Date;
 
     if (typeof fromDate === 'string') {
-      fromTimestamp = Math.floor(new Date(fromDate).getTime() / 1000);
+      fromDateObj = new Date(fromDate);
     } else {
-      fromTimestamp = Math.floor(fromDate.getTime() / 1000);
+      fromDateObj = new Date(fromDate);
     }
 
     if (typeof toDate === 'string') {
-      toTimestamp = Math.floor(new Date(toDate).getTime() / 1000);
+      toDateObj = new Date(toDate);
     } else {
-      toTimestamp = Math.floor(toDate.getTime() / 1000);
+      toDateObj = new Date(toDate);
     }
 
-    // Для кэша используем ISO даты для человекочитаемости
-    const fromISO = new Date(fromTimestamp * 1000).toISOString().split('T')[0];
-    const toISO = new Date(toTimestamp * 1000).toISOString().split('T')[0];
+    // Нормализовать даты на полночь UTC
+    fromDateObj.setUTCHours(0, 0, 0, 0);
+    toDateObj.setUTCHours(0, 0, 0, 0);
+
+    // Форматировать в ISO строки YYYY-MM-DD для CoinGecko API
+    const fromISO = fromDateObj.toISOString().split('T')[0];
+    const toISO = toDateObj.toISOString().split('T')[0];
     
     const cacheKey = `price_history_range_${tokenId}_${fromISO}_${toISO}`;
     const cached = cache.get<PriceHistory[]>(cacheKey);
@@ -173,10 +178,8 @@ export const tokenDetailAPI = {
     // Если TTL не указан, выбрать оптимальный по CoinGecko рекомендациям
     let ttl = cacheTTL;
     if (!ttl) {
-      const days = Math.ceil((toTimestamp - fromTimestamp) / (60 * 60 * 24));
-      if (days === 1) {
-        ttl = HISTORY_CACHE_TTL_1D;
-      } else if (days <= 90) {
+      const days = Math.ceil((toDateObj.getTime() - fromDateObj.getTime()) / (1000 * 60 * 60 * 24));
+      if (days <= 90) {
         ttl = HISTORY_CACHE_TTL_2_90D;
       } else {
         ttl = HISTORY_CACHE_TTL_90D_PLUS;
@@ -191,8 +194,9 @@ export const tokenDetailAPI = {
       }>(`/coins/${tokenId}/market_chart/range`, {
         params: {
           vs_currency: 'usd',
-          from: fromTimestamp,
-          to: toTimestamp,
+          from: fromISO,
+          to: toISO,
+          interval: interval, // daily = 7 points for 7d, 30 for 30d, etc. Readable for humans
         },
       });
       return response.data.prices;
@@ -209,7 +213,7 @@ export const tokenDetailAPI = {
 
   async getPriceHistoryByTimeRange(
     tokenId: string,
-    timeRange: '1d' | '7d' | '30d' | '90d' | '1y' | 'all'
+    timeRange: '7d' | '30d' | '90d' | '1y' | 'all'
   ): Promise<PriceHistory[]> {
     // Рассчитать диапазон дат
     const toDate = new Date();
@@ -217,9 +221,6 @@ export const tokenDetailAPI = {
     
     let daysAgo: number;
     switch (timeRange) {
-      case '1d':
-        daysAgo = 1;
-        break;
       case '7d':
         daysAgo = 7;
         break;
@@ -241,14 +242,12 @@ export const tokenDetailAPI = {
     
     // Определить кэш TTL согласно рекомендациям CoinGecko
     let cacheTTL: number;
-    if (timeRange === '1d') {
-      cacheTTL = HISTORY_CACHE_TTL_1D;
-    } else if (timeRange === '7d' || timeRange === '30d') {
+    if (timeRange === '7d' || timeRange === '30d') {
       cacheTTL = HISTORY_CACHE_TTL_2_90D;
     } else {
       cacheTTL = HISTORY_CACHE_TTL_90D_PLUS;
     }
     
-    return this.getPriceHistoryRange(tokenId, fromDate, toDate, cacheTTL);
+    return this.getPriceHistoryRange(tokenId, fromDate, toDate, cacheTTL, 'daily');
   },
 };

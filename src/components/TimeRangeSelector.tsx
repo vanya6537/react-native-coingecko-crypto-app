@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, ScrollView } from 'react-native';
 import Animated, { FadeIn, Layout } from 'react-native-reanimated';
 
-export type TimeRange = '1d' | '7d' | '30d' | '90d' | '1y' | 'all';
+export type TimeRange = '7d' | '30d' | '90d' | '1y' | 'all';
 
 interface TimeRangeSelectorProps {
   selectedRange: TimeRange;
@@ -10,7 +10,6 @@ interface TimeRangeSelectorProps {
 }
 
 const TIME_RANGES: Array<{ label: string; value: TimeRange; days: number | null }> = [
-  { label: '1D', value: '1d', days: 1 },
   { label: '7D', value: '7d', days: 7 },
   { label: '30D', value: '30d', days: 30 },
   { label: '90D', value: '90d', days: 90 },
@@ -60,23 +59,23 @@ export const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 12,
+    paddingVertical: 8,
     backgroundColor: '#f8f9fa',
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',
   },
   scrollContent: {
-    paddingHorizontal: 12,
-    gap: 8,
+    paddingHorizontal: 8,
+    gap: 5,
   },
   button: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#dee2e6',
-    minWidth: 50,
+    minWidth: 42,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -85,7 +84,7 @@ const styles = StyleSheet.create({
     borderColor: '#0056b3',
   },
   buttonText: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '600',
     color: '#495057',
   },

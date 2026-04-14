@@ -6,7 +6,7 @@ import { tokenDetailAPI } from '../api';
 import type { TokenDetail, PriceHistory } from '../../../shared/types';
 import type { TokenDetailUIState, HistoryUIState } from '../types';
 
-type TimeRange = '1d' | '7d' | '30d' | '90d' | '1y' | 'all';
+type TimeRange = '7d' | '30d' | '90d' | '1y' | 'all';
 
 // Events
 export const selectToken = createEvent<string>('selectToken');

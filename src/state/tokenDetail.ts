@@ -2,7 +2,7 @@ import { createStore, createEvent, createEffect } from 'effector';
 import { coingeckoAPI } from '../api/coingecko';
 import type { TokenDetail, PriceHistory } from '../types/index';
 
-type TimeRange = '1d' | '7d' | '30d' | '90d' | '1y' | 'all';
+type TimeRange = '7d' | '30d' | '90d' | '1y' | 'all';
 
 export const fetchTokenDetail = createEffect(async (tokenId: string) => {
   return coingeckoAPI.getTokenDetail(tokenId);

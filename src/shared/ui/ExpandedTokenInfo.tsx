@@ -55,7 +55,6 @@ const getColorForStat = (label: string): string => {
 
 const getChartTitleByTimeRange = (timeRange: TimeRange): string => {
   const titleMap: Record<TimeRange, string> = {
-    '1d': 'Цена за последний день',
     '7d': 'Цена за последние 7 дней',
     '30d': 'Цена за последние 30 дней',
     '90d': 'Цена за последние 90 дней',
