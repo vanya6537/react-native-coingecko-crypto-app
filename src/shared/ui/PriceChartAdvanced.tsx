@@ -33,9 +33,12 @@ import Animated, {
 import type { PriceHistory } from '../types/index';
 import { formatPrice } from '../utils/formatters';
 
+type TimeRange = '7d' | '30d' | '90d' | '1y' | 'all';
+
 interface PriceChartProps {
   data: PriceHistory[];
   height?: number;
+  selectedTimeRange?: TimeRange;
 }
 
 interface Point {
@@ -49,9 +52,21 @@ const HEADER_HEIGHT = 72;
 const LEGEND_HEIGHT = 64;
 const MIN_CHART_HEIGHT = 220;
 
+const getTimeRangeLabel = (timeRange?: TimeRange): string => {
+  const labels: Record<TimeRange, string> = {
+    '7d': '7D',
+    '30d': '30D',
+    '90d': '90D',
+    '1y': '1Y',
+    'all': 'ALL',
+  };
+  return labels[timeRange || '7d'];
+};
+
 export const PriceChart: React.FC<PriceChartProps> = ({
   data,
   height = 280,
+  selectedTimeRange = '7d',
 }) => {
   const screenWidth = Dimensions.get('window').width;
   const width = screenWidth - 16;
@@ -435,7 +450,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
 
       <View style={styles.legendSection}>
         <View style={styles.legendCard}>
-          <Text style={styles.legendLabel}>7D Low</Text>
+          <Text style={styles.legendLabel}>{getTimeRangeLabel(selectedTimeRange)} Low</Text>
           <Text style={[styles.legendValue, { color: '#F44336' }]}>
             {formatPrice(minPrice)}
           </Text>
@@ -444,7 +459,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
         <View style={styles.legendDivider} />
 
         <View style={styles.legendCard}>
-          <Text style={styles.legendLabel}>7D High</Text>
+          <Text style={styles.legendLabel}>{getTimeRangeLabel(selectedTimeRange)} High</Text>
           <Text style={[styles.legendValue, { color: '#4CAF50' }]}>
             {formatPrice(maxPrice)}
           </Text>
