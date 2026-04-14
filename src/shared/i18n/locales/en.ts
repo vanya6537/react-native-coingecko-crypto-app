@@ -70,6 +70,17 @@ export const en = {
     loadingChart: 'Loading chart...',
   },
 
+  // Stats
+  stats: {
+    label: 'Statistics',
+    loading: 'Loading statistics...',
+    marketCap: 'Market Cap',
+    volume: 'Volume',
+    ath: 'All-Time High',
+    atl: 'All-Time Low',
+    marketCapRank: 'Market Cap Rank',
+  },
+
   // Favorites
   favorites: {
     title: 'Favorites',

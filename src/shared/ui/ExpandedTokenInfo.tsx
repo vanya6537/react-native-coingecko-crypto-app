@@ -11,13 +11,14 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Animated, {
   FadeInDown,
   FadeOutUp,
   Layout,
 } from 'react-native-reanimated';
 import type { Token, PriceHistory } from '../types';
-import { formatPrice } from '../utils/formatters';
+import { formatPrice, formatCompactNumber } from '../utils/formatters';
 import { PriceChart } from './PriceChart';
 import { TimeRangeSelector, type TimeRange } from '../../components/TimeRangeSelector';
 
@@ -58,27 +59,30 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
   onTimeRangeChange,
   showTimeRangeSelector = false,
 }) => {
+  const { t, i18n } = useTranslation();
+  const currency = i18n.language === 'ru' ? '₽' : '$';
+
   const defaultStats: StatItem[] =
     stats ||
     [
       {
-        label: 'Market Cap',
-        value: token.market_cap ? formatPrice(token.market_cap) : 'N/A',
+        label: t('stats.marketCap'),
+        value: token.market_cap ? formatCompactNumber(token.market_cap, currency) : 'N/A',
       },
       {
-        label: 'Volume',
-        value: token.total_volume ? formatPrice(token.total_volume) : 'N/A',
+        label: t('stats.volume'),
+        value: token.total_volume ? formatCompactNumber(token.total_volume, currency) : 'N/A',
       },
       {
-        label: 'ATH',
+        label: t('stats.ath'),
         value: token.ath ? formatPrice(token.ath) : 'N/A',
       },
       {
-        label: 'ATL',
+        label: t('stats.atl'),
         value: token.atl ? formatPrice(token.atl) : 'N/A',
       },
       {
-        label: 'Market Cap Rank',
+        label: t('stats.marketCapRank'),
         value: token.market_cap_rank ? `#${token.market_cap_rank}` : 'N/A',
       },
     ];
@@ -149,20 +153,31 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
         )}
       </Animated.View>
 
-      {/* Stats Section - minimal plain text */}
+      {/* Stats Section - minimal plain text with loading indicator */}
       <Animated.View
         style={styles.statsSection}
         entering={FadeInDown.duration(400).delay(300).springify()}
         layout={Layout.springify()}
       >
-        <View style={styles.statsGrid}>
-          {defaultStats.map((stat, index) => (
-            <View key={`${stat.label}-${index}`} style={styles.statItem}>
-              <Text style={styles.statLabel}>{stat.label}</Text>
-              <Text style={styles.statValue}>{stat.value}</Text>
-            </View>
-          ))}
-        </View>
+        {isLoadingHistory ? (
+          <View style={styles.statsLoadingContainer}>
+            <ActivityIndicator size="small" color="#999" />
+            <Text style={styles.statsLoadingText}>Загрузка статистики...</Text>
+          </View>
+        ) : (
+          <View style={styles.statsGrid}>
+            {defaultStats.map((stat, index) => (
+              <Animated.View
+                key={`${stat.label}-${index}`}
+                style={styles.statItem}
+                entering={FadeInDown.duration(300).delay(150 + index * 50).springify()}
+              >
+                <Text style={styles.statLabel}>{stat.label}</Text>
+                <Text style={styles.statValue}>{stat.value}</Text>
+              </Animated.View>
+            ))}
+          </View>
+        )}
       </Animated.View>
 
       {/* Description Section with animation */}
@@ -208,14 +223,14 @@ ExpandedTokenInfo.displayName = 'ExpandedTokenInfo';
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
   },
   chartSection: {
-    marginBottom: 28,
+    marginBottom: 16,
   },
   chartWrapper: {
-    marginTop: 12,
-    borderRadius: 12,
+    marginTop: 8,
+    borderRadius: 8,
     overflow: 'hidden',
   },
   chartLoading: {
@@ -223,13 +238,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FAFAFA',
-    borderRadius: 12,
-    marginTop: 12,
+    borderRadius: 8,
+    marginTop: 8,
   },
   loadingText: {
-    color: '#757575',
-    fontSize: 13,
-    marginTop: 12,
+    color: '#999',
+    fontSize: 12,
+    marginTop: 8,
     fontWeight: '500',
   },
   noDataContainer: {
@@ -237,60 +252,73 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FAFAFA',
-    borderRadius: 12,
-    marginTop: 12,
+    borderRadius: 8,
+    marginTop: 8,
   },
   noDataText: {
-    color: '#757575',
-    fontSize: 14,
+    color: '#999',
+    fontSize: 13,
     fontWeight: '500',
   },
   statsSection: {
-    marginBottom: 28,
+    marginBottom: 16,
+    marginTop: 12,
   },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-    marginTop: 12,
+    gap: 8,
+    marginTop: 8,
   },
   statItem: {
     flex: 1,
     minWidth: '45%',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#757575',
-    marginBottom: 4,
+    fontSize: 11,
+    color: '#999',
+    marginBottom: 2,
     fontWeight: '500',
   },
   statValue: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: '#212121',
   },
+  statsLoadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    gap: 8,
+  },
+  statsLoadingText: {
+    fontSize: 12,
+    color: '#999',
+    fontWeight: '500',
+  },
   descriptionSection: {
-    marginBottom: 24,
-    paddingHorizontal: 12,
-    paddingVertical: 14,
+    marginBottom: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
     backgroundColor: '#F5F7FA',
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#00C853',
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#999',
   },
   sectionTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#212121',
-    letterSpacing: 0.3,
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#424242',
+    letterSpacing: 0.2,
   },
   descriptionText: {
-    fontSize: 13,
-    color: '#424242',
-    marginTop: 10,
-    lineHeight: 20,
+    fontSize: 12,
+    color: '#555',
+    marginTop: 8,
+    lineHeight: 18,
     fontWeight: '400',
   },
 });

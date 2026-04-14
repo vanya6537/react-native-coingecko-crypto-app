@@ -42,6 +42,43 @@ export const formatMarketCap = (cap: number | null | undefined): string => {
   return `$${cap.toFixed(0)}`;
 };
 
+// Format large numbers with abbreviations (for stats display)
+// Supports multiple currencies: $ (USD), ₽ (RUB), € (EUR), etc.
+// Russian abbreviations: млрд (B), млн (M), тыс (K)
+// English abbreviations: B (B), M (M), K (K)
+export const formatCompactNumber = (num: number | null | undefined, currency: string = '$'): string => {
+  if (!isValidNumber(num)) {
+    return 'N/A';
+  }
+
+  // Determine if using Russian format
+  const isRussian = currency === '₽';
+  const billionLabel = isRussian ? 'млрд' : 'B';
+  const millionLabel = isRussian ? 'млн' : 'M';
+  const thousandLabel = isRussian ? 'тыс' : 'K';
+
+  // For very large numbers
+  if (Math.abs(num) >= 1e9) {
+    const val = (num / 1e9).toFixed(1).replace(/\.0$/, '');
+    return `${val}${billionLabel}`;
+  }
+  if (Math.abs(num) >= 1e6) {
+    const val = (num / 1e6).toFixed(1).replace(/\.0$/, '');
+    return `${val}${millionLabel}`;
+  }
+  if (Math.abs(num) >= 1e3) {
+    const val = (num / 1e3).toFixed(1).replace(/\.0$/, '');
+    return `${val}${thousandLabel}`;
+  }
+
+  // For small numbers
+  if (num < 1 && num > 0) {
+    return `${currency}${num.toFixed(4)}`;
+  }
+
+  return `${currency}${num.toFixed(2)}`;
+};
+
 export const filterTokens = (
   tokens: Token[],
   search: string

@@ -70,6 +70,17 @@ export const ru = {
     loadingChart: 'Загрузка графика...',
   },
 
+  // Stats
+  stats: {
+    label: 'Статистика',
+    loading: 'Загрузка статистики...',
+    marketCap: 'Капитализация',
+    volume: 'Объем',
+    ath: 'Максимум',
+    atl: 'Минимум',
+    marketCapRank: 'Ранг капитализации',
+  },
+
   // Favorites
   favorites: {
     title: 'Избранные',
