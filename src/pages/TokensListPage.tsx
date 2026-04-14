@@ -1,6 +1,6 @@
 /**
  * Pages - Tokens List Page
- * Composes TokensList feature
+ * Composes TokensList feature with scroll animations
  */
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import {
@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { Activity } from 'lucide-react-native';
 import { useUnit } from 'effector-react';
+import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
 import type { Token } from '../shared/types';
 import { useExpandedToken } from '../shared/hooks';
 import {
@@ -135,12 +136,17 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
       <FlatList
         data={displayTokens}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <ExpandableTokenItem
-            token={item}
-            expandedState={expandedState}
-            priceHistoryDays={7}
-          />
+        renderItem={({ item, index }) => (
+          <Animated.View
+            entering={FadeInDown.duration(400).delay(index * 50)}
+            layout={Layout.springify()}
+          >
+            <ExpandableTokenItem
+              token={item}
+              expandedState={expandedState}
+              priceHistoryDays={7}
+            />
+          </Animated.View>
         )}
         ListHeaderComponent={() => (
           <>
