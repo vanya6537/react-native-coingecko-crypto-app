@@ -142,9 +142,25 @@ export const tokenDetailAPI = {
     toDate: Date | string = new Date(),
     cacheTTL?: number
   ): Promise<PriceHistory[]> {
-    // Преобразовать в ISO строки если это Date объекты
-    const fromISO = typeof fromDate === 'string' ? fromDate : fromDate.toISOString().split('T')[0];
-    const toISO = typeof toDate === 'string' ? toDate : toDate.toISOString().split('T')[0];
+    // Преобразовать в Unix timestamps (секунды) для CoinGecko API
+    let fromTimestamp: number;
+    let toTimestamp: number;
+
+    if (typeof fromDate === 'string') {
+      fromTimestamp = Math.floor(new Date(fromDate).getTime() / 1000);
+    } else {
+      fromTimestamp = Math.floor(fromDate.getTime() / 1000);
+    }
+
+    if (typeof toDate === 'string') {
+      toTimestamp = Math.floor(new Date(toDate).getTime() / 1000);
+    } else {
+      toTimestamp = Math.floor(toDate.getTime() / 1000);
+    }
+
+    // Для кэша используем ISO даты для человекочитаемости
+    const fromISO = new Date(fromTimestamp * 1000).toISOString().split('T')[0];
+    const toISO = new Date(toTimestamp * 1000).toISOString().split('T')[0];
     
     const cacheKey = `price_history_range_${tokenId}_${fromISO}_${toISO}`;
     const cached = cache.get<PriceHistory[]>(cacheKey);
@@ -157,7 +173,7 @@ export const tokenDetailAPI = {
     // Если TTL не указан, выбрать оптимальный по CoinGecko рекомендациям
     let ttl = cacheTTL;
     if (!ttl) {
-      const days = Math.ceil((new Date(toISO).getTime() - new Date(fromISO).getTime()) / (1000 * 60 * 60 * 24));
+      const days = Math.ceil((toTimestamp - fromTimestamp) / (60 * 60 * 24));
       if (days === 1) {
         ttl = HISTORY_CACHE_TTL_1D;
       } else if (days <= 90) {
@@ -175,8 +191,8 @@ export const tokenDetailAPI = {
       }>(`/coins/${tokenId}/market_chart/range`, {
         params: {
           vs_currency: 'usd',
-          from: fromISO,
-          to: toISO,
+          from: fromTimestamp,
+          to: toTimestamp,
         },
       });
       return response.data.prices;
