@@ -19,7 +19,7 @@ jest.mock('@react-native-community/netinfo', () => ({
 }));
 
 // Mock Notifee
-jest.mock('react-native-notifee', () => ({
+jest.mock('@notifee/react-native', () => ({
   requestPermission: jest.fn(),
   createChannel: jest.fn(),
   displayNotification: jest.fn(),

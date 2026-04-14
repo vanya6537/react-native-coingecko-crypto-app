@@ -1,8 +1,8 @@
 /**
- * Notifications Feature - API (using react-native-notifee)
+ * Notifications Feature - API (using @notifee/react-native)
  */
 
-import notifee from 'react-native-notifee';
+import notifee from '@notifee/react-native';
 import type { NotificationPayload, PriceAlert } from '../types';
 
 export const notificationsAPI = {
