@@ -78,7 +78,15 @@ export const en = {
     volume: 'Volume',
     ath: 'All-Time High',
     atl: 'All-Time Low',
-    marketCapRank: 'Market Cap Rank',
+  },
+
+  // Loader
+  loader: {
+    chartData: 'Loading chart data...',
+    statistics: 'Loading statistics...',
+    description: 'Loading description...',
+    nextPage: 'Loading next...',
+    expandedContent: 'Loading...',
   },
 
   // Favorites

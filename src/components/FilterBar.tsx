@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   View,
   TextInput,
@@ -20,6 +20,8 @@ interface FilterBarProps {
 
 type SortOption = 'price' | 'change24h' | 'market_cap';
 
+const DEBOUNCE_DELAY = 300; // 300ms debounce
+
 export const FilterBar: React.FC<FilterBarProps> = ({ 
   filters, 
   onFilterChange,
@@ -28,6 +30,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 }) => {
   const { t } = useTranslation();
   const [sortPickerVisible, setSortPickerVisible] = useState(false);
+  const [localSearchText, setLocalSearchText] = useState(filters.search);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const SORT_OPTIONS: { label: string; value: SortOption }[] = [
     { label: t('tokensList.price'), value: 'price' },
@@ -35,9 +39,34 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     { label: t('tokensList.marketCap'), value: 'market_cap' },
   ];
 
+  // Debounced search handler
   const handleSearchChange = useCallback((text: string) => {
-    onFilterChange({ search: text });
+    setLocalSearchText(text);
+
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Set new debounced timer
+    debounceTimerRef.current = setTimeout(() => {
+      onFilterChange({ search: text });
+    }, DEBOUNCE_DELAY);
   }, [onFilterChange]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Sync local search text when filters.search changes externally
+  useEffect(() => {
+    setLocalSearchText(filters.search);
+  }, [filters.search]);
 
   const handleSortChange = useCallback((sortBy: SortOption) => {
     setSortPickerVisible(false);
@@ -64,7 +93,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           style={styles.searchInput}
           placeholder={t('tokensList.search')}
           placeholderTextColor="#999"
-          value={filters.search}
+          value={localSearchText}
           onChangeText={handleSearchChange}
         />
       </View>

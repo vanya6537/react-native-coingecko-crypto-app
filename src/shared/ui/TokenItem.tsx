@@ -10,6 +10,7 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Animated, {
   FadeIn,
   FadeOut,
@@ -26,6 +27,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import type { Token } from '../types';
 import { formatPrice, formatChange } from '../utils/formatters';
+import { LoaderComponent } from './Loader';
 
 interface TokenItemProps {
   token: Token;
@@ -44,6 +46,7 @@ const TokenItemComponent: React.FC<TokenItemProps> = ({
   expandedContent,
   isLoadingExpanded = false,
 }) => {
+  const { t } = useTranslation();
   // Animation values
   const expandProgress = useSharedValue(isExpanded ? 1 : 0);
   const containerScale = useSharedValue(1);
@@ -116,7 +119,7 @@ const TokenItemComponent: React.FC<TokenItemProps> = ({
         >
           {isLoadingExpanded ? (
             <View style={styles.expandedContentContainer}>
-              <Text style={styles.loadingText}>Загрузка...</Text>
+              <LoaderComponent size={60} text={t('loader.expandedContent')} />
             </View>
           ) : expandedContent ? (
             <View style={styles.expandedContentContainer}>

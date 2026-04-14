@@ -9,7 +9,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -21,6 +20,7 @@ import type { Token, PriceHistory } from '../types';
 import { formatPrice, formatCompactNumber } from '../utils/formatters';
 import { PriceChart } from './PriceChart';
 import { TimeRangeSelector, type TimeRange } from '../../components/TimeRangeSelector';
+import { LoaderComponent } from './Loader';
 
 interface StatItem {
   label: string;
@@ -127,13 +127,7 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
             style={styles.chartLoading}
             entering={FadeInDown.duration(300)}
           >
-            <ActivityIndicator size="large" color="#1976D2" />
-            <Animated.Text
-              style={styles.loadingText}
-              entering={FadeInDown.duration(400).delay(100)}
-            >
-              Загрузка данных...
-            </Animated.Text>
+            <LoaderComponent size={140} text={t('loader.chartData')} />
           </Animated.View>
         ) : priceHistory && priceHistory.length > 0 ? (
           <Animated.View
@@ -161,8 +155,7 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
       >
         {isLoadingHistory ? (
           <View style={styles.statsLoadingContainer}>
-            <ActivityIndicator size="small" color="#999" />
-            <Text style={styles.statsLoadingText}>Загрузка статистики...</Text>
+            <LoaderComponent size={60} text={t('loader.statistics')} />
           </View>
         ) : (
           <View style={styles.statsGrid}>
@@ -193,12 +186,18 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
           >
             О токене
           </Animated.Text>
-          <Animated.Text
-            style={styles.descriptionText}
-            entering={FadeInDown.duration(600).delay(500)}
-          >
-            {token.description}
-          </Animated.Text>
+          {isLoadingHistory ? (
+            <View style={styles.descriptionLoadingContainer}>
+              <LoaderComponent size={50} text={t('loader.description')} />
+            </View>
+          ) : (
+            <Animated.Text
+              style={styles.descriptionText}
+              entering={FadeInDown.duration(600).delay(500)}
+            >
+              {token.description}
+            </Animated.Text>
+          )}
         </Animated.View>
       )}
     </Animated.ScrollView>
@@ -313,6 +312,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#424242',
     letterSpacing: 0.2,
+    paddingTop: 12,
   },
   descriptionText: {
     fontSize: 12,
@@ -320,5 +320,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     lineHeight: 18,
     fontWeight: '400',
+  },
+  descriptionLoadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    minHeight: 60,
   },
 });

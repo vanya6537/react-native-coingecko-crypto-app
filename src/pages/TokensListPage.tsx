@@ -9,7 +9,6 @@ import {
   StyleSheet,
   Text,
   SafeAreaView,
-  ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
 import { Activity } from 'lucide-react-native';
@@ -35,6 +34,7 @@ import { FilterBar } from '../components';
 import { ErrorState, EmptyState } from '../components/StateComponents';
 import { TokenListLoadingSkeleton } from '../components/SkeletonLoader';
 import { LanguageToggler } from '../shared/ui/LanguageToggler';
+import { LoaderComponent } from '../shared/ui/Loader';
 import { filterTokens, sortTokens } from '../shared/utils/formatters';
 
 interface TokensListPageProps {
@@ -160,7 +160,6 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
             <ExpandableTokenItem
               token={item}
               expandedState={expandedState}
-              priceHistoryDays={7}
             />
           </Animated.View>
         )}
@@ -168,12 +167,15 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
           <>
             <View style={styles.headerTop}>
               <Text style={styles.headerTitle}>Tokens</Text>
-              <TouchableOpacity 
-                onPress={() => navigation.navigate('NotificationsDemo')}
-                style={styles.notificationButton}
-              >
-                <Activity size={24} color="#3b82f6" />
-              </TouchableOpacity>
+              <View style={styles.headerActions}>
+                <TouchableOpacity 
+                  onPress={() => navigation.navigate('NotificationsDemo')}
+                  style={styles.notificationButton}
+                >
+                  <Activity size={24} color="#3b82f6" />
+                </TouchableOpacity>
+                <LanguageToggler compact={true} />
+              </View>
             </View>
             <FilterBar 
               filters={filters} 
@@ -190,7 +192,7 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
         ListFooterComponent={() =>
           isFetchingNextPage && hasMore && !isSorted ? (
             <View style={styles.footerLoader}>
-              <ActivityIndicator size="large" color="#1976D2" />
+              <LoaderComponent size={80} text="Loading next..." />
             </View>
           ) : null
         }
@@ -223,6 +225,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: '#1e293b',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   notificationButton: {
     padding: 8,

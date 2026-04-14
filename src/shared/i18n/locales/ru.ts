@@ -81,6 +81,15 @@ export const ru = {
     marketCapRank: 'Ранг капитализации',
   },
 
+  // Loader
+  loader: {
+    chartData: 'Загрузка данных...',
+    statistics: 'Загрузка статистики...',
+    description: 'Загрузка описания...',
+    nextPage: 'Загрузка еще...',
+    expandedContent: 'Загрузка...',
+  },
+
   // Favorites
   favorites: {
     title: 'Избранные',
