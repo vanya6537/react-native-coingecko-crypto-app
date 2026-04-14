@@ -1,5 +1,5 @@
 /**
- * Shared UI - PriceChart component wrapper
- * Temporarily re-exports from old location
+ * Shared UI - PriceChart
+ * Export the advanced chart with animations
  */
-export { PriceChart } from '../../components/PriceChart';
+export { PriceChart } from './PriceChartAdvanced';
