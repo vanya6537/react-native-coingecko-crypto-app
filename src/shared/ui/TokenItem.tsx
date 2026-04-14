@@ -60,60 +60,10 @@ const TokenItemComponent: React.FC<TokenItemProps> = ({
   const handleHeaderPress = useCallback(() => {
     if (onToggleExpand) {
       onToggleExpand(token.id);
-    } else {
-      onPress[styles.wrapper, containerAnimatedStyle]}
-      layout={Layout.springify()}
-      entering={FadeInDown.duration(300).delay(50)}
-    >
-      <TouchableOpacity
-        style={[styles.container, isExpanded && styles.containerExpanded]}
-        onPress={handleHeaderPress}
-        activeOpacity={0.6}
-      >
-        <Image source={{ uri: token.image }} style={styles.icon} />
-        <View style={styles.info}>
-          <Text style={styles.name}>{token.name}</Text>
-          <Text style={styles.symbol}>{token.symbol.toUpperCase()}</Text>
-        </View>
-        <View style={styles.priceSection}>
-          <Text style={styles.price}>{formatPrice(token.current_price)}</Text>
-          <Text style={[styles.change, { color: changeColor }]}>
-            {formatChange(token.price_change_percentage_24h)}
-          </Text>
-        </View>
-        <Animated.View style={[styles.expandIcon, arrowAnimatedStyle]}>
-          <Text style={styles.expandIconText}>▼</Text>
-        </Animated.View>
-      </TouchableOpacity>
-
-      {isExpanded && (
-        <Animated.View
-          entering={FadeInDown.duration(400).delay(100).springify()}
-          exiting={FadeOut.duration(200)}
-          layout={Layout.springify()}
-          style={expandedContentAnimatedStyle}
-        >
-          {isLoadingExpanded ? (
-            <View style={styles.expandedContentContainer}>
-              <Animated.Text
-                style={styles.loadingText}
-                entering={FadeIn.duration(400).delay(150)}
-              >
-                ⏳ Загрузка...
-              </Animated.
-    shadowOpacity: interpolate(
-      expandProgress.value,
-      [0, 1],
-      [0.1, 0.3],
-      Extrapolate.CLAMP
-    ),
-    elevation: interpolate(
-      expandProgress.value,
-      [0, 1],
-      [2, 8],
-      Extrapolate.CLAMP
-    ),
-  }));
+    } else if (onPress) {
+      onPress(token);
+    }
+  }, [onToggleExpand, onPress, token]);
 
   const arrowAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
