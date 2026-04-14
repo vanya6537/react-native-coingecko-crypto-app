@@ -55,6 +55,7 @@ const getColorForStat = (label: string): string => {
 
 const getChartTitleByTimeRange = (timeRange: TimeRange): string => {
   const titleMap: Record<TimeRange, string> = {
+    '1d': 'Цена за последний день',
     '7d': 'Цена за последние 7 дней',
     '30d': 'Цена за последние 30 дней',
     '90d': 'Цена за последние 90 дней',
@@ -152,7 +153,7 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
             entering={FadeInDown.duration(700).delay(200).springify()}
             layout={Layout.springify()}
           >
-            <PriceChart data={priceHistory} height={320} />
+            <PriceChart data={priceHistory} height={450} />
           </Animated.View>
         ) : (
           <Animated.View

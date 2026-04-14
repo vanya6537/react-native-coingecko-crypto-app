@@ -57,9 +57,10 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   data,
   height = 280,
 }) => {
-  const width = Dimensions.get('window').width - 32;
-  const svgHeight = height - 80;
-  const chartPadding = { top: 40, right: 20, bottom: 40, left: 20 };
+  const screenWidth = Dimensions.get('window').width;
+  const width = screenWidth - 16; // Minimal padding for small screens
+  const svgHeight = height - 120;
+  const chartPadding = { top: 20, right: 12, bottom: 30, left: 12 }; // Reduced padding
   const plotWidth = width - chartPadding.left - chartPadding.right;
   const plotHeight = svgHeight - chartPadding.top - chartPadding.bottom;
 
@@ -221,7 +222,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     };
 
     return (
-      <Svg width={width} height={svgHeight} style={styles.svg} viewBox={`0 0 ${width} ${svgHeight}`}>
+      <Svg width={width} height={svgHeight} style={styles.svg} viewBox={`0 0 ${width+80} ${svgHeight+90}`}>
         <Defs>
           <LinearGradient id="priceGradientUp" x1="0%" y1="0%" x2="0%" y2="100%">
             <Stop offset="0%" stopColor="#4CAF50" stopOpacity="0.4" />
@@ -471,21 +472,29 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F0F0F0',
   },
   priceDisplay: {
-    fontSize: 28,
+    marginLeft: 24,
+    fontSize: 22,
     fontWeight: '700',
     marginBottom: 4,
   },
   dateDisplay: {
+    marginLeft: 24,
     fontSize: 12,
     color: '#757575',
     fontWeight: '500',
   },
   tooltipBadge: {
     backgroundColor: '#1976D2',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    marginRight: 36,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 8,
+    fontSize: 18,
     alignItems: 'center',
+    // flex
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignContent: 'center',
   },
   tooltipLabel: {
     color: '#FFF',

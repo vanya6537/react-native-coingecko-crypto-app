@@ -52,9 +52,10 @@ export const ExpandedPriceChart: React.FC<ExpandedPriceChartProps> = ({
   showTimeRangeSelector = false,
 }) => {
   const { t } = useTranslation();
-  const width = Dimensions.get('window').width - 20;
-  const chartHeight = 500;
-  const chartPadding = { top: 28, right: 16, bottom: 80, left: 56 };
+  const screenWidth = Dimensions.get('window').width;
+  const width = screenWidth - 12; // Minimal padding
+  const chartHeight = Math.min(450, screenWidth); // Responsive height for small screens
+  const chartPadding = { top: 20, right: 12, bottom: 60, left: 40 }; // Reduced left padding for better fit
   const plotWidth = width - chartPadding.left - chartPadding.right;
   const plotHeight = chartHeight - chartPadding.top - chartPadding.bottom;
   
