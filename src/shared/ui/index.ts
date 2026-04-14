@@ -9,6 +9,7 @@ export * from './PriceChart';
 export * from './SkeletonLoader';
 export * from './TokenDetailSections';
 export * from './ExpandedPriceChart';
+export { ExpandedTokenInfo } from './ExpandedTokenInfo';
 export { LivePriceFeed } from './LivePriceFeed';
 export { LiveDemoScreen } from './LiveDemoScreen';
 export { LanguageToggler } from './LanguageToggler';
