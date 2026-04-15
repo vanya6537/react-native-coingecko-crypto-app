@@ -23,6 +23,7 @@ import Animated, {
   FadeIn,
   FadeOut,
   FadeInDown,
+  SlideInUp,
   ZoomIn,
   Layout,
   useSharedValue,
@@ -415,7 +416,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   return (
     <Animated.View
       style={[styles.container, { height }]}
-      entering={FadeInDown.duration(500).delay(100)}
+      entering={FadeIn.duration(300).springify()}
       layout={Layout.springify()}
     >
       <View style={styles.header}>

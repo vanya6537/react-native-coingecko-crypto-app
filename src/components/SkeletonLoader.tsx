@@ -1,5 +1,14 @@
 import React from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
+import ReAnimated, {
+  FadeInDown,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+  useAnimatedStyle,
+  interpolate,
+  Extrapolate,
+} from 'react-native-reanimated';
 
 interface SkeletonProps {
   width?: string | number;
@@ -12,31 +21,23 @@ export const SkeletonLoader: React.FC<SkeletonProps> = ({
   height = 16,
   borderRadius = 4,
 }) => {
-  const fadeInOut = new Animated.Value(0.3);
+  const shimmerValue = useSharedValue(0);
 
   React.useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(fadeInOut, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeInOut, {
-          toValue: 0.3,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-      ])
+    shimmerValue.value = withRepeat(
+      withTiming(1, { duration: 1600 }),
+      -1,
+      true
     );
+  }, [shimmerValue]);
 
-    animation.start();
-
-    return () => animation.stop();
-  }, [fadeInOut]);
+  const shimmerStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(shimmerValue.value, [0, 0.5, 1], [0.3, 1, 0.3], Extrapolate.CLAMP),
+  }));
 
   return (
-    <View
+    <ReAnimated.View
+      entering={FadeInDown.duration(400)}
       style={[
         styles.skeleton,
         {
@@ -44,15 +45,9 @@ export const SkeletonLoader: React.FC<SkeletonProps> = ({
           height,
           borderRadius,
         } as any,
+        shimmerStyle,
       ]}
-    >
-      <Animated.View
-        style={{
-          opacity: fadeInOut,
-          flex: 1,
-        }}
-      />
-    </View>
+    />
   );
 };
 
@@ -73,12 +68,15 @@ export const TokenItemSkeleton: React.FC = () => (
 export const TokenListLoadingSkeleton: React.FC = () => (
   <View style={styles.container}>
     {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-      <View key={i}>
+      <ReAnimated.View
+        key={i}
+        entering={FadeInDown.duration(400).delay(i * 50)}
+      >
         <View style={styles.itemWrapper}>
           <TokenItemSkeleton />
         </View>
         {i < 8 && <View style={styles.divider} />}
-      </View>
+      </ReAnimated.View>
     ))}
   </View>
 );
@@ -86,51 +84,61 @@ export const TokenListLoadingSkeleton: React.FC = () => (
 export const TokenDetailLoadingSkeleton: React.FC = () => (
   <View style={styles.detailContainer}>
     {/* Header */}
-    <View style={styles.detailHeader}>
-      <SkeletonLoader width={64} height={64} borderRadius={32} />
-      <View style={styles.detailHeaderText}>
-        <SkeletonLoader width="62%" height={26} borderRadius={8} />
-        <SkeletonLoader width="32%" height={14} borderRadius={6} />
+    <ReAnimated.View entering={FadeInDown.duration(300).delay(0)}>
+      <View style={styles.detailHeader}>
+        <SkeletonLoader width={64} height={64} borderRadius={32} />
+        <View style={styles.detailHeaderText}>
+          <SkeletonLoader width="62%" height={26} borderRadius={8} />
+          <SkeletonLoader width="32%" height={14} borderRadius={6} />
+        </View>
       </View>
-    </View>
+    </ReAnimated.View>
     <View style={styles.sectionDivider} />
 
     {/* Price Summary */}
-    <View style={styles.priceSection}>
-      <SkeletonLoader width="48%" height={36} borderRadius={10} />
-      <SkeletonLoader width="30%" height={20} borderRadius={8} />
-    </View>
+    <ReAnimated.View entering={FadeInDown.duration(300).delay(50)}>
+      <View style={styles.priceSection}>
+        <SkeletonLoader width="48%" height={36} borderRadius={10} />
+        <SkeletonLoader width="30%" height={20} borderRadius={8} />
+      </View>
+    </ReAnimated.View>
     <View style={styles.sectionDivider} />
 
     {/* Stats Grid */}
-    <View style={styles.statsGrid}>
-      {[1, 2, 3, 4, 5, 6].map((item) => (
-        <View key={item} style={styles.statCard}>
-          <SkeletonLoader width="54%" height={12} borderRadius={6} />
-          <SkeletonLoader width="78%" height={20} borderRadius={8} />
-        </View>
-      ))}
-    </View>
+    <ReAnimated.View entering={FadeInDown.duration(300).delay(100)}>
+      <View style={styles.statsGrid}>
+        {[1, 2, 3, 4, 5, 6].map((item) => (
+          <View key={item} style={styles.statCard}>
+            <SkeletonLoader width="54%" height={12} borderRadius={6} />
+            <SkeletonLoader width="78%" height={20} borderRadius={8} />
+          </View>
+        ))}
+      </View>
+    </ReAnimated.View>
     <View style={styles.sectionDivider} />
 
     {/* Chart Card */}
-    <View style={styles.chartCard}>
-      <View style={styles.chartHeader}>
-        <SkeletonLoader width="46%" height={18} borderRadius={8} />
-        <SkeletonLoader width={80} height={28} borderRadius={6} />
+    <ReAnimated.View entering={FadeInDown.duration(300).delay(150)}>
+      <View style={styles.chartCard}>
+        <View style={styles.chartHeader}>
+          <SkeletonLoader width="46%" height={18} borderRadius={8} />
+          <SkeletonLoader width={80} height={28} borderRadius={6} />
+        </View>
+        <ChartLoadingSkeleton height={240} compact={true} />
       </View>
-      <ChartLoadingSkeleton height={240} compact={true} />
-    </View>
+    </ReAnimated.View>
     <View style={styles.sectionDivider} />
 
     {/* Description Card */}
-    <View style={styles.descriptionCard}>
-      <SkeletonLoader width="24%" height={18} borderRadius={8} />
-      <SkeletonLoader width="100%" height={14} borderRadius={6} />
-      <SkeletonLoader width="96%" height={14} borderRadius={6} />
-      <SkeletonLoader width="88%" height={14} borderRadius={6} />
-      <SkeletonLoader width="72%" height={14} borderRadius={6} />
-    </View>
+    <ReAnimated.View entering={FadeInDown.duration(300).delay(200)}>
+      <View style={styles.descriptionCard}>
+        <SkeletonLoader width="24%" height={18} borderRadius={8} />
+        <SkeletonLoader width="100%" height={14} borderRadius={6} />
+        <SkeletonLoader width="96%" height={14} borderRadius={6} />
+        <SkeletonLoader width="88%" height={14} borderRadius={6} />
+        <SkeletonLoader width="72%" height={14} borderRadius={6} />
+      </View>
+    </ReAnimated.View>
   </View>
 );
 
@@ -143,51 +151,55 @@ export const ChartLoadingSkeleton: React.FC<ChartLoadingSkeletonProps> = ({
   height = 220,
   compact = false,
 }) => (
-  <View style={[styles.chartSkeletonCard, compact && styles.chartSkeletonCardCompact]}>
-    <View style={styles.chartSkeletonTopRow}>
-      <View style={styles.chartSkeletonPriceBlock}>
-        <SkeletonLoader width={compact ? '54%' : '50%'} height={compact ? 26 : 32} borderRadius={10} />
-        <SkeletonLoader width={compact ? '38%' : '32%'} height={12} borderRadius={6} />
+  <ReAnimated.View entering={FadeInDown.duration(400)}>
+    <View style={[styles.chartSkeletonCard, compact && styles.chartSkeletonCardCompact]}>
+      <View style={styles.chartSkeletonTopRow}>
+        <View style={styles.chartSkeletonPriceBlock}>
+          <SkeletonLoader width={compact ? '54%' : '50%'} height={compact ? 26 : 32} borderRadius={10} />
+          <SkeletonLoader width={compact ? '38%' : '32%'} height={12} borderRadius={6} />
+        </View>
+        <SkeletonLoader width={compact ? 80 : 100} height={compact ? 26 : 32} borderRadius={14} />
       </View>
-      <SkeletonLoader width={compact ? 80 : 100} height={compact ? 26 : 32} borderRadius={14} />
+      <View style={[styles.chartSkeletonCanvas, { height }]}>
+        <SkeletonLoader width="100%" height={height} borderRadius={12} />
+      </View>
+      <View style={styles.chartSkeletonLegend}>
+        <SkeletonLoader width="32%" height={12} borderRadius={6} />
+        <SkeletonLoader width="32%" height={12} borderRadius={6} />
+        <SkeletonLoader width="28%" height={12} borderRadius={6} />
+      </View>
     </View>
-    <View style={[styles.chartSkeletonCanvas, { height }]}>
-      <SkeletonLoader width="100%" height={height} borderRadius={12} />
-    </View>
-    <View style={styles.chartSkeletonLegend}>
-      <SkeletonLoader width="32%" height={12} borderRadius={6} />
-      <SkeletonLoader width="32%" height={12} borderRadius={6} />
-      <SkeletonLoader width="28%" height={12} borderRadius={6} />
-    </View>
-  </View>
+  </ReAnimated.View>
 );
 
 export const FullscreenChartLoadingSkeleton: React.FC = () => (
-  <View style={styles.fullscreenChartContainer}>
-    <View style={styles.fullscreenHeaderSkeleton}>
-      <SkeletonLoader width="36%" height={18} borderRadius={8} />
-      <SkeletonLoader width="48%" height={36} borderRadius={10} />
-      <SkeletonLoader width="28%" height={18} borderRadius={8} />
-    </View>
+  <ReAnimated.View entering={FadeInDown.duration(400)}>
+    <View style={styles.fullscreenChartContainer}>
+      <View style={styles.fullscreenHeaderSkeleton}>
+        <SkeletonLoader width="36%" height={18} borderRadius={8} />
+        <SkeletonLoader width="48%" height={36} borderRadius={10} />
+        <SkeletonLoader width="28%" height={18} borderRadius={8} />
+      </View>
 
-    <ChartLoadingSkeleton height={320} />
+      <ChartLoadingSkeleton height={320} />
 
-    <View style={styles.fullscreenStatsPanel}>
-      {[1, 2, 3, 4, 5, 6].map((item) => (
-        <View key={item} style={styles.fullscreenStatItem}>
-          <SkeletonLoader width="72%" height={12} borderRadius={6} />
-          <SkeletonLoader width="58%" height={18} borderRadius={8} />
-        </View>
-      ))}
-    </View>
+      <View style={styles.fullscreenStatsPanel}>
+        {[1, 2, 3, 4, 5, 6].map((item) => (
+          <View key={item} style={styles.fullscreenStatItem}>
+            <SkeletonLoader width="72%" height={12} borderRadius={6} />
+            <SkeletonLoader width="58%" height={18} borderRadius={8} />
+          </View>
+        ))}
+      </View>
 
-    <View style={styles.fullscreenInstructions}>
-      <SkeletonLoader width="18%" height={16} borderRadius={7} />
-      <SkeletonLoader width="100%" height={12} borderRadius={6} />
-      <SkeletonLoader width="92%" height={12} borderRadius={6} />
-      <SkeletonLoader width="76%" height={12} borderRadius={6} />
+      <View style={styles.fullscreenInstructions}>
+        <SkeletonLoader width="18%" height={16} borderRadius={7} />
+        <SkeletonLoader width="100%" height={12} borderRadius={6} />
+        <SkeletonLoader width="92%" height={12} borderRadius={6} />
+        <SkeletonLoader width="76%" height={12} borderRadius={6} />
+      </View>
     </View>
-  </View>
+  </ReAnimated.View>
 );
 
 const styles = StyleSheet.create({

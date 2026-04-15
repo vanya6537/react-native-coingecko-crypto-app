@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 
 interface ErrorBoundaryProps {
   error: string;
@@ -15,7 +16,10 @@ export const ErrorState: React.FC<ErrorBoundaryProps> = ({
 }: ErrorBoundaryProps) => {
   const { t } = useTranslation();
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={styles.container}
+      entering={ZoomIn.duration(300).springify()}
+    >
       <Text style={styles.errorIcon}>⚠️</Text>
       <Text style={styles.errorTitle}>{t('errors.oops')}</Text>
       <Text style={styles.errorMessage}>{error}</Text>
@@ -24,7 +28,7 @@ export const ErrorState: React.FC<ErrorBoundaryProps> = ({
           <Text style={styles.retryText}>{t('common.tryAgain')}</Text>
         </TouchableOpacity>
       )}
-    </View>
+    </Animated.View>
   );
 };
 
@@ -33,11 +37,14 @@ export const EmptyState: React.FC<{ message?: string }> = ({
 }) => {
   const { t } = useTranslation();
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={styles.container}
+      entering={FadeIn.duration(300)}
+    >
       <Text style={styles.emptyIcon}>📭</Text>
       <Text style={styles.emptyText}>{message || t('tokensList.noTokens')}</Text>
       <Text style={styles.emptySubtext}>{t('tokensList.tryAdjusting')}</Text>
-    </View>
+    </Animated.View>
   );
 };
 

@@ -15,6 +15,15 @@ import {
   Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import Animated, {
+  FadeInDown,
+  SlideInUp,
+  FadeIn,
+  useSharedValue,
+  withSpring,
+  useAnimatedStyle,
+  Layout,
+} from 'react-native-reanimated';
 import { LanguageToggler } from '../../../shared/ui/LanguageToggler';
 
 interface LoginScreenProps {
@@ -27,6 +36,22 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const [password, setPassword] = useState('password123');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Animation state for login button
+  const loginButtonScale = useSharedValue(1);
+  const loginButtonAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: loginButtonScale.value }],
+  }));
+
+  const handleLoginPressIn = () => {
+    if (!loading) {
+      loginButtonScale.value = withSpring(0.95, { damping: 8 });
+    }
+  };
+
+  const handleLoginPressOut = () => {
+    loginButtonScale.value = withSpring(1, { damping: 8 });
+  };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -60,16 +85,30 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         <View style={styles.languageContainer}>
           <LanguageToggler compact={true} />
         </View>
-        <View style={styles.content}>
+        <Animated.View
+          style={styles.content}
+          entering={FadeInDown.duration(500).delay(100)}
+          layout={Layout.springify()}
+        >
           {/* Header */}
-          <View style={styles.header}>
+          <Animated.View
+            style={styles.header}
+            entering={FadeInDown.duration(400).delay(150)}
+          >
             <Text style={styles.title}>{t('home.logo')} {t('home.title')}</Text>
             <Text style={styles.subtitle}>{t('home.subtitle')}</Text>
-          </View>
+          </Animated.View>
 
           {/* Form */}
-          <View style={styles.form}>
-            <View style={styles.inputContainer}>
+          <Animated.View
+            style={styles.form}
+            entering={SlideInUp.duration(400).delay(250)}
+            layout={Layout.springify()}
+          >
+            <Animated.View
+              style={styles.inputContainer}
+              entering={FadeInDown.duration(400).delay(300)}
+            >
               <Text style={styles.label}>{t('auth.email')}</Text>
               <TextInput
                 style={styles.input}
@@ -81,9 +120,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                 onChangeText={setEmail}
                 editable={!loading}
               />
-            </View>
+            </Animated.View>
 
-            <View style={styles.inputContainer}>
+            <Animated.View
+              style={styles.inputContainer}
+              entering={FadeInDown.duration(400).delay(350)}
+            >
               <Text style={styles.label}>{t('auth.password')}</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
@@ -102,39 +144,56 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </Animated.View>
 
             {/* Login Button */}
-            <TouchableOpacity
-              style={[styles.loginButton, loading && styles.loginButtonDisabled]}
-              onPress={handleLogin}
-              disabled={loading}
-              activeOpacity={0.8}
+            <Animated.View
+              style={[
+                styles.loginButtonWrapper,
+                loginButtonAnimatedStyle,
+              ]}
+              entering={SlideInUp.duration(400).delay(400)}
             >
-              {loading ? (
-                <ActivityIndicator color="#FFF" />
-              ) : (
-                <Text style={styles.loginButtonText}>{t('auth.signIn')}</Text>
-              )}
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+                onPress={handleLogin}
+                onPressIn={handleLoginPressIn}
+                onPressOut={handleLoginPressOut}
+                disabled={loading}
+                activeOpacity={0.8}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#FFF" />
+                ) : (
+                  <Text style={styles.loginButtonText}>{t('auth.signIn')}</Text>
+                )}
+              </TouchableOpacity>
+            </Animated.View>
 
             {/* Demo Login */}
-            <TouchableOpacity
-              style={styles.demoButton}
-              onPress={handleDemoLogin}
-              disabled={loading}
-              activeOpacity={0.7}
+            <Animated.View
+              entering={SlideInUp.duration(400).delay(450)}
             >
-              <Text style={styles.demoButtonText}>{t('auth.tryDemo')}</Text>
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                style={styles.demoButton}
+                onPress={handleDemoLogin}
+                disabled={loading}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.demoButtonText}>{t('auth.tryDemo')}</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </Animated.View>
 
           {/* Footer */}
-          <View style={styles.footer}>
+          <Animated.View
+            style={styles.footer}
+            entering={FadeIn.duration(400).delay(500)}
+          >
             <Text style={styles.footerText}>{t('auth.demoCredentials')}</Text>
             <Text style={styles.footerText}>{t('auth.demoHint')}</Text>
-          </View>
-        </View>
+          </Animated.View>
+        </Animated.View>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -171,6 +230,9 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 16,
+  },
+  loginButtonWrapper: {
+    overflow: 'hidden',
   },
   inputContainer: {
     gap: 8,
