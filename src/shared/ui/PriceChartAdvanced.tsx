@@ -6,6 +6,7 @@ import {
   Dimensions,
   Text,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Svg, {
   Circle,
   G,
@@ -68,6 +69,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   height = 280,
   selectedTimeRange = '7d',
 }) => {
+  const { t } = useTranslation();
   const screenWidth = Dimensions.get('window').width;
   const width = screenWidth - 16;
 
@@ -431,7 +433,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
             style={[styles.tooltipBadge, tooltipAnimatedStyle]}
           >
             <Text style={styles.tooltipLabel}>
-              Day {selectedIndex + 1} / {data.length}
+              {t('timeRange.day')} {selectedIndex + 1} / {data.length}
             </Text>
             <Text style={[styles.tooltipChange, { color: priceChange >= 0 ? '#4CAF50' : '#F44336' }]}>
               {priceChange >= 0 ? '+' : ''}

@@ -15,7 +15,7 @@ export { ExpandedTokenInfo } from './ExpandedTokenInfo';
 export { LanguageToggler } from './LanguageToggler';
 
 // Animated components - Premium UI with WOW effects
-export { PriceChartAdvanced } from './PriceChartAdvanced';
+export { PriceChart } from './PriceChartAdvanced';
 export { PricePulseBadge } from './PricePulseBadge';
 export { AnimatedStatCard } from './AnimatedStatCard';
 export { AnimatedScreenHeader } from './AnimatedScreenHeader';

@@ -81,6 +81,27 @@ export const en = {
     atl: 'All-Time Low',
   },
 
+  // Time Ranges
+  timeRange: {
+    '7d': '7D',
+    '30d': '30D',
+    '90d': '90D',
+    '1y': '1Y',
+    'all': 'ALL',
+    chartTitle7d: 'Price for the last 7 days',
+    chartTitle30d: 'Price for the last 30 days',
+    chartTitle90d: 'Price for the last 90 days',
+    chartTitle1y: 'Price for the last year',
+    chartTitleAll: 'Complete price history',
+    day: 'Day',
+  },
+
+  // Extended Info
+  extendedInfo: {
+    aboutToken: 'About',
+    noPriceData: 'No price data',
+  },
+
   // Loader
   loader: {
     chartData: 'Loading chart data...',

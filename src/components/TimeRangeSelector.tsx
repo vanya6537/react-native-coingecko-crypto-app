@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, ScrollView } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Animated, { FadeIn, Layout } from 'react-native-reanimated';
 
 export type TimeRange = '7d' | '30d' | '90d' | '1y' | 'all';
@@ -9,18 +10,19 @@ interface TimeRangeSelectorProps {
   onRangeChange: (range: TimeRange) => void;
 }
 
-const TIME_RANGES: Array<{ label: string; value: TimeRange; days: number | null }> = [
-  { label: '7D', value: '7d', days: 7 },
-  { label: '30D', value: '30d', days: 30 },
-  { label: '90D', value: '90d', days: 90 },
-  { label: '1Y', value: '1y', days: 365 },
-  { label: 'ALL', value: 'all', days: null },
-];
-
 export const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
   selectedRange,
   onRangeChange,
 }) => {
+  const { t } = useTranslation();
+  
+  const TIME_RANGES: Array<{ label: string; value: TimeRange; days: number | null }> = [
+    { label: t('timeRange.7d'), value: '7d', days: 7 },
+    { label: t('timeRange.30d'), value: '30d', days: 30 },
+    { label: t('timeRange.90d'), value: '90d', days: 90 },
+    { label: t('timeRange.1y'), value: '1y', days: 365 },
+    { label: t('timeRange.all'), value: 'all', days: null },
+  ];
   return (
     <Animated.View
       entering={FadeIn.duration(300)}

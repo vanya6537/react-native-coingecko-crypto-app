@@ -81,6 +81,27 @@ export const ru = {
     marketCapRank: 'Ранг капитализации',
   },
 
+  // Time Ranges
+  timeRange: {
+    '7d': '7D',
+    '30d': '30D',
+    '90d': '90D',
+    '1y': '1Y',
+    'all': 'ALL',
+    chartTitle7d: 'Цена за последние 7 дней',
+    chartTitle30d: 'Цена за последние 30 дней',
+    chartTitle90d: 'Цена за последние 90 дней',
+    chartTitle1y: 'Цена за последний год',
+    chartTitleAll: 'Вся история цены',
+    day: 'День',
+  },
+
+  // Extended Info
+  extendedInfo: {
+    aboutToken: 'О токене',
+    noPriceData: 'Нет данных о цене',
+  },
+
   // Loader
   loader: {
     chartData: 'Загрузка данных...',

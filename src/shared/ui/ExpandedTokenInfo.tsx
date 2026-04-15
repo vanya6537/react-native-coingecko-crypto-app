@@ -40,15 +40,15 @@ interface ExpandedTokenInfoProps {
 
 
 
-const getChartTitleByTimeRange = (timeRange: TimeRange): string => {
+const getChartTitleByTimeRange = (timeRange: TimeRange, t: any): string => {
   const titleMap: Record<TimeRange, string> = {
-    '7d': 'Цена за последние 7 дней',
-    '30d': 'Цена за последние 30 дней',
-    '90d': 'Цена за последние 90 дней',
-    '1y': 'Цена за последний год',
-    'all': 'Вся история цены',
+    '7d': t('timeRange.chartTitle7d'),
+    '30d': t('timeRange.chartTitle30d'),
+    '90d': t('timeRange.chartTitle90d'),
+    '1y': t('timeRange.chartTitle1y'),
+    'all': t('timeRange.chartTitleAll'),
   };
-  return titleMap[timeRange] || 'Цена за последние 7 дней';
+  return titleMap[timeRange] || t('timeRange.chartTitle7d');
 };
 
 const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
@@ -88,7 +88,7 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
       },
     ];
 
-  const chartTitle = getChartTitleByTimeRange(selectedTimeRange);
+  const chartTitle = getChartTitleByTimeRange(selectedTimeRange, t);
 
   return (
     <Animated.ScrollView
@@ -143,7 +143,7 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
             style={styles.noDataContainer}
             entering={FadeInDown.duration(500).delay(150)}
           >
-            <Text style={styles.noDataText}>Нет данных о цене</Text>
+            <Text style={styles.noDataText}>{t('extendedInfo.noPriceData')}</Text>
           </Animated.View>
         )}
       </Animated.View>
@@ -192,7 +192,7 @@ const ExpandedTokenInfoComponent: React.FC<ExpandedTokenInfoProps> = ({
             style={styles.sectionTitle}
             entering={FadeInDown.duration(500).delay(450)}
           >
-            О токене
+            {t('extendedInfo.aboutToken')}
           </Animated.Text>
           {isLoadingHistory ? (
             <View style={styles.descriptionLoadingContainer}>
