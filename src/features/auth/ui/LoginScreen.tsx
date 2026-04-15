@@ -18,11 +18,14 @@ import { useTranslation } from 'react-i18next';
 import Animated, {
   FadeInDown,
   SlideInUp,
+  SlideInDown,
   FadeIn,
   useSharedValue,
   withSpring,
   useAnimatedStyle,
   Layout,
+  FadeInLeft,
+  FadeInRight,
 } from 'react-native-reanimated';
 import { LanguageToggler } from '../../../shared/ui/LanguageToggler';
 
@@ -102,7 +105,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           {/* Form */}
           <Animated.View
             style={styles.form}
-            entering={SlideInUp.duration(400).delay(250)}
+            // entering={SlideInUp.duration(400).delay(250)}
             layout={Layout.springify()}
           >
             <Animated.View
@@ -124,7 +127,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
             <Animated.View
               style={styles.inputContainer}
-              entering={FadeInDown.duration(400).delay(350)}
+              entering={FadeInLeft.duration(400).delay(350)}
             >
               <Text style={styles.label}>{t('auth.password')}</Text>
               <View style={styles.passwordContainer}>
@@ -152,7 +155,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                 styles.loginButtonWrapper,
                 loginButtonAnimatedStyle,
               ]}
-              entering={SlideInUp.duration(400).delay(400)}
+              entering={FadeInRight.duration(400).delay(350)}
             >
               <TouchableOpacity
                 style={[styles.loginButton, loading && styles.loginButtonDisabled]}
@@ -172,7 +175,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
             {/* Demo Login */}
             <Animated.View
-              entering={SlideInUp.duration(400).delay(450)}
+              entering={FadeInLeft.duration(400).delay(350)}
             >
               <TouchableOpacity
                 style={styles.demoButton}
