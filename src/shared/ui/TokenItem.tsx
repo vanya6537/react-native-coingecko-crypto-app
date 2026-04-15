@@ -14,13 +14,6 @@ import Animated, {
   FadeIn,
   FadeOut,
   Layout,
-  useSharedValue,
-  withSpring,
-  withTiming,
-  Easing,
-  useAnimatedStyle,
-  interpolate,
-  Extrapolate,
   BounceInUp,
   FadeInDown,
 } from 'react-native-reanimated';
@@ -48,12 +41,6 @@ const TokenItemComponent: React.FC<TokenItemProps> = ({
   isLoadingExpanded = false,
   isFetchingNextPage = false,
 }) => {
-  // Animation values
-  const expandProgress = useSharedValue(isExpanded ? 1 : 0);
-  const containerScale = useSharedValue(1);
-  const arrowRotate = useSharedValue(isExpanded ? 1 : 0);
-  const pulseScale = useSharedValue(1);
-
   const changeColor =
     typeof token.price_change_percentage_24h === 'number'
       ? token.price_change_percentage_24h >= 0
@@ -69,54 +56,47 @@ const TokenItemComponent: React.FC<TokenItemProps> = ({
     }
   }, [onToggleExpand, onPress, token]);
 
-  const arrowAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        rotate: `${interpolate(
-          arrowRotate.value,
-          [0, 1],
-          [0, 180],
-          Extrapolate.CLAMP
-        )}deg`,
-      },
-    ],
-  }));
-
-  const expandedContentAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: expandProgress.value,
-  }));
-
   return (
     <Animated.View
       style={[styles.wrapper, isLoadingExpanded && { opacity: 0.7 }]}
       layout={Layout.springify()}
       entering={FadeIn.duration(150)}
     >
-      <TouchableOpacity
-        style={[styles.container, isExpanded && styles.containerExpanded, isFetchingNextPage && styles.containerLoading]}
-        onPress={handleHeaderPress}
-        activeOpacity={0.7}
+      <Animated.View
+        style={[
+          styles.container,
+          isExpanded && styles.containerExpanded,
+          isFetchingNextPage && styles.containerLoading,
+        ]}
       >
-        {isFetchingNextPage && (
-          <View style={styles.paginationLoaderOverlay}>
-            <LoaderComponent size={40} />
+        <TouchableOpacity
+          onPress={handleHeaderPress}
+          activeOpacity={0.7}
+          style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}
+        >
+          {isFetchingNextPage && (
+            <View style={styles.paginationLoaderOverlay}>
+              <LoaderComponent size={40} />
+            </View>
+          )}
+          <Image source={{ uri: token.image }} style={styles.icon} />
+          <View style={styles.info}>
+            <Text style={styles.name}>{token.name}</Text>
+            <Text style={styles.symbol}>{token.symbol.toUpperCase()}</Text>
           </View>
-        )}
-        <Image source={{ uri: token.image }} style={styles.icon} />
-        <View style={styles.info}>
-          <Text style={styles.name}>{token.name}</Text>
-          <Text style={styles.symbol}>{token.symbol.toUpperCase()}</Text>
-        </View>
-        <View style={styles.priceSection}>
-          <Text style={styles.price}>{formatPrice(token.current_price)}</Text>
-          <Text style={[styles.change, { color: changeColor }]}>
-            {formatChange(token.price_change_percentage_24h)}
-          </Text>
-        </View>
-        <View style={styles.expandIcon}>
-          <Text style={styles.expandIconText}>{isExpanded ? '▼' : '▶'}</Text>
-        </View>
-      </TouchableOpacity>
+          <View style={styles.priceSection}>
+            <Text style={styles.price}>{formatPrice(token.current_price)}</Text>
+            <Text style={[styles.change, { color: changeColor }]}>
+              {formatChange(token.price_change_percentage_24h)}
+            </Text>
+          </View>
+          <View style={styles.expandIcon}>
+            <Animated.View style={[styles.expandIconInner, { transform: [{ rotate: isExpanded ? '180deg' : '0deg' }] }]}>
+              <Text style={styles.expandIconText}>{isExpanded ? '▼' : '▶'}</Text>
+            </Animated.View>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
 
       {isExpanded && (
         <Animated.View
@@ -272,6 +252,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 14,
     backgroundColor: 'rgba(25, 118, 210, 0.08)',
+  },
+  expandIconInner: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   expandIconText: {
     fontSize: 14,

@@ -34,7 +34,7 @@ export const $detailLoading = createStore(false);
 export const $historyLoading = createStore(false);
 export const $detailError = createStore<string | null>(null);
 export const $historyError = createStore<string | null>(null);
-export const $selectedTimeRange = createStore<TimeRange>('7d');
+export const $selectedTimeRange = createStore<TimeRange>('30d');
 
 $tokenDetail
   .on(fetchTokenDetail.doneData, (_, data) => data)

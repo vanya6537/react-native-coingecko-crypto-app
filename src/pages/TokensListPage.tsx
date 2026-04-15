@@ -116,9 +116,34 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
     setIsSorted(!isSorted);
   }, [isSorted]);
 
+  // Render header and filters
+  const renderHeaderSection = useCallback(() => (
+    <>
+      <View style={styles.headerTop}>
+        <Text style={styles.headerTitle}>Tokens</Text>
+        <View style={styles.headerActions}>
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('NotificationsDemo')}
+            style={styles.notificationButton}
+          >
+            <Activity size={24} color="#3b82f6" />
+          </TouchableOpacity>
+          <LanguageToggler compact={true} />
+        </View>
+      </View>
+      <FilterBar 
+        filters={filters} 
+        onFilterChange={setFilters}
+        isSorted={isSorted}
+        onSortToggle={handleSortToggle}
+      />
+    </>
+  ), [filters, isSorted]);
+
   if (isLoadingInitial && tokens.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
+        {renderHeaderSection()}
         <TokenListLoadingSkeleton />
       </SafeAreaView>
     );
@@ -127,6 +152,7 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
   if (uiState.error && tokens.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
+        {renderHeaderSection()}
         <ErrorState error={uiState.error} onRetry={handleRetry} />
       </SafeAreaView>
     );
@@ -135,12 +161,7 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
   if (uiState.isEmpty) {
     return (
       <SafeAreaView style={styles.container}>
-        <FilterBar 
-          filters={filters} 
-          onFilterChange={setFilters}
-          isSorted={isSorted}
-          onSortToggle={handleSortToggle}
-        />
+        {renderHeaderSection()}
         <EmptyState message="No tokens found" />
       </SafeAreaView>
     );
@@ -167,28 +188,7 @@ export const TokensListPage: React.FC<TokensListPageProps> = ({ navigation }: To
             </Animated.View>
           );
         }}
-        ListHeaderComponent={() => (
-          <>
-            <View style={styles.headerTop}>
-              <Text style={styles.headerTitle}>Tokens</Text>
-              <View style={styles.headerActions}>
-                <TouchableOpacity 
-                  onPress={() => navigation.navigate('NotificationsDemo')}
-                  style={styles.notificationButton}
-                >
-                  <Activity size={24} color="#3b82f6" />
-                </TouchableOpacity>
-                <LanguageToggler compact={true} />
-              </View>
-            </View>
-            <FilterBar 
-              filters={filters} 
-              onFilterChange={setFilters}
-              isSorted={isSorted}
-              onSortToggle={handleSortToggle}
-            />
-          </>
-        )}
+        ListHeaderComponent={renderHeaderSection}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
         onRefresh={handleRefresh}
